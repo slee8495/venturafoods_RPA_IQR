@@ -320,7 +320,38 @@ custord %>%
   dplyr::relocate(ref, Item, Location) -> custord
 
 
+# Loc 624 for custord ----
+loc_624_custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/FG test 3/Loc 624 open order - 06.22.22.xlsx", 
+                              col_names = FALSE)
 
+loc_624_custord[-1:-2, ] -> loc_624_custord
+colnames(loc_624_custord) <- loc_624_custord[1, ]
+loc_624_custord[-1, ] -> loc_624_custord
+
+colnames(loc_624_custord)[1] <- "Location"
+colnames(loc_624_custord)[2] <- "Location_name"
+colnames(loc_624_custord)[3] <- "Item"
+colnames(loc_624_custord)[4] <- "description"
+colnames(loc_624_custord)[5] <- "date"
+colnames(loc_624_custord)[6] <- "Qty"
+
+
+loc_624_custord %>% 
+  dplyr::mutate(Item = gsub("-", "", Item)) %>% 
+  dplyr::mutate(ref = paste0(Location, "_", Item)) %>% 
+  dplyr::relocate(ref, Item, Location, Qty, date) %>% 
+  dplyr::select(-Location_name, -description) %>% 
+  dplyr::mutate(date = as.integer(date),
+                date = as.Date(date, origin = "1899-12-30"),
+                Qty = as.double(Qty)) %>% 
+  dplyr::mutate(in_next_7_days = ifelse(date < Sys.Date() + 7, "Y", "N"),
+                in_next_14_days = ifelse(date < Sys.Date() + 14, "Y", "N"),
+                in_next_21_days = ifelse(date < Sys.Date() + 21, "Y", "N"),
+                in_next_28_days = ifelse(date < Sys.Date() + 28, "Y", "N")) -> loc_624_custord
+
+
+
+rbind(custord, loc_624_custord) -> custord
 
 # custord_pivot_1, custord_pivot_2, custord_pivot_3, custord_pivot_4
 
