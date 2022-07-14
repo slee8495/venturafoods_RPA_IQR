@@ -19,7 +19,7 @@ options(scipen = 100000000)
 ##################################################################################################################################################################
 
 # Planner Address Book (If updated, correct this link) ----
-Planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 04.26.22.xlsx", 
+Planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 06.08.22.xlsx", 
                              sheet = "Sheet1", col_types = c("text", 
                                                              "text", "text", "text", "text"))
 
@@ -30,15 +30,7 @@ colnames(Planner_adress)[1] <- "Planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test/exception report_test.xlsx", 
-                               col_types = c("text", "text", "text", 
-                                             "text", "numeric", "text", "text", "text", 
-                                             "text", "text", "text", "text", "text", 
-                                             "text", "numeric", "numeric", "numeric", 
-                                             "numeric", "numeric", "numeric", 
-                                             "numeric", "text", "text", "text", 
-                                             "text", "text", "text", "text", "numeric", 
-                                             "text", "text"))
+exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_3/exception report 07.13.22.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -77,6 +69,7 @@ colnames(exception_report)[29] <- "PL QTY"
 colnames(exception_report)[30] <- "Planning Formula"
 colnames(exception_report)[31] <- "Costing Formula"
 
+exception_report[, -32] -> exception_report
 names(exception_report) <- str_replace_all(names(exception_report), c(" " = "_"))
 
 
@@ -84,7 +77,7 @@ exception_report %<>%
   dplyr::mutate(ref = paste0(B_P, "_", ItemNo)) %>% 
   dplyr::relocate(ref) 
 
-
+readr::type_convert(exception_report) -> exception_report
 
 # Campus_ref pulling ----
 
@@ -113,7 +106,7 @@ merge(exception_report, Campus_ref[, c("B_P", "Campus")], by = "B_P", all.x = TR
 
 # get the RM Item only. 
 
-exception_report %<>% 
+exception_report %>% 
   dplyr::mutate(ItemNo = as.numeric(ItemNo)) %>% 
   dplyr::mutate(item_na = is.na(ItemNo)) %>% 
   dplyr::filter(item_na == FALSE) %>% 
@@ -145,7 +138,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 # Read IQR Report ----
 
-RM_data <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test/Raw Material Inventory Health (IQR) - 05.11.22.xlsx", 
+RM_data <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_3/Raw Material Inventory Health (IQR) - 07.13.22.xlsx", 
                       sheet = "RM data", col_names = FALSE, 
                       col_types = c("text", "text", "text", 
                                     "text", "text", "text", "text", "text", 
@@ -218,15 +211,15 @@ colnames(RM_data)[50] <- "UPI$$+Hold $$"
 
 names(RM_data) <- stringr::str_replace_all(names(RM_data), c(" " = "_"))
 
-RM_data %<>% 
+RM_data %>% 
   dplyr::mutate(Loc_SKU = gsub("-", "_", Loc_SKU)) %>% 
-  dplyr::relocate(Loc_SKU, .before = Supplier_No)
+  dplyr::relocate(Loc_SKU, .before = Supplier_No) -> RM_data
 
 
 # Inventory Analysis ----
 
 # Read FG ----
-Inventory_analysis_FG <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test/Inventory Analysis 05.18.22.xlsx", 
+Inventory_analysis_FG <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_3/Inventory Report for all locations - 07.13.22.xlsx", 
                                     col_types = c("text", "text", "text", 
                                                   "text", "text", "text", "text", "numeric", 
                                                   "numeric", "numeric"),
