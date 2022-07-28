@@ -427,34 +427,40 @@ colnames(DSX_Forecast_Backup_pre)[22] <- "Stat_Forecast_Cases"
 colnames(DSX_Forecast_Backup_pre)[23] <- "Cust_Ref_Forecast_Pounds_lbs"
 colnames(DSX_Forecast_Backup_pre)[24] <- "Cust_Ref_Forecast_Cases"
 
-DSX_Forecast_Backup_pre$Forecast_Month_Year_Code_Segment_ID <- as.double(DSX_Forecast_Backup_pre$Forecast_Month_Year_Code_Segment_ID)
-DSX_Forecast_Backup_pre$Product_Manufacturing_Location_Code <- as.double(DSX_Forecast_Backup_pre$Product_Manufacturing_Location_Code)
-DSX_Forecast_Backup_pre$Location_No <- as.double(DSX_Forecast_Backup_pre$Location_No)
-DSX_Forecast_Backup_pre$Product_Manufacturing_Line_Area_No_Code <- as.double(DSX_Forecast_Backup_pre$Product_Manufacturing_Line_Area_No_Code)
-DSX_Forecast_Backup_pre$Safety_Stock_ID <- as.double(DSX_Forecast_Backup_pre$Safety_Stock_ID)
-DSX_Forecast_Backup_pre$Adjusted_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Adjusted_Forecast_Pounds_lbs)
-DSX_Forecast_Backup_pre$Adjusted_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Adjusted_Forecast_Cases)
-DSX_Forecast_Backup_pre$Stat_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Stat_Forecast_Pounds_lbs)
-DSX_Forecast_Backup_pre$Stat_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Stat_Forecast_Cases)
-DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Pounds_lbs)
-DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Cases)
+# DSX_Forecast_Backup_pre$Forecast_Month_Year_Code_Segment_ID <- as.double(DSX_Forecast_Backup_pre$Forecast_Month_Year_Code_Segment_ID)
+# DSX_Forecast_Backup_pre$Product_Manufacturing_Location_Code <- as.double(DSX_Forecast_Backup_pre$Product_Manufacturing_Location_Code)
+# DSX_Forecast_Backup_pre$Location_No <- as.double(DSX_Forecast_Backup_pre$Location_No)
+# DSX_Forecast_Backup_pre$Product_Manufacturing_Line_Area_No_Code <- as.double(DSX_Forecast_Backup_pre$Product_Manufacturing_Line_Area_No_Code)
+# DSX_Forecast_Backup_pre$Safety_Stock_ID <- as.double(DSX_Forecast_Backup_pre$Safety_Stock_ID)
+# DSX_Forecast_Backup_pre$Adjusted_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Adjusted_Forecast_Pounds_lbs)
+# DSX_Forecast_Backup_pre$Adjusted_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Adjusted_Forecast_Cases)
+# DSX_Forecast_Backup_pre$Stat_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Stat_Forecast_Pounds_lbs)
+# DSX_Forecast_Backup_pre$Stat_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Stat_Forecast_Cases)
+# DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Pounds_lbs)
+# DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Cases)
 
 
-DSX_Forecast_Backup_pre
-
-
+readr::type_convert(DSX_Forecast_Backup_pre) -> DSX_Forecast_Backup_pre
 
 # Data wrangling - DSX_Forecast_Backup_pre 
 
-DSX_Forecast_Backup_pre %<>% 
+DSX_Forecast_Backup_pre %>% 
   dplyr::mutate(Product_Label_SKU_Code = gsub("-", "", Product_Label_SKU_Code)) %>% 
   dplyr::mutate(ref = paste0(Location_No, "_", Product_Label_SKU_Code)) %>% 
   dplyr::mutate(mfg_ref = paste0(Product_Manufacturing_Location_Code, "_", Product_Label_SKU_Code)) %>% 
   dplyr::relocate(ref, mfg_ref) %>% 
-  dplyr::mutate(Forecast_Month_Year_Code_Segment_ID = as.character(Forecast_Month_Year_Code_Segment_ID)) 
+  dplyr::mutate(Forecast_Month_Year_Code_Segment_ID = as.character(Forecast_Month_Year_Code_Segment_ID)) -> DSX_Forecast_Backup_pre
 
 
-DSX_Forecast_Backup_pre[is.na(DSX_Forecast_Backup_pre)] <- 0
+DSX_Forecast_Backup_pre %>% 
+  dplyr::mutate(Safety_Stock_ID = replace(Safety_Stock_ID, is.na(Safety_Stock_ID), 0),
+                Adjusted_Forecast_Pounds_lbs = replace(Adjusted_Forecast_Pounds_lbs, is.na(Adjusted_Forecast_Pounds_lbs), 0),
+                Adjusted_Forecast_Cases = replace(Adjusted_Forecast_Cases, is.na(Adjusted_Forecast_Cases), 0),
+                Stat_Forecast_Pounds_lbs = replace(Stat_Forecast_Pounds_lbs, is.na(Stat_Forecast_Pounds_lbs), 0),
+                Stat_Forecast_Cases = replace(Stat_Forecast_Cases, is.na(Stat_Forecast_Cases), 0),
+                Cust_Ref_Forecast_Pounds_lbs = replace(Cust_Ref_Forecast_Pounds_lbs, is.na(Cust_Ref_Forecast_Pounds_lbs), 0),
+                Cust_Ref_Forecast_Cases = replace(Cust_Ref_Forecast_Cases, is.na(Cust_Ref_Forecast_Cases), 0)) -> DSX_Forecast_Backup_pre
+
 
 
 # value n/a to 0
@@ -537,34 +543,41 @@ colnames(DSX_Forecast_Backup)[22] <- "Stat_Forecast_Cases"
 colnames(DSX_Forecast_Backup)[23] <- "Cust_Ref_Forecast_Pounds_lbs"
 colnames(DSX_Forecast_Backup)[24] <- "Cust_Ref_Forecast_Cases"
 
-DSX_Forecast_Backup$Forecast_Month_Year_Code_Segment_ID <- as.double(DSX_Forecast_Backup$Forecast_Month_Year_Code_Segment_ID)
-DSX_Forecast_Backup$Product_Manufacturing_Location_Code <- as.double(DSX_Forecast_Backup$Product_Manufacturing_Location_Code)
-DSX_Forecast_Backup$Location_No <- as.double(DSX_Forecast_Backup$Location_No)
-DSX_Forecast_Backup$Product_Manufacturing_Line_Area_No_Code <- as.double(DSX_Forecast_Backup$Product_Manufacturing_Line_Area_No_Code)
-DSX_Forecast_Backup$Safety_Stock_ID <- as.double(DSX_Forecast_Backup$Safety_Stock_ID)
-DSX_Forecast_Backup$Adjusted_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup$Adjusted_Forecast_Pounds_lbs)
-DSX_Forecast_Backup$Adjusted_Forecast_Cases <- as.double(DSX_Forecast_Backup$Adjusted_Forecast_Cases)
-DSX_Forecast_Backup$Stat_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup$Stat_Forecast_Pounds_lbs)
-DSX_Forecast_Backup$Stat_Forecast_Cases <- as.double(DSX_Forecast_Backup$Stat_Forecast_Cases)
-DSX_Forecast_Backup$Cust_Ref_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup$Cust_Ref_Forecast_Pounds_lbs)
-DSX_Forecast_Backup$Cust_Ref_Forecast_Cases <- as.double(DSX_Forecast_Backup$Cust_Ref_Forecast_Cases)
+# DSX_Forecast_Backup$Forecast_Month_Year_Code_Segment_ID <- as.double(DSX_Forecast_Backup$Forecast_Month_Year_Code_Segment_ID)
+# DSX_Forecast_Backup$Product_Manufacturing_Location_Code <- as.double(DSX_Forecast_Backup$Product_Manufacturing_Location_Code)
+# DSX_Forecast_Backup$Location_No <- as.double(DSX_Forecast_Backup$Location_No)
+# DSX_Forecast_Backup$Product_Manufacturing_Line_Area_No_Code <- as.double(DSX_Forecast_Backup$Product_Manufacturing_Line_Area_No_Code)
+# DSX_Forecast_Backup$Safety_Stock_ID <- as.double(DSX_Forecast_Backup$Safety_Stock_ID)
+# DSX_Forecast_Backup$Adjusted_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup$Adjusted_Forecast_Pounds_lbs)
+# DSX_Forecast_Backup$Adjusted_Forecast_Cases <- as.double(DSX_Forecast_Backup$Adjusted_Forecast_Cases)
+# DSX_Forecast_Backup$Stat_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup$Stat_Forecast_Pounds_lbs)
+# DSX_Forecast_Backup$Stat_Forecast_Cases <- as.double(DSX_Forecast_Backup$Stat_Forecast_Cases)
+# DSX_Forecast_Backup$Cust_Ref_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup$Cust_Ref_Forecast_Pounds_lbs)
+# DSX_Forecast_Backup$Cust_Ref_Forecast_Cases <- as.double(DSX_Forecast_Backup$Cust_Ref_Forecast_Cases)
 
-
-DSX_Forecast_Backup
-
+readr::type_convert(DSX_Forecast_Backup) -> DSX_Forecast_Backup
 
 
 # Data wrangling - DSX_Forecast_Backup 
 
-DSX_Forecast_Backup %<>% 
+DSX_Forecast_Backup %>% 
   dplyr::mutate(Product_Label_SKU_Code = gsub("-", "", Product_Label_SKU_Code)) %>% 
   dplyr::mutate(ref = paste0(Location_No, "_", Product_Label_SKU_Code)) %>% 
   dplyr::mutate(mfg_ref = paste0(Product_Manufacturing_Location_Code, "_", Product_Label_SKU_Code)) %>% 
   dplyr::relocate(ref, mfg_ref) %>% 
-  dplyr::mutate(Forecast_Month_Year_Code_Segment_ID = as.character(Forecast_Month_Year_Code_Segment_ID)) 
+  dplyr::mutate(Forecast_Month_Year_Code_Segment_ID = as.character(Forecast_Month_Year_Code_Segment_ID)) -> DSX_Forecast_Backup
 
 
-DSX_Forecast_Backup[is.na(DSX_Forecast_Backup)] <- 0
+DSX_Forecast_Backup %>% 
+  dplyr::mutate(Safety_Stock_ID = replace(Safety_Stock_ID, is.na(Safety_Stock_ID), 0),
+                Adjusted_Forecast_Pounds_lbs = replace(Adjusted_Forecast_Pounds_lbs, is.na(Adjusted_Forecast_Pounds_lbs), 0),
+                Adjusted_Forecast_Cases = replace(Adjusted_Forecast_Cases, is.na(Adjusted_Forecast_Cases), 0),
+                Stat_Forecast_Pounds_lbs = replace(Stat_Forecast_Pounds_lbs, is.na(Stat_Forecast_Pounds_lbs), 0),
+                Stat_Forecast_Cases = replace(Stat_Forecast_Cases, is.na(Stat_Forecast_Cases), 0),
+                Cust_Ref_Forecast_Pounds_lbs = replace(Cust_Ref_Forecast_Pounds_lbs, is.na(Cust_Ref_Forecast_Pounds_lbs), 0),
+                Cust_Ref_Forecast_Cases = replace(Cust_Ref_Forecast_Cases, is.na(Cust_Ref_Forecast_Cases), 0)) -> DSX_Forecast_Backup
+
+
 
 
 # value n/a to 0
@@ -1372,7 +1385,7 @@ IQR_FG_sample %<>%
                                                                              ifelse(OPV < 12  & OPV >= 8, Mfg_CustOrd_in_next_14_days, 
                                                                                     Mfg_CustOrd_in_next_7_days))) / OPV), 
                                                               (pmax(Mfg_Current_Month_Fcst, Mfg_Next_Month_Fcst) / 20.83) ),
-                dos_na = !is.na(Mfg_DOS),
+                dos_mfg_na = !is.na(Mfg_DOS),
                 Mfg_DOS = ifelse(dos_mfg_na == TRUE, Mfg_DOS, 0),
                 Mfg_DOS = round(Mfg_DOS, 1),
                 Mfg_DOS = replace(Mfg_DOS, is.infinite(Mfg_DOS), 0)) %>% 
