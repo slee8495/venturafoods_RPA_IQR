@@ -347,7 +347,8 @@ loc_624_custord %>%
   dplyr::mutate(in_next_7_days = ifelse(date < Sys.Date() + 7, "Y", "N"),
                 in_next_14_days = ifelse(date < Sys.Date() + 14, "Y", "N"),
                 in_next_21_days = ifelse(date < Sys.Date() + 21, "Y", "N"),
-                in_next_28_days = ifelse(date < Sys.Date() + 28, "Y", "N")) -> loc_624_custord
+                in_next_28_days = ifelse(date < Sys.Date() + 28, "Y", "N")) %>% 
+  dplyr::mutate(Qty = replace(Qty, is.na(Qty), 0)) -> loc_624_custord
 
 
 
