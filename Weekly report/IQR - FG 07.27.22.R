@@ -46,7 +46,7 @@ FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_r
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/IQR/FG source data/exception report 07.20.22.xlsx", 
+exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/FG test 4/exception report 07.27.22 (1).xlsx", 
                                sheet = "Sheet1",
                                col_types = c("text", "text", "text", 
                                              "text", "numeric", "text", "text", "text", 
@@ -156,7 +156,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 
 # Custord PO ----
-po <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/IQR/FG source data/wo receipt custord po - 07.20.22.xlsx", 
+po <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/FG test 4/wo receipt custord po - 07.27.22 (1).xlsx", 
                  sheet = "po", col_names = FALSE)
 
 po %>% 
@@ -196,7 +196,7 @@ po %>%
 
 
 # Custord Receipt ----
-receipt <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/IQR/FG source data/wo receipt custord po - 07.20.22.xlsx", 
+receipt <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/FG test 4/wo receipt custord po - 07.27.22 (1).xlsx", 
                       sheet = "receipt", col_names = FALSE)
 
 
@@ -241,7 +241,7 @@ receipt %>%
 
 
 # Custord wo ----
-wo <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/IQR/FG source data/wo receipt custord po - 07.20.22.xlsx", 
+wo <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/FG test 4/wo receipt custord po - 07.27.22 (1).xlsx", 
                  sheet = "wo", col_names = FALSE)
 
 
@@ -284,7 +284,7 @@ wo %>%
 
 # custord custord ----
 # Open Customer Order File pulling ----  Change Directory ----
-custord <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/IQR/FG source data/wo receipt custord po - 07.20.22.xlsx", 
+custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/FG test 4/wo receipt custord po - 07.27.22 (1).xlsx", 
                       sheet = "custord", col_names = FALSE)
 
 
@@ -321,7 +321,7 @@ custord %>%
 
 
 # Loc 624 for custord ----
-loc_624_custord <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/IQR/FG source data/Loc 624 open order - 07.20.22.xlsx", 
+loc_624_custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/FG test 4/Loc 624 open order - 07.27.22 (1).xlsx", 
                               col_names = FALSE)
 
 loc_624_custord[-1:-2, ] -> loc_624_custord
@@ -506,7 +506,7 @@ colnames(DSX_pivot_1_pre)[9]  <- "Mon_g_fcst"
 # DSX Forecast pulling (Current Month file) ---- Change Directory ----
 
 DSX_Forecast_Backup <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.07.20.xlsx")
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.07.27.xlsx")
 
 DSX_Forecast_Backup[-1,] -> DSX_Forecast_Backup
 colnames(DSX_Forecast_Backup) <- DSX_Forecast_Backup[1, ]
@@ -647,7 +647,7 @@ DSX_mfg_pivot_1 %>%
 # Inventory ----
 
 # Read FG ----
-Inventory_analysis_FG <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/IQR/FG source data/Inventory Report for all locations - 07.20.22.xlsx", 
+Inventory_analysis_FG <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/FG test 4/Inventory Report for all locations - 07.27.22 (1).xlsx", 
                                     sheet = "FG")
 
 
@@ -686,7 +686,7 @@ names(pivot_campus_ref_Inventory_analysis) <- str_replace_all(names(pivot_campus
 
 # Main Dataset Board ----
 
-IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 07.13.22.xlsx",
+IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 07.20.22.xlsx",
                             sheet = "FG without BKO BKM TST")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
@@ -1696,6 +1696,7 @@ colnames(IQR_FG_sample)[113]<-"on hand inv after mfg 28 days CustOrd > 0"
 
 
 writexl::write_xlsx(IQR_FG_sample, "IQR_FG_report.xlsx")
+
 
 
 
