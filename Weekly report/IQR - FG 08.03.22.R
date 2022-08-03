@@ -752,7 +752,7 @@ IQR_FG_sample %<>%
 
 
 # (Path Revision Needed) read SD & CV file ----
-sdcv <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Standard Deviation, CV,  July 2022 - 07.08.22.xlsx")
+sdcv <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Standard Deviation & CV/Standard Deviation, CV,  July 2022 - 07.08.22.xlsx")
 
 sdcv[-1:-3,] -> sdcv
 colnames(sdcv) <- sdcv[1,]
