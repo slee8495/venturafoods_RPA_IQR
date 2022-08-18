@@ -396,76 +396,34 @@ po <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Projec
 
 po %>% 
   dplyr::rename(aa = "...1") %>% 
-  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")) %>% 
-  dplyr::select(-1, -2, -5, -7) %>% 
-  dplyr::rename(Item = "3",
-                temp_Loc = "4",
-                Qty      = "6", 
-                year     = "8",
-                month    = "9",
-                day      = "10",
-                PO_No    = "11",
-                PO_No2   = "12") %>% 
-  dplyr::filter(is.na(PO_No2)) %>% 
-  dplyr::select(-PO_No2) %>% 
-  dplyr::mutate(Qty = as.double(Qty)) -> po_1
-
-
-po %>% 
-  dplyr::rename(aa = "...1") %>% 
-  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")) %>% 
-  dplyr::select(-1, -2, -5, -7) %>% 
-  dplyr::rename(Item = "3",
-                temp_Loc = "4",
-                Qty      = "6", 
-                year     = "8",
-                month    = "9",
-                day      = "10",
-                PO_No    = "11",
-                PO_No2   = "12") %>% 
-  dplyr::filter(!is.na(PO_No2)) %>% 
-  dplyr::select(-year) %>% 
-  dplyr::rename(year = month,
-                month = day,
-                day = PO_No,
-                PO_No = PO_No2) %>% 
-  dplyr::mutate(Qty = as.double(Qty)) -> po_2
-
-dplyr::bind_rows(po_1, po_2) -> PO
-
-
-PO %<>%
-  dplyr::mutate(month_year  = paste0(month,"_",year))
-
-PO$temp_Loc -> remove_zero
-remove_zero_1 <- sub("^0+", "", remove_zero)
-data.frame(remove_zero_1) -> remove_zero_1
-
-PO$Item -> remove_zero_2
-remove_zero_3 <- sub("^0+", "", remove_zero_2)
-data.frame(remove_zero_3) -> remove_zero_3
-
-PO %<>% 
-  dplyr::bind_cols(remove_zero_1, remove_zero_3) %>% 
-  dplyr::select(-temp_Loc, -Item) %>% 
-  dplyr::rename(Loc  = remove_zero_1,
-                Item = remove_zero_3) %>% 
-  dplyr::relocate(Item, Loc) %>% 
+  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
+  dplyr::rename(a = "1") %>% 
+  tidyr::separate(a, c("global", "rp", "Item")) %>% 
+  dplyr::rename(Loc = "2",
+                Qty = "5",
+                PO_No = "6",
+                date = "7") %>% 
+  dplyr::select(-global, -rp, -"3", -"4", -"8") %>% 
+  dplyr::mutate(date = as.Date(date)) %>% 
+  dplyr::mutate(year = year(date),
+                month = month(date),
+                day = day(date))%>% 
+  readr::type_convert() %>% 
+  dplyr::mutate(month_year = paste0(month, "_", year)) %>% 
+  dplyr::mutate(Loc = sub("^0+", "", Loc),
+                Item = sub("^0+", "", Item)) %>% 
   dplyr::mutate(ref = paste0(Loc, "_", Item)) %>% 
-  dplyr::mutate(date = paste0(year, "/", month, "/",day)) %>% 
-  dplyr::relocate(ref) %>% 
-  dplyr::relocate(date, .after = "Qty") %>% 
-  dplyr::mutate(Qty = as.double(Qty))
+  dplyr::relocate(ref) -> PO
 
 
 # PO_Pivot 
 PO %<>% 
-  dplyr::mutate(date = as.Date(date)) %>% 
   dplyr::mutate(next_28_days = ifelse(date <= Sys.Date() + 28, "Y", "N")) 
 
 reshape2::dcast(PO, ref ~ next_28_days, value.var = "Qty", sum) %>% 
   dplyr::rename(Loc_SKU = ref) -> PO_Pivot
 
+rm(po)
 
 # Custord Receipt ----
 receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_4/wo receipt custord po - 08.17.22.xlsx", 
@@ -473,134 +431,28 @@ receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/P
 
 
 # Base receipt variable
-receipt %<>% 
+receipt %>% 
   dplyr::rename(aa = "...1") %>% 
-  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")) %>% 
-  dplyr::rename(dummy = "8", dummy2 = "9", dummy3 = "10", dummy4 = "11", dummy5 = "12", dummy6 = "13", dummy7 = "14", dummy8 = "15") %>% 
-  dplyr::mutate(dummy = as.double(dummy), dummy2 = as.double(dummy2), dummy3 = as.double(dummy3),
-                dummy4 = as.double(dummy4), dummy5 = as.double(dummy5), dummy6 = as.double(dummy6),
-                dummy7 = as.double(dummy7), dummy8 = as.double(dummy8)) 
+  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
+  dplyr::rename(a = "1") %>% 
+  tidyr::separate(a, c("global", "rp", "Item")) %>% 
+  dplyr::rename(Loc = "2",
+                Qty = "5",
+                date = "7") %>% 
+  dplyr::select(-global, -rp, -"3", -"4", -"6", -"8") %>% 
+  dplyr::mutate(Item = gsub("^0+", "", Item),
+                Loc = gsub("^0+", "", Loc)) %>% 
+  dplyr::mutate(date = as.Date(date),
+                year = year(date),
+                month = month(date),
+                day = day(date)) %>% 
+  readr::type_convert() %>% 
+  dplyr::mutate(ref = paste0(Loc, "_", Item),
+                next_28_days = ifelse(date <= Sys.Date() + 28, "Y", "N")) %>% 
+  dplyr::relocate(ref) -> Receipt
 
 
-# when dummy is a number
-receipt %>% 
-  dplyr::filter(!is.na(dummy)) %>% 
-  dplyr::select(-"1", -"2", -"5", -"7", -dummy, -dummy2, -dummy3, -dummy7, -dummy8) %>% 
-  dplyr::rename(Item = "3",
-                Loc  = "4",
-                Qty  = "6",
-                year = dummy4,
-                month = dummy5,
-                day = dummy6) -> receipt_1
-
-
-
-# when dummy is not a number & dummy2 is a number
-receipt %>%
-  dplyr::filter(is.na(dummy)) %>% 
-  dplyr::filter(!is.na(dummy2)) %>% 
-  dplyr::select(-"1", -"2", -"5", -"7", -dummy, -dummy5:-dummy8) %>% 
-  dplyr::rename(Item = "3",
-                Loc = "4",
-                Qty = "6",
-                year = dummy2,
-                month = dummy3,
-                day = dummy4) -> receipt_2
-
-# when dummy is a not number & dummy2 is not a number & dummy3 is not a number & dummy8 is not a number
-receipt %>% 
-  dplyr::filter(is.na(dummy)) %>% 
-  dplyr::filter(is.na(dummy2)) %>% 
-  dplyr::filter(is.na(dummy3)) %>% 
-  dplyr::filter(is.na(dummy8)) %>% 
-  dplyr::select(-"1", -"2", -"5", -"7", -dummy, -dummy2, -dummy3, -dummy7, -dummy8) %>% 
-  dplyr::rename(Item = "3",
-                Loc = "4",
-                Qty = "6",
-                year = dummy4,
-                month = dummy5,
-                day = dummy6) -> receipt_3
-
-
-# when dummy is a not number & dummy2 is not a number & dummy3 is not a number & dummy8 is a number
-receipt %>% 
-  dplyr::filter(is.na(dummy)) %>% 
-  dplyr::filter(is.na(dummy2)) %>% 
-  dplyr::filter(is.na(dummy3)) %>% 
-  dplyr::filter(!is.na(dummy8)) %>% 
-  dplyr::select(-"1", -"2", -"5", -"7", -dummy:-dummy4, -dummy8) %>% 
-  dplyr::rename(Item = "3",
-                Loc = "4",
-                Qty = "6",
-                year = dummy5,
-                month = dummy6,
-                day = dummy7) -> receipt_4
-
-
-# when dummy is a not number & dummy2 is not a number & dummy3 is a number & dummy8 is a number
-receipt %>% 
-  dplyr::filter(is.na(dummy)) %>% 
-  dplyr::filter(is.na(dummy2)) %>% 
-  dplyr::filter(!is.na(dummy3)) %>% 
-  dplyr::filter(!is.na(dummy8)) %>% 
-  dplyr::select(-"1", -"2", -"5", -"7", -dummy:-dummy2, -dummy6:-dummy8) %>% 
-  dplyr::rename(Item = "3",
-                Loc = "4",
-                Qty = "6",
-                year = dummy5,
-                month = dummy3,
-                day = dummy4) %>% 
-  dplyr::relocate(year, month, day, .after = Qty) -> receipt_5
-
-
-
-# when dummy is a not number & dummy2 is not a number & dummy3 is a number & dummy8 is not a number
-receipt %>% 
-  dplyr::filter(is.na(dummy)) %>% 
-  dplyr::filter(is.na(dummy2)) %>% 
-  dplyr::filter(!is.na(dummy3)) %>% 
-  dplyr::filter(is.na(dummy8)) %>% 
-  dplyr::select(-"1", -"2", -"5", -"7", -dummy:-dummy2, -dummy6:-dummy8) %>% 
-  dplyr::rename(Item = "3",
-                Loc = "4",
-                Qty = "6",
-                year = dummy3,
-                month = dummy4,
-                day = dummy5) -> receipt_6
-
-
-
-# Combine all case
-
-
-dplyr::bind_rows(receipt_1, receipt_2, receipt_3, receipt_4, receipt_5, receipt_6) -> Receipt
-
-
-Receipt$Loc -> remove_zero_4
-remove_zero_5 <- sub("^0+", "", remove_zero_4)
-data.frame(remove_zero_5) -> remove_zero_5
-
-Receipt$Item -> remove_zero_6
-remove_zero_7 <- sub("^0+", "", remove_zero_6)
-data.frame(remove_zero_7) -> remove_zero_7
-
-Receipt %<>% 
-  dplyr::bind_cols(remove_zero_5, remove_zero_7) %>% 
-  dplyr::select(-Loc, -Item) %>% 
-  dplyr::rename(Loc = remove_zero_5,
-                Item = remove_zero_7) %>% 
-  dplyr::relocate(Item, Loc) %>% 
-  dplyr::mutate(ref = paste0(Loc, "_", Item)) %>% 
-  dplyr::mutate(date = paste0(year, "/", month, "/",day)) %>% 
-  dplyr::relocate(ref) %>% 
-  dplyr::relocate(date, .after = "Qty") %>% 
-  dplyr::mutate(Qty = as.double(Qty))
-
-
-# Receipt Pivot
-Receipt %<>% 
-  dplyr::mutate(date = as.Date(date)) %>% 
-  dplyr::mutate(next_28_days = ifelse(date <= Sys.Date() + 28, "Y", "N")) 
+rm(receipt)
 
 # Receipt_Pivot 
 reshape2::dcast(Receipt, ref ~ next_28_days, value.var = "Qty", sum) %>% 
@@ -962,7 +814,6 @@ RM_data %<>%
   dplyr::relocate(Mfg_Loc, Loc_Name)
 
 # test
-
 
 
 #
