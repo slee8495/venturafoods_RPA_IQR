@@ -145,8 +145,9 @@ exception_report %>%
   dplyr::mutate(label_test = is.na(label_test)) %>% 
   dplyr::filter(label_test == TRUE) -> exception_report
 
-
-
+# Planner NA to 0 in exception_report
+exception_report %>% 
+  dplyr::mutate(Planner = replace(Planner, is.na(Planner), 0)) -> exception_report
 
 
 # Pivoting exception_report
