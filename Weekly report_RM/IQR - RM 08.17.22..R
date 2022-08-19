@@ -131,7 +131,9 @@ exception_report %>%
 exception_report[-which(duplicated(exception_report$Loc_SKU)),] -> exception_report
 
 
-
+# exception report Planner NA to 0
+exception_report %>% 
+  dplyr::mutate(Planner = replace(Planner, is.na(exception_report), 0)) -> exception_report
 
 
 # Pivoting exception_report
