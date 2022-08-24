@@ -137,9 +137,9 @@ exception_report_moq[!duplicated(exception_report_moq[,c("Loc_SKU")]),] -> excep
 # exception report for Supplier No
 exception_report %>% 
   dplyr::mutate(Supplier_No = replace(Supplier_No, is.na(Supplier_No), 0)) %>% 
-  dplyr::arrange(desc(B_P), Loc_SKU) -> exception_report_supplier_no
+  dplyr::rename(Supplier = Supplier_No) -> exception_report_supplier_no
 
-exception_report_supplier_no[!duplicated(exception_report_supplier_no[,c("Loc_SKU")]),] -> exception_report_supplier_no
+# exception_report_supplier_no[!duplicated(exception_report_supplier_no[,c("Loc_SKU")]),] -> exception_report_supplier_no
 
 # remove duplicated value - prioritize bigger Loc Number (RM only)
 
@@ -485,7 +485,13 @@ reshape2::dcast(Receipt, ref ~ next_28_days, value.var = "Qty", sum) %>%
 #####################################################################################################################
 
 # vlookup - Supplier No
-merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier_No")], by = "Loc_SKU", all.x = TRUE) %>%
+merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "Loc_SKU", all.x = TRUE) %>% 
+  dplyr::arrange(Loc_SKU, desc(Supplier)) -> a
+
+a[!duplicated(a[,c("Loc_SKU")]),] -> a
+
+
+merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "Loc_SKU", all.x = TRUE) %>%
   dplyr::mutate(Supplier_No.y = replace(Supplier_No.y, is.na(Supplier_No.y), "DNRR")) %>% 
   dplyr::select(-Supplier_No.x) %>% 
   dplyr::rename(Supplier_No = Supplier_No.y) -> RM_data
@@ -817,8 +823,12 @@ RM_data %<>%
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
 
+# sum supposed to be
+# OPV: 273956
+# Supplier NO: 1283530430
+
 # test
-RM_data %>% 
+a %>% 
   dplyr::mutate(Lead_time = as.numeric(Lead_time),
                 Supplier_No = as.numeric(Supplier_No)) -> test_data
 
