@@ -1063,8 +1063,10 @@ IQR_FG_sample %<>%
 
 
 # calculate - On Hand in pounds
-IQR_FG_sample %<>% 
-  dplyr::mutate(On_Hand_in_pounds = On_Hand_usable_and_soft_hold * Net_Wt_Lbs) 
+IQR_FG_sample %>% 
+  dplyr::mutate(On_Hand_usable_and_soft_hold = as.numeric(On_Hand_usable_and_soft_hold),
+                Net_Wt_Lbs = as.numeric(Net_Wt_Lbs)) %>% 
+  dplyr::mutate(On_Hand_in_pounds = On_Hand_usable_and_soft_hold * Net_Wt_Lbs) -> IQR_FG_sample
 
 
 # calculate - On Hand in $$
