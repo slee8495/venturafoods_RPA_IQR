@@ -484,6 +484,13 @@ reshape2::dcast(Receipt, ref ~ next_28_days, value.var = "Qty", sum) %>%
 ######################################################## ETL ########################################################
 #####################################################################################################################
 
+# vlookup - UoM
+merge(RM_data, exception_report[, c("Loc_SKU", "UOM")], by = "Loc_SKU", all.x = TRUE) %>% 
+  dplyr::mutate(UOM = replace(UOM, is.na(UOM), "DNRR")) %>% 
+  dplyr::relocate(UOM, .after = UoM) %>% 
+  dplyr::select(-UoM) -> RM_data
+unique(RM_data$Loc_SKU) %>% data.frame() %>% nrow()
+
 # vlookup - Supplier No
 merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::arrange(Loc_SKU, desc(Supplier)) -> a
@@ -495,12 +502,6 @@ merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "L
   dplyr::mutate(Supplier_No.y = replace(Supplier_No.y, is.na(Supplier_No.y), "DNRR")) %>% 
   dplyr::select(-Supplier_No.x) %>% 
   dplyr::rename(Supplier_No = Supplier_No.y) -> RM_data
-
-# vlookup - UoM
-merge(RM_data, exception_report[, c("Loc_SKU", "UOM")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::mutate(UOM = replace(UOM, is.na(UOM), "DNRR")) %>% 
-  dplyr::relocate(UOM, .after = UoM) %>% 
-  dplyr::select(-UoM) -> RM_data
 
 
 # vlookup - Lead Time
