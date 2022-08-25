@@ -489,19 +489,17 @@ merge(RM_data, exception_report[, c("Loc_SKU", "UOM")], by = "Loc_SKU", all.x = 
   dplyr::mutate(UOM = replace(UOM, is.na(UOM), "DNRR")) %>% 
   dplyr::relocate(UOM, .after = UoM) %>% 
   dplyr::select(-UoM) -> RM_data
-unique(RM_data$Loc_SKU) %>% data.frame() %>% nrow()
+
+
 
 # vlookup - Supplier No
 merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::arrange(Loc_SKU, desc(Supplier)) -> a
+  dplyr::arrange(Loc_SKU, desc(Supplier)) %>% 
+  dplyr::select(-Supplier_No) %>% 
+  dplyr::rename(Supplier_No = Supplier) %>% 
+  dplyr::mutate(Supplier_No = replace(Supplier_No, is.na(Supplier_No), "DNRR")) -> RM_data
 
-a[!duplicated(a[,c("Loc_SKU")]),] -> a
-
-
-merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "Loc_SKU", all.x = TRUE) %>%
-  dplyr::mutate(Supplier_No.y = replace(Supplier_No.y, is.na(Supplier_No.y), "DNRR")) %>% 
-  dplyr::select(-Supplier_No.x) %>% 
-  dplyr::rename(Supplier_No = Supplier_No.y) -> RM_data
+RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
 
 
 # vlookup - Lead Time
@@ -825,29 +823,18 @@ RM_data %<>%
 #####################################################################################################################
 
 # sum supposed to be
-# OPV: 273956
-# Supplier NO: 1283530430
+# OPV: 273956  (Need an explanation again the sorting logic)
+# Supplier NO: 1283530430   (This one, I got the similar number)
+
+# Total row number, I have 9689 instead of 9691
+# check with "36_44391", "36_45854"
 
 # test
-a %>% 
+RM_data %>% 
   dplyr::mutate(Lead_time = as.numeric(Lead_time),
                 Supplier_No = as.numeric(Supplier_No)) -> test_data
 
 sum(test_data$Lead_time, na.rm = TRUE)
-
-
-test_data %>% 
-  filter(Mfg_Loc == 25 & Item == 45887) %>% select(Lead_time)
-
-
-test_data %>% 
-  filter(Mfg_Loc == 43 & Item == 45786) %>% select(Lead_time)
-
-
-test_data %>% 
-  filter(Mfg_Loc == 624 & Item == 350010114) %>% select(Lead_time)
-
-
 sum(test_data$MOQ, na.rm = TRUE)
 sum(test_data$Supplier_No, na.rm = TRUE)
 sum(test_data$Safety_Stock)
@@ -859,14 +846,14 @@ test_data %>% filter(Item == 33751)
 
 #
 
-RM_data %<>% 
-  dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
-  dplyr::relocate(Mfg_Loc, Loc_Name)
+
 
 
 ########### Don't forget to rearrange!! #################
 
-
+RM_data %<>% 
+  dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
+  dplyr::relocate(Mfg_Loc, Loc_Name)
 
 colnames(RM_data)[1]<-"Mfg Loc"
 colnames(RM_data)[2]<-"Loc Name"
