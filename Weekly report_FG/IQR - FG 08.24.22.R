@@ -46,7 +46,7 @@ FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_r
 
 # (Path Revision Needed) Exception Report ----
 
-exception_report <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/exception report 08.24.22.xlsx", 
+exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Shippable Tool Creation/Automation/exception report 08.29.22 (1).xlsx", 
                                sheet = "Sheet1",
                                col_types = c("text", "text", "text", 
                                              "text", "numeric", "text", "text", "text", 
@@ -145,10 +145,15 @@ exception_report %>%
   dplyr::mutate(label_test = is.na(label_test)) %>% 
   dplyr::filter(label_test == TRUE) -> exception_report
 
-# Planner NA to 0 in exception_report
+# Planner NA to 0 in exception_report before vlookup
 exception_report %>% 
   dplyr::mutate(Planner = replace(Planner, is.na(Planner), 0)) -> exception_report
 
+
+
+# MPF NA to 0 in exception_report before vlookup
+exception_report %>% 
+  dplyr::mutate(MPF_or_Line = replace(MPF_or_Line, is.na(MPF_or_Line), 0)) -> exception_report
 
 # Pivoting exception_report
 reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) %>% 
@@ -701,7 +706,7 @@ names(pivot_campus_ref_Inventory_analysis) <- str_replace_all(names(pivot_campus
 
 # (Path Revision Needed) Main Dataset Board ----
 
-IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 08.17.22.xlsx",
+IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 08.24.22.xlsx",
                             sheet = "FG without BKO BKM TST")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
@@ -749,7 +754,6 @@ IQR_FG_sample %<>%
   dplyr::rename(ref = Ref,
                 Loc_SKU = Campus_Ref,
                 mfg_ref = Mfg_Ref)
-
 
 
 # (Path Revision Needed) read SD & CV file ----
@@ -817,9 +821,7 @@ merge(IQR_FG_sample, exception_report[, c("ref", "Planner")], by = "ref", all.x 
   dplyr::relocate(Planner.y, .after = Planner.x) %>% 
   dplyr::select(-Planner.x) %>% 
   dplyr::rename(Planner = Planner.y) %>% 
-  dplyr::mutate(Planner_na = !is.na(Planner)) %>% 
-  dplyr::mutate(Planner = ifelse(Planner_na == TRUE, Planner, "DNRR")) %>% 
-  dplyr::select(-Planner_na) -> IQR_FG_sample
+  dplyr::mutate(Planner = replace(Planner, is.na(Planner),0)) -> IQR_FG_sample
 
 # vlookup - Planner Name 
 merge(IQR_FG_sample, Planner_address[, c("Planner", "Alpha_Name")], by = "Planner", all.x = TRUE) %>% 
