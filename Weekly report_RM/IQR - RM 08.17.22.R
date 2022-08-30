@@ -113,6 +113,7 @@ exception_report %>%
 exception_report$ItemNo <- as.character(exception_report$ItemNo)
 
 
+# exception report for safety_stock
 exception_report %>% 
   dplyr::select(Loc_SKU, Safety_Stock) -> exception_report_ss
 
@@ -121,6 +122,24 @@ exception_report_ss %>%
   dplyr::summarise(Safety_Stock = sum(Safety_Stock, na.rm = TRUE)) -> exception_report_ss
 
 
+# exception report for lead time
+exception_report %>% 
+  dplyr::arrange(Loc_SKU, desc(Leadtime_Days)) -> exception_report_lead
+
+exception_report_lead[!duplicated(exception_report_lead[,c("Loc_SKU")]),] -> exception_report_lead
+
+# exception report for MOQ
+exception_report %>% 
+  dplyr::arrange(Loc_SKU, desc(Reorder_MIN)) -> exception_report_moq
+
+exception_report_moq[!duplicated(exception_report_moq[,c("Loc_SKU")]),] -> exception_report_moq
+
+# exception report for Supplier No
+exception_report %>% 
+  dplyr::mutate(Supplier_No = replace(Supplier_No, is.na(Supplier_No), 0)) %>% 
+  dplyr::rename(Supplier = Supplier_No) -> exception_report_supplier_no
+
+# exception_report_supplier_no[!duplicated(exception_report_supplier_no[,c("Loc_SKU")]),] -> exception_report_supplier_no
 
 # remove duplicated value - prioritize bigger Loc Number (RM only)
 
@@ -131,9 +150,10 @@ exception_report %>%
 exception_report[-which(duplicated(exception_report$Loc_SKU)),] -> exception_report
 
 
+
 # exception report Planner NA to 0
 exception_report %>% 
-  dplyr::mutate(Planner = replace(Planner, is.na(exception_report), 0)) -> exception_report
+  dplyr::mutate(Planner = replace(Planner, is.na(Planner), 0)) -> exception_report
 
 
 # Pivoting exception_report
@@ -464,45 +484,39 @@ reshape2::dcast(Receipt, ref ~ next_28_days, value.var = "Qty", sum) %>%
 ######################################################## ETL ########################################################
 #####################################################################################################################
 
-# vlookup - Supplier No 
-merge(RM_data, exception_report[, c("Loc_SKU", "Supplier_No")], by = "Loc_SKU", all.x = TRUE) %>%
-  dplyr::mutate(supplier_no_na = is.na(Supplier_No.y), Supplier_No = ifelse(supplier_no_na == FALSE, Supplier_No.y, "DNRR")) %>% 
-  dplyr::select(-Supplier_No.x, -Supplier_No.y, -supplier_no_na) %>% 
-  dplyr::relocate(Loc_SKU, Supplier_No, .after = "Item") -> RM_data
-
 # vlookup - UoM
-merge(RM_data, exception_report[, c("Loc_SKU", "UOM")], by = "Loc_SKU", all.x = TRUE) -> RM_data
-
-rm_na_1 <- as.matrix(RM_data[, "UOM"])
-rm_na_1[is.na(rm_na_1)] <- "DNRR"
-RM_data[, "UOM"] <- rm_na_1
-
-RM_data %<>% 
+merge(RM_data, exception_report[, c("Loc_SKU", "UOM")], by = "Loc_SKU", all.x = TRUE) %>% 
+  dplyr::mutate(UOM = replace(UOM, is.na(UOM), "DNRR")) %>% 
   dplyr::relocate(UOM, .after = UoM) %>% 
-  dplyr::select(-UoM) 
+  dplyr::select(-UoM) -> RM_data
+
+
+
+# vlookup - Supplier No
+merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "Loc_SKU", all.x = TRUE) %>% 
+  dplyr::arrange(Loc_SKU, desc(Supplier)) %>% 
+  dplyr::select(-Supplier_No) %>% 
+  dplyr::rename(Supplier_No = Supplier) %>% 
+  dplyr::mutate(Supplier_No = replace(Supplier_No, is.na(Supplier_No), "DNRR")) -> RM_data
+
+RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
+
 
 # vlookup - Lead Time
-merge(RM_data, exception_report[, c("Loc_SKU", "Leadtime_Days")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(RM_data, exception_report_lead[, c("Loc_SKU", "Leadtime_Days")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::relocate(Leadtime_Days, .after = Lead_time) %>% 
-  dplyr::select(-Lead_time) -> RM_data
-
-rm_na_2 <- as.matrix(RM_data[, "Leadtime_Days"])
-rm_na_2[is.na(rm_na_2)] <- "DNRR"
-RM_data[, "Leadtime_Days"] <- rm_na_2
-
-RM_data %<>% 
-  dplyr::rename(Lead_time = Leadtime_Days)
+  dplyr::mutate(Leadtime_Days = replace(Leadtime_Days, is.na(Leadtime_Days), "DNRR")) %>% 
+  dplyr::select(-Lead_time) %>% 
+  dplyr::rename(Lead_time = Leadtime_Days) -> RM_data
 
 
 # vlookup - Planner
 merge(RM_data, exception_report[, c("Loc_SKU", "Planner")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::relocate(Planner.y, .after = "Planner.x") %>% 
   dplyr::select(-Planner.x) %>% 
-  dplyr::rename(Planner = Planner.y) -> RM_data
+  dplyr::rename(Planner = Planner.y) %>% 
+  dplyr::mutate(Planner = replace(Planner, is.na(Planner), "DNRR")) -> RM_data
 
-rm_na_3 <- as.matrix(RM_data[, "Planner"])
-rm_na_3[is.na(rm_na_3)] <- "DNRR"
-RM_data[, "Planner"] <- rm_na_3
 
 
 # vlookup - Planner Name
@@ -522,7 +536,7 @@ merge(RM_data, Standard_Cost[, c("Loc_SKU", "Standard_Cost")], by = "Loc_SKU", a
 
 
 # vlookup - MOQ
-merge(RM_data, exception_report[, c("Loc_SKU", "Reorder_MIN")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(RM_data, exception_report_moq[, c("Loc_SKU", "Reorder_MIN")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::relocate(Reorder_MIN, .after = MOQ) %>% 
   dplyr::select(-MOQ) %>% 
   dplyr::rename(MOQ = Reorder_MIN) %>% 
@@ -591,13 +605,10 @@ RM_data %>%
 
 # vlookup - OPV
 merge(RM_data, exception_report[, c("Loc_SKU", "Order_Policy_Value")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::mutate(Order_Policy_Value = as.integer(Order_Policy_Value)) %>% 
-  dplyr::mutate(Order_Policy_Value = round(Order_Policy_Value, 0)) %>% 
   dplyr::mutate(Order_Policy_Value = replace(Order_Policy_Value, is.na(Order_Policy_Value), 0)) %>% 
   dplyr::relocate(Order_Policy_Value, .after = OPV) %>% 
   dplyr::select(-OPV) %>% 
-  dplyr::rename(OPV = Order_Policy_Value) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::rename(OPV = Order_Policy_Value) -> RM_data
 
 
 # vlookup - PO in next 28 days
@@ -811,14 +822,38 @@ RM_data %<>%
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
 
+# sum supposed to be
+# OPV: 273956  (Need an explanation again the sorting logic)
+# Supplier NO: 1283530430   (This one, I got the similar number)
+
+# Total row number, I have 9689 instead of 9691
+# check with "36_44391", "36_45854"
+
+# test
+RM_data %>% 
+  dplyr::mutate(Lead_time = as.numeric(Lead_time),
+                Supplier_No = as.numeric(Supplier_No)) -> test_data
+
+sum(test_data$Lead_time, na.rm = TRUE)
+sum(test_data$MOQ, na.rm = TRUE)
+sum(test_data$Supplier_No, na.rm = TRUE)
+sum(test_data$Safety_Stock)
+sum(test_data$Usable)
+sum(test_data$Quality_hold)
+sum(test_data$OPV)
+
+test_data %>% filter(Item == 33751)
+
+#
+
+
+
+
+########### Don't forget to rearrange!! #################
+
 RM_data %<>% 
   dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
   dplyr::relocate(Mfg_Loc, Loc_Name)
-
-# test
-
-
-#
 
 colnames(RM_data)[1]<-"Mfg Loc"
 colnames(RM_data)[2]<-"Loc Name"
