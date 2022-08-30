@@ -13,11 +13,11 @@ library(janitor)
 ##################################################################################################################################################################
 ##################################################################################################################################################################
 ##################################################################################################################################################################
-#
+
 # (Path Revision Needed) Planner Address Book (If updated, correct this link) ----
 # sdrive: S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 04.26.22.xlsx
 
-Planner_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 08.23.22.xlsx", 
+Planner_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 08.04.22.xlsx", 
                               sheet = "Sheet1", col_types = c("text", 
                                                               "text", "text", "text", "text"))
 
@@ -46,7 +46,7 @@ FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_r
 
 # (Path Revision Needed) Exception Report ----
 
-exception_report <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/exception report 08.29.22.xlsx", 
+exception_report <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/exception report 08.17.22.xlsx", 
                                sheet = "Sheet1",
                                col_types = c("text", "text", "text", 
                                              "text", "numeric", "text", "text", "text", 
@@ -145,9 +145,8 @@ exception_report %>%
   dplyr::mutate(label_test = is.na(label_test)) %>% 
   dplyr::filter(label_test == TRUE) -> exception_report
 
-# Planner NA to 0 in exception_report
-exception_report %>% 
-  dplyr::mutate(Planner = replace(Planner, is.na(Planner), 0)) -> exception_report
+
+
 
 
 # Pivoting exception_report
@@ -157,7 +156,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 
 # (Path Revision Needed) Custord PO ----
-po <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 08.29.22.xlsx", 
+po <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 08.17.22.xlsx", 
                  sheet = "po", col_names = FALSE)
 
 po %>% 
@@ -197,7 +196,7 @@ po %>%
 
 
 # (Path Revision Needed) Custord Receipt ----
-receipt <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 08.29.22.xlsx", 
+receipt <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 08.17.22.xlsx", 
                       sheet = "receipt", col_names = FALSE)
 
 
@@ -242,7 +241,7 @@ receipt %>%
 
 
 # (Path Revision Needed) Custord wo ----
-wo <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 08.29.22.xlsx", 
+wo <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 08.17.22.xlsx", 
                  sheet = "wo", col_names = FALSE)
 
 
@@ -285,7 +284,7 @@ wo %>%
 
 # (Path Revision Needed) custord custord ----
 # Open Customer Order File pulling ----  Change Directory ----
-custord <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 08.29.22.xlsx", 
+custord <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 08.17.22.xlsx", 
                       sheet = "custord", col_names = FALSE)
 
 
@@ -322,7 +321,7 @@ custord %>%
 
 
 # (Path Revision Needed) Loc 624 for custord ----
-loc_624_custord <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/Canada open order - 08.29.22.xlsx", 
+loc_624_custord <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/Canada open order - 08.17.22.xlsx", 
                               col_names = FALSE)
 
 loc_624_custord[-1:-2, ] -> loc_624_custord
@@ -398,7 +397,7 @@ reshape2::dcast(custord_mfg, mfg_ref ~ in_next_28_days, value.var = "Qty", sum) 
 # (Path Revision Needed) DSX Forecast pulling (Previous month file)---- Change Directory ----
 
 DSX_Forecast_Backup_pre <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/2022/DSX Forecast Backup - 2022.07.05.xlsx")
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.07.05.xlsx")
 
 DSX_Forecast_Backup_pre[-1,] -> DSX_Forecast_Backup_pre
 colnames(DSX_Forecast_Backup_pre) <- DSX_Forecast_Backup_pre[1, ]
@@ -514,7 +513,7 @@ colnames(DSX_pivot_1_pre)[9]  <- "Mon_g_fcst"
 # (Path Revision Needed) DSX Forecast pulling (Current Month file) ---- Change Directory ----
 
 DSX_Forecast_Backup <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.08.29.xlsx")
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2022.08.17.xlsx")
 
 DSX_Forecast_Backup[-1,] -> DSX_Forecast_Backup
 colnames(DSX_Forecast_Backup) <- DSX_Forecast_Backup[1, ]
@@ -662,7 +661,7 @@ DSX_mfg_pivot_1 %>%
 # (Path Revision Needed) Inventory ----
 
 # Read FG ----
-Inventory_analysis_FG <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/Inventory Report for all locations - 08.29.22.xlsx", 
+Inventory_analysis_FG <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/Inventory Report for all locations - 08.17.22.xlsx", 
                                     sheet = "FG")
 
 
@@ -701,7 +700,7 @@ names(pivot_campus_ref_Inventory_analysis) <- str_replace_all(names(pivot_campus
 
 # (Path Revision Needed) Main Dataset Board ----
 
-IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 08.24.22.xlsx",
+IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 08.10.22.xlsx",
                             sheet = "FG without BKO BKM TST")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
@@ -1063,10 +1062,8 @@ IQR_FG_sample %<>%
 
 
 # calculate - On Hand in pounds
-IQR_FG_sample %>% 
-  dplyr::mutate(On_Hand_usable_and_soft_hold = as.numeric(On_Hand_usable_and_soft_hold),
-                Net_Wt_Lbs = as.numeric(Net_Wt_Lbs)) %>% 
-  dplyr::mutate(On_Hand_in_pounds = On_Hand_usable_and_soft_hold * Net_Wt_Lbs) -> IQR_FG_sample
+IQR_FG_sample %<>% 
+  dplyr::mutate(On_Hand_in_pounds = On_Hand_usable_and_soft_hold * Net_Wt_Lbs) 
 
 
 # calculate - On Hand in $$
@@ -1712,7 +1709,7 @@ colnames(IQR_FG_sample)[113]<-"on hand inv after mfg 28 days CustOrd > 0"
 
 
 # (Path Revision Needed)
-writexl::write_xlsx(IQR_FG_sample, "IQR_FG_report rev1.xlsx")
+writexl::write_xlsx(IQR_FG_sample, "IQR_FG_report.xlsx")
 
 
 
