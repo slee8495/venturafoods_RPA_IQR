@@ -17,7 +17,7 @@ library(skimr)
 ##################################################################################################################################################################
 
 # Planner Address Book (If updated, correct this link) ----
-Planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 06.08.22.xlsx", 
+Planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 08.23.22.xlsx", 
                              sheet = "Sheet1", col_types = c("text", 
                                                              "text", "text", "text", "text"))
 
@@ -28,7 +28,7 @@ colnames(Planner_adress)[1] <- "Planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_4/exception report 08.17.22.xlsx")
+exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/exception report 08.29.22.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -165,7 +165,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 # Read IQR Report ----
 
-RM_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 08.10.22.xlsx", 
+RM_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 08.24.22.xlsx", 
                       sheet = "RM data", col_names = FALSE, 
                       col_types = c("text", "text", "text", 
                                     "text", "text", "text", "text", "text", 
@@ -268,7 +268,7 @@ RM_data %>%
 
 # Inventory Analysis Read RM ----
 
-Inventory_analysis_RM <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_4/Inventory Report for all locations - 08.17.22.xlsx", 
+Inventory_analysis_RM <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/Inventory Report for all locations - 08.29.22.xlsx", 
                                     sheet = "RM")
 
 
@@ -312,7 +312,7 @@ pivot_campus_ref_Inventory_analysis %<>%
   dplyr::rename(Usable = Useable, Loc_SKU = campus_ref, Hard_Hold = "Hard Hold", Soft_Hold = "Soft Hold")
 
 # BoM_dep_demand ----
-BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_4/Bill of Material.xlsx",
+BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/bom_test_for_iqr_rm.xlsx",
                              sheet = "Sheet1")
 
 BoM_dep_demand %>% 
@@ -355,21 +355,21 @@ BoM_dep_demand %>%
 rm(month_a_dep_demand, month_b_dep_demand, month_c_dep_demand, month_d_dep_demand, month_e_dep_demand, month_f_dep_demand)
 
 # Standard Cost # From MicroStrategy ----
-Standard_Cost <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Standard Cost.xlsx", 
-                            col_types = c("text", "text", "text", 
-                                          "text", "numeric"))
-
-
-Standard_Cost[-1,] -> Standard_Cost
-colnames(Standard_Cost) <- Standard_Cost[1, ]
-Standard_Cost[-1, ] -> Standard_Cost
-
-colnames(Standard_Cost)[1] <- "Item"
-colnames(Standard_Cost)[4] <- "Location_Nm"
-colnames(Standard_Cost)[5] <- "Standard_Cost"
-
-Standard_Cost %<>% 
-  dplyr::mutate(Loc_SKU = paste0(Location, "_", Item))
+# Standard_Cost <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Standard Cost.xlsx", 
+#                             col_types = c("text", "text", "text", 
+#                                           "text", "numeric"))
+# 
+# 
+# Standard_Cost[-1,] -> Standard_Cost
+# colnames(Standard_Cost) <- Standard_Cost[1, ]
+# Standard_Cost[-1, ] -> Standard_Cost
+# 
+# colnames(Standard_Cost)[1] <- "Item"
+# colnames(Standard_Cost)[4] <- "Location_Nm"
+# colnames(Standard_Cost)[5] <- "Standard_Cost"
+# 
+# Standard_Cost %<>% 
+#   dplyr::mutate(Loc_SKU = paste0(Location, "_", Item))
 
 # Consumption data component # Updated once a month ----
 consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 08.03.22.xlsx")
@@ -411,7 +411,7 @@ ss_opt_Loc_SKU %>%
 SS_optimization[-which(duplicated(SS_optimization$Loc_SKU)),] -> SS_optimization
 
 # Custord PO ----
-po <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_4/wo receipt custord po - 08.17.22.xlsx", 
+po <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/wo receipt custord po - 08.29.22.xlsx", 
                  sheet = "po", col_names = FALSE)
 
 
@@ -448,7 +448,7 @@ reshape2::dcast(PO, ref ~ next_28_days, value.var = "Qty", sum) %>%
 rm(po)
 
 # Custord Receipt ----
-receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_4/wo receipt custord po - 08.17.22.xlsx", 
+receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/wo receipt custord po - 08.29.22.xlsx", 
                       sheet = "receipt", col_names = FALSE)
 
 
@@ -528,11 +528,11 @@ merge(RM_data, Planner_adress[, c("Planner", "Alpha_Name")], by = "Planner", all
 
 
 # vlookup - Standard Cost
-merge(RM_data, Standard_Cost[, c("Loc_SKU", "Standard_Cost")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::relocate(Standard_Cost.y, .after = Standard_Cost.x) %>% 
-  dplyr::select(-Standard_Cost.x) %>% 
-  dplyr::rename(Standard_Cost = Standard_Cost.y) %>% 
-  dplyr::relocate(Item, .before = Loc_SKU) -> RM_data
+# merge(RM_data, Standard_Cost[, c("Loc_SKU", "Standard_Cost")], by = "Loc_SKU", all.x = TRUE) %>% 
+#   dplyr::relocate(Standard_Cost.y, .after = Standard_Cost.x) %>% 
+#   dplyr::select(-Standard_Cost.x) %>% 
+#   dplyr::rename(Standard_Cost = Standard_Cost.y) %>% 
+#   dplyr::relocate(Item, .before = Loc_SKU) -> RM_data
 
 
 # vlookup - MOQ
@@ -818,6 +818,12 @@ RM_data %<>%
 
 
 
+
+######## Deleting items that we don't need ###########
+RM_data %>% dplyr::filter(Loc_SKU != "60_8883") -> RM_data
+
+
+
 #####################################################################################################################
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
@@ -844,8 +850,15 @@ sum(test_data$OPV)
 
 test_data %>% filter(Item == 33751)
 
+
+
+
+
+
 #
 
+
+RM_data %>% filter(Loc_SKU == "60_8883")
 
 
 

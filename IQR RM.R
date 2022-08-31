@@ -17,7 +17,7 @@ library(skimr)
 ##################################################################################################################################################################
 
 # Planner Address Book (If updated, correct this link) ----
-Planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 06.08.22.xlsx", 
+Planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 08.23.22.xlsx", 
                              sheet = "Sheet1", col_types = c("text", 
                                                              "text", "text", "text", "text"))
 
@@ -28,7 +28,7 @@ colnames(Planner_adress)[1] <- "Planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_3/exception report 07.13.22.xlsx")
+exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/exception report 08.29.22.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -136,7 +136,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 # Read IQR Report ----
 
-RM_data <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_3/Raw Material Inventory Health (IQR) - 07.13.22.xlsx", 
+RM_data <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/Raw Material Inventory Health (IQR) - 08.24.22.xlsx", 
                       sheet = "RM data", col_names = FALSE, 
                       col_types = c("text", "text", "text", 
                                     "text", "text", "text", "text", "text", 
@@ -217,28 +217,28 @@ RM_data %>%
 # Inventory Analysis ----
 
 # Read FG ----
-Inventory_analysis_FG <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_3/Inventory Report for all locations - 07.13.22.xlsx", 
-                                    col_types = c("text", "text", "text", 
-                                                  "text", "text", "text", "text", "numeric", 
-                                                  "numeric", "numeric"),
-                                    sheet = "FG")
-
-
-
-Inventory_analysis_FG[-1,] -> Inventory_analysis_FG
-colnames(Inventory_analysis_FG) <- Inventory_analysis_FG[1, ]
-Inventory_analysis_FG[-1, ] -> Inventory_analysis_FG
-
-colnames(Inventory_analysis_FG)[1] <- "Location"
-colnames(Inventory_analysis_FG)[2] <- "Location_Nm"
-colnames(Inventory_analysis_FG)[3] <- "SKU"
-colnames(Inventory_analysis_FG)[4] <- "Label"
-colnames(Inventory_analysis_FG)[5] <- "Description"
-colnames(Inventory_analysis_FG)[6] <- "Inventory_Status"
-colnames(Inventory_analysis_FG)[7] <- "Inventory_Hold_Status"
-colnames(Inventory_analysis_FG)[8] <- "Last_Purchase_Price"
-colnames(Inventory_analysis_FG)[9] <- "Total_Cost"
-colnames(Inventory_analysis_FG)[10] <- "Inventory_Qty_Cases"
+# Inventory_analysis_FG <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_3/Inventory Report for all locations - 07.13.22.xlsx", 
+#                                     col_types = c("text", "text", "text", 
+#                                                   "text", "text", "text", "text", "numeric", 
+#                                                   "numeric", "numeric"),
+#                                     sheet = "FG")
+# 
+# 
+# 
+# Inventory_analysis_FG[-1,] -> Inventory_analysis_FG
+# colnames(Inventory_analysis_FG) <- Inventory_analysis_FG[1, ]
+# Inventory_analysis_FG[-1, ] -> Inventory_analysis_FG
+# 
+# colnames(Inventory_analysis_FG)[1] <- "Location"
+# colnames(Inventory_analysis_FG)[2] <- "Location_Nm"
+# colnames(Inventory_analysis_FG)[3] <- "SKU"
+# colnames(Inventory_analysis_FG)[4] <- "Label"
+# colnames(Inventory_analysis_FG)[5] <- "Description"
+# colnames(Inventory_analysis_FG)[6] <- "Inventory_Status"
+# colnames(Inventory_analysis_FG)[7] <- "Inventory_Hold_Status"
+# colnames(Inventory_analysis_FG)[8] <- "Last_Purchase_Price"
+# colnames(Inventory_analysis_FG)[9] <- "Total_Cost"
+# colnames(Inventory_analysis_FG)[10] <- "Inventory_Qty_Cases"
 
 
 
