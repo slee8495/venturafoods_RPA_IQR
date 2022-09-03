@@ -821,7 +821,7 @@ merge(IQR_FG_sample, exception_report[, c("ref", "Planner")], by = "ref", all.x 
   dplyr::relocate(Planner.y, .after = Planner.x) %>% 
   dplyr::select(-Planner.x) %>% 
   dplyr::rename(Planner = Planner.y) %>% 
-  dplyr::mutate(Planner = replace(Planner, is.na(Planner),0)) -> IQR_FG_sample
+  dplyr::mutate(Planner = replace(Planner, is.na(Planner), "DNRR")) -> IQR_FG_sample
 
 # vlookup - Planner Name 
 merge(IQR_FG_sample, Planner_address[, c("Planner", "Alpha_Name")], by = "Planner", all.x = TRUE) %>% 
