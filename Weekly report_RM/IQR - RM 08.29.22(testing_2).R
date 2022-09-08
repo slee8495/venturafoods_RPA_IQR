@@ -807,18 +807,15 @@ sum(test_data$OPV)
 
 test_data %>% filter(Item == 97491)
 
-test_data %>% 
-  dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
-writexl::write_xlsx("test.xlsx")
-
 exception_report %>% 
   filter(Loc_SKU == "33_87746")
 
+
+RM_data %>% 
+  dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
+  writexl::write_xlsx("test.xlsx")
+
 #
-
-
-RM_data %>% filter(Loc_SKU == "60_8883")
-
 
 
 ########### Don't forget to rearrange!! #################
