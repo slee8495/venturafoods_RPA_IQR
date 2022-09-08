@@ -808,8 +808,10 @@ sum(test_data$OPV)
 test_data %>% filter(Item == 97491)
 
 exception_report %>% 
-  filter(Loc_SKU == "33_87746")
+  filter(Loc_SKU == "75_42556")
 
+exception_report_ss %>% 
+  dplyr::filter(Loc_SKU == "75_42556")
 
 RM_data %>% 
   dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
