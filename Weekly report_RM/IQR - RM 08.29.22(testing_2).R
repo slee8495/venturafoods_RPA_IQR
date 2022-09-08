@@ -134,21 +134,18 @@ exception_report %>%
 
 exception_report_moq[!duplicated(exception_report_moq[,c("Loc_SKU")]),] -> exception_report_moq
 
+
 # exception report for Supplier No
 exception_report %>% 
   dplyr::mutate(Supplier_No = replace(Supplier_No, is.na(Supplier_No), 0)) %>% 
   dplyr::rename(Supplier = Supplier_No) -> exception_report_supplier_no
 
-# exception_report_supplier_no[!duplicated(exception_report_supplier_no[,c("Loc_SKU")]),] -> exception_report_supplier_no
 
 # remove duplicated value - prioritize bigger Loc Number (RM only)
 
 exception_report %>% 
   dplyr::mutate(B_P = as.integer(B_P)) %>% 
   dplyr::arrange(Loc_SKU, desc(B_P)) -> exception_report
-
-exception_report[-which(duplicated(exception_report$Loc_SKU)),] -> exception_report
-
 
 
 # exception report Planner NA to 0
@@ -243,28 +240,6 @@ RM_data %>%
   dplyr::relocate(Loc_SKU, .before = Supplier_No) -> RM_data
 
 
-# Inventory Analysis ----
-
-# # Read FG ----
-# Inventory_analysis_FG <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_4/Inventory Report for all locations - 08.17.22.xlsx", 
-#                                     sheet = "FG")
-# 
-# 
-# 
-# Inventory_analysis_FG[-1,] -> Inventory_analysis_FG
-# colnames(Inventory_analysis_FG) <- Inventory_analysis_FG[1, ]
-# Inventory_analysis_FG[-1, ] -> Inventory_analysis_FG
-# 
-# colnames(Inventory_analysis_FG)[1] <- "Location"
-# colnames(Inventory_analysis_FG)[2] <- "Location_Nm"
-# colnames(Inventory_analysis_FG)[3] <- "SKU"
-# colnames(Inventory_analysis_FG)[4] <- "Label"
-# colnames(Inventory_analysis_FG)[5] <- "Description"
-# colnames(Inventory_analysis_FG)[6] <- "Inventory_Status"
-# colnames(Inventory_analysis_FG)[7] <- "Inventory_Hold_Status"
-# colnames(Inventory_analysis_FG)[8] <- "Inventory_Qty_Cases"
-
-
 
 # Inventory Analysis Read RM ----
 
@@ -287,8 +262,6 @@ colnames(Inventory_analysis_RM)[6] <- "Inventory_Status"
 colnames(Inventory_analysis_RM)[7] <- "Inventory_Hold_Status"
 colnames(Inventory_analysis_RM)[8] <- "Inventory_Qty_Cases"
 
-# Combine FG & RM
-# dplyr::bind_rows(Inventory_analysis_FG, Inventory_analysis_RM) -> Inventory_analysis
 
 Inventory_analysis <- Inventory_analysis_RM
 readr::type_convert(Inventory_analysis) -> Inventory_analysis
@@ -354,22 +327,6 @@ BoM_dep_demand %>%
 
 rm(month_a_dep_demand, month_b_dep_demand, month_c_dep_demand, month_d_dep_demand, month_e_dep_demand, month_f_dep_demand)
 
-# Standard Cost # From MicroStrategy ----
-# Standard_Cost <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Standard Cost.xlsx", 
-#                             col_types = c("text", "text", "text", 
-#                                           "text", "numeric"))
-# 
-# 
-# Standard_Cost[-1,] -> Standard_Cost
-# colnames(Standard_Cost) <- Standard_Cost[1, ]
-# Standard_Cost[-1, ] -> Standard_Cost
-# 
-# colnames(Standard_Cost)[1] <- "Item"
-# colnames(Standard_Cost)[4] <- "Location_Nm"
-# colnames(Standard_Cost)[5] <- "Standard_Cost"
-# 
-# Standard_Cost %<>% 
-#   dplyr::mutate(Loc_SKU = paste0(Location, "_", Item))
 
 # Consumption data component # Updated once a month ----
 consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 08.03.22.xlsx")
@@ -490,7 +447,7 @@ merge(RM_data, exception_report[, c("Loc_SKU", "UOM")], by = "Loc_SKU", all.x = 
   dplyr::relocate(UOM, .after = UoM) %>% 
   dplyr::select(-UoM) -> RM_data
 
-
+RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
 
 # vlookup - Supplier No
 merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "Loc_SKU", all.x = TRUE) %>% 
@@ -501,8 +458,10 @@ merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "L
 
 RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
 
-
 # vlookup - Lead Time
+exception_report_lead %>% 
+  dplyr::mutate(Leadtime_Days = replace(Leadtime_Days, is.na(Leadtime_Days), 0)) -> exception_report_lead
+
 merge(RM_data, exception_report_lead[, c("Loc_SKU", "Leadtime_Days")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::relocate(Leadtime_Days, .after = Lead_time) %>% 
   dplyr::mutate(Leadtime_Days = replace(Leadtime_Days, is.na(Leadtime_Days), "DNRR")) %>% 
@@ -517,25 +476,22 @@ merge(RM_data, exception_report[, c("Loc_SKU", "Planner")], by = "Loc_SKU", all.
   dplyr::rename(Planner = Planner.y) %>% 
   dplyr::mutate(Planner = replace(Planner, is.na(Planner), "DNRR")) -> RM_data
 
-
+RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
 
 # vlookup - Planner Name
 merge(RM_data, Planner_adress[, c("Planner", "Alpha_Name")], by = "Planner", all.x = TRUE) %>% 
   dplyr::relocate(Alpha_Name, .after = Planner_Name) %>% 
   dplyr::select(-Planner_Name) %>% 
   dplyr::rename(Planner_Name = Alpha_Name) %>% 
-  dplyr::relocate(Planner, .before = Planner_Name)-> RM_data
+  dplyr::relocate(Planner, .before = Planner_Name) %>% 
+  dplyr::mutate(Planner_Name = ifelse(Planner == "DNRR", "DNRR", Planner_Name)) -> RM_data
 
-
-# vlookup - Standard Cost
-# merge(RM_data, Standard_Cost[, c("Loc_SKU", "Standard_Cost")], by = "Loc_SKU", all.x = TRUE) %>% 
-#   dplyr::relocate(Standard_Cost.y, .after = Standard_Cost.x) %>% 
-#   dplyr::select(-Standard_Cost.x) %>% 
-#   dplyr::rename(Standard_Cost = Standard_Cost.y) %>% 
-#   dplyr::relocate(Item, .before = Loc_SKU) -> RM_data
 
 
 # vlookup - MOQ
+exception_report_moq %>% 
+  dplyr::mutate(Reorder_MIN = replace(Reorder_MIN, is.na(Reorder_MIN), 0)) -> exception_report_moq
+
 merge(RM_data, exception_report_moq[, c("Loc_SKU", "Reorder_MIN")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::relocate(Reorder_MIN, .after = MOQ) %>% 
   dplyr::select(-MOQ) %>% 
@@ -610,6 +566,7 @@ merge(RM_data, exception_report[, c("Loc_SKU", "Order_Policy_Value")], by = "Loc
   dplyr::select(-OPV) %>% 
   dplyr::rename(OPV = Order_Policy_Value) -> RM_data
 
+RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
 
 # vlookup - PO in next 28 days
 merge(RM_data, PO_Pivot[, c("Loc_SKU", "Y")], by = "Loc_SKU", all.x = TRUE) %>% 
@@ -840,7 +797,7 @@ RM_data %>%
   dplyr::mutate(Lead_time = as.numeric(Lead_time),
                 Supplier_No = as.numeric(Supplier_No)) -> test_data
 
-sum(test_data$Lead_time, na.rm = TRUE)
+sum(test_data$Lead_time, na.rm = TRUE)  
 sum(test_data$MOQ, na.rm = TRUE)
 sum(test_data$Supplier_No, na.rm = TRUE)
 sum(test_data$Safety_Stock)
@@ -922,6 +879,7 @@ colnames(RM_data)[50]<-"UPI$$ + Hold $$"
 
 
 writexl::write_xlsx(RM_data, "IQR_Report_8.17.2022.xlsx")
+
 
 
 
