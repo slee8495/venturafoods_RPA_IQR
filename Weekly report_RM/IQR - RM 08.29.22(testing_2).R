@@ -28,7 +28,7 @@ colnames(Planner_adress)[1] <- "Planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/exception report 08.29.22.xlsx")
+exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/exception report 09.14.22.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -162,7 +162,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 # Read IQR Report ----
 
-RM_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 08.24.22.xlsx", 
+RM_data <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/Raw Material Inventory Health (IQR) - 09.02.22.xlsx", 
                       sheet = "RM data", col_names = FALSE, 
                       col_types = c("text", "text", "text", 
                                     "text", "text", "text", "text", "text", 
@@ -243,7 +243,7 @@ RM_data %>%
 
 # Inventory Analysis Read RM ----
 
-Inventory_analysis_RM <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/Inventory Report for all locations - 08.29.22.xlsx", 
+Inventory_analysis_RM <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/Inventory Report for all locations - 09.14.22.xlsx", 
                                     sheet = "RM")
 
 
@@ -285,8 +285,8 @@ pivot_campus_ref_Inventory_analysis %<>%
   dplyr::rename(Usable = Useable, Loc_SKU = campus_ref, Hard_Hold = "Hard Hold", Soft_Hold = "Soft Hold")
 
 # BoM_dep_demand ----
-BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/bom_test_for_iqr_rm.xlsx",
-                             sheet = "Sheet1")
+BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/JDE BoM 09.14.22.xlsx",
+                             sheet = "BoM")
 
 BoM_dep_demand %>% 
   janitor::clean_names() %>% 
@@ -329,7 +329,7 @@ rm(month_a_dep_demand, month_b_dep_demand, month_c_dep_demand, month_d_dep_deman
 
 
 # Consumption data component # Updated once a month ----
-consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 08.03.22.xlsx")
+consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 09.14.22.xlsx")
 
 consumption_data[-1:-2,] -> consumption_data
 colnames(consumption_data) <- consumption_data[1, ]
@@ -344,7 +344,7 @@ consumption_data %<>%
 
 
 # SS Optimization RM for EOQ ----
-SS_optimization <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/SS Optimization for EOQ - RM.xlsx",
+SS_optimization <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/SS Optimization by Location - Raw Material August 2022.xlsx",
                               sheet = "Sheet1")
 
 SS_optimization[-1:-5,] -> SS_optimization
@@ -368,7 +368,7 @@ ss_opt_Loc_SKU %>%
 SS_optimization[-which(duplicated(SS_optimization$Loc_SKU)),] -> SS_optimization
 
 # Custord PO ----
-po <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/wo receipt custord po - 08.29.22.xlsx", 
+po <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/wo receipt custord po - 09.14.22.xlsx", 
                  sheet = "po", col_names = FALSE)
 
 
@@ -405,7 +405,7 @@ reshape2::dcast(PO, ref ~ next_28_days, value.var = "Qty", sum) %>%
 rm(po)
 
 # Custord Receipt ----
-receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_5 8.31.22/wo receipt custord po - 08.29.22.xlsx", 
+receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/wo receipt custord po - 09.14.22.xlsx", 
                       sheet = "receipt", col_names = FALSE)
 
 
