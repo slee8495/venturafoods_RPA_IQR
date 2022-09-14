@@ -285,7 +285,7 @@ pivot_campus_ref_Inventory_analysis %<>%
   dplyr::rename(Usable = Useable, Loc_SKU = campus_ref, Hard_Hold = "Hard Hold", Soft_Hold = "Soft Hold")
 
 # BoM_dep_demand ----
-BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/bom_report 09.14.22.xlsx",
+BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/JDE BoM 09.14.22.xlsx",
                              sheet = "BoM")
 
 BoM_dep_demand %>% 
@@ -501,6 +501,7 @@ merge(RM_data, exception_report_moq[, c("Loc_SKU", "Reorder_MIN")], by = "Loc_SK
 
 # vlookup - Safety Stock
 merge(RM_data, exception_report_ss[, c("Loc_SKU", "Safety_Stock")], by = "Loc_SKU", all.x = TRUE) %>% 
+  dplyr::mutate(Safety_Stock.y = round(Safety_Stock.y, 0)) %>% 
   dplyr::mutate(Safety_Stock.y = replace(Safety_Stock.y, is.na(Safety_Stock.y), 0)) %>% 
   dplyr::relocate(Safety_Stock.y, .after = Safety_Stock.x) %>% 
   dplyr::select(-Safety_Stock.x) %>% 
@@ -510,6 +511,7 @@ merge(RM_data, exception_report_ss[, c("Loc_SKU", "Safety_Stock")], by = "Loc_SK
 
 # vlookup - Usable
 merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Usable")], by = "Loc_SKU", all.x = TRUE) %>%
+  dplyr::mutate(Usable.y = round(Usable.y, 2)) %>% 
   dplyr::mutate(Usable.y = replace(Usable.y, is.na(Usable.y), 0)) %>% 
   dplyr::mutate(Usable.y = as.integer(Usable.y)) %>% 
   dplyr::relocate(Usable.y, .after = Usable.x) %>% 
@@ -520,6 +522,7 @@ merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Usable")], by
 
 # vlookup - Quality Hold
 merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Hard_Hold")], by = "Loc_SKU", all.x = TRUE) %>%
+  dplyr::mutate(Hard_Hold = round(Hard_Hold, 2)) %>% 
   dplyr::mutate(Hard_Hold = replace(Hard_Hold, is.na(Hard_Hold), 0)) %>% 
   dplyr::relocate(Hard_Hold, .after = Quality_hold) %>% 
   dplyr::select(-Quality_hold) %>% 
@@ -529,12 +532,14 @@ merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Hard_Hold")],
 # Calculation - Quality Hold in $$
 RM_data %>% 
   dplyr::mutate(Quality_hold_in_cost = Quality_hold * Standard_Cost) %>% 
+  dplyr::mutate(Quality_hold_in_cost = round(Quality_hold_in_cost, 2)) %>% 
   dplyr::mutate(Quality_hold_in_cost = replace(Quality_hold_in_cost, is.na(Quality_hold_in_cost), 0)) %>% 
   dplyr::rename("Quality_hold_in_$$" = Quality_hold_in_cost) -> RM_data
 
 
 # vlookup - Soft Hold
 merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Soft_Hold")], by = "Loc_SKU", all.x = TRUE) %>%
+  dplyr::mutate(Soft_Hold.y = round(Soft_Hold.y, 2)) %>% 
   dplyr::mutate(Soft_Hold.y = replace(Soft_Hold.y, is.na(Soft_Hold.y), 0)) %>% 
   dplyr::relocate(Soft_Hold.y, .after = Soft_Hold.x) %>% 
   dplyr::select(-Soft_Hold.x) %>% 
@@ -548,6 +553,7 @@ RM_data %>%
 # Calculation - On Hand in $$
 RM_data %>% 
   dplyr::mutate(On_Hand_in_cost = On_Hand_usable_and_soft_hold * Standard_Cost) %>% 
+  dplyr::mutate(On_Hand_in_cost = round(On_Hand_in_cost, 2)) %>% 
   dplyr::mutate(On_Hand_in_cost = replace(On_Hand_in_cost, is.na(On_Hand_in_cost), 0)) %>% 
   dplyr::rename("On_Hand_in_$$" = On_Hand_in_cost) -> RM_data
 
@@ -564,6 +570,7 @@ RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
 
 # vlookup - PO in next 28 days
 merge(RM_data, PO_Pivot[, c("Loc_SKU", "Y")], by = "Loc_SKU", all.x = TRUE) %>% 
+  dplyr::mutate(Y = round(Y, 2)) %>% 
   dplyr::mutate(Y = replace(Y, is.na(Y), 0)) %>% 
   dplyr::relocate(Y, .after = PO_in_next_28_days) %>% 
   dplyr::select(-PO_in_next_28_days) %>% 
@@ -574,6 +581,7 @@ merge(RM_data, PO_Pivot[, c("Loc_SKU", "Y")], by = "Loc_SKU", all.x = TRUE) %>%
 
 # vlookup - Receipt in next 28 days
 merge(RM_data, Receipt_Pivot[, c("Loc_SKU", "Y")], by = "Loc_SKU", all.x = TRUE) %>%
+  dplyr::mutate(Y = round(Y, 2)) %>% 
   dplyr::mutate(Y = replace(Y, is.na(Y), 0)) %>% 
   dplyr::relocate(Y, .after = Receipt_in_the_next_28_days) %>% 
   dplyr::select(-Receipt_in_the_next_28_days) %>% 
@@ -612,6 +620,7 @@ merge(RM_data, BoM_dep_demand[, c("Loc_SKU", "sum_of_months")], by = "Loc_SKU", 
 # Calculation - DOS
 RM_data %>% 
   dplyr::mutate(DOS = On_Hand_usable_and_soft_hold / (pmax(Current_month_dep_demand, Next_month_dep_demand)/30)) %>% 
+  dplyr::mutate(DOS = round(DOS, 0)) %>% 
   dplyr::mutate(DOS = replace(DOS, is.na(DOS), 0)) %>% 
   dplyr::mutate(DOS = replace(DOS, is.nan(DOS), 0))  -> RM_data
 
@@ -619,6 +628,7 @@ RM_data %>%
 # vlookup - Total Last 6 mos Sales
 merge(RM_data, consumption_data[, c("Loc_SKU", "sum_6mos")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::mutate(sum_6mos = as.double(sum_6mos)) %>% 
+  dplyr::mutate(sum_6mos = round(sum_6mos, 2)) %>% 
   dplyr::mutate(sum_6mos = replace(sum_6mos, is.na(sum_6mos), 0)) %>% 
   dplyr::relocate(sum_6mos, .after = Total_Last_6_mos_Sales) %>% 
   dplyr::select(-Total_Last_6_mos_Sales) %>% 
@@ -628,6 +638,7 @@ merge(RM_data, consumption_data[, c("Loc_SKU", "sum_6mos")], by = "Loc_SKU", all
 # vlookup - Total Last 12 mos Sales
 merge(RM_data, consumption_data[, c("Loc_SKU", "sum_12mos")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::mutate(sum_12mos = as.double(sum_12mos)) %>% 
+  dplyr::mutate(sum_12mos = round(sum_12mos, 2)) %>% 
   dplyr::mutate(sum_12mos = replace(sum_12mos, is.na(sum_12mos), 0)) %>% 
   dplyr::relocate(sum_12mos, .after = Total_Last_12_mos_Sales_) %>% 
   dplyr::select(-Total_Last_12_mos_Sales_) %>% 
@@ -637,6 +648,7 @@ merge(RM_data, consumption_data[, c("Loc_SKU", "sum_12mos")], by = "Loc_SKU", al
 # vlookup - EOQ
 merge(RM_data, SS_optimization[, c("Loc_SKU", "EOQ_adjusted")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::mutate(EOQ_adjusted = as.double(EOQ_adjusted)) %>% 
+  dplyr::mutate(EOQ_adjusted = round(EOQ_adjusted, 0)) %>% 
   dplyr::mutate(EOQ_adjusted = replace(EOQ_adjusted, is.na(EOQ_adjusted), 0)) %>% 
   dplyr::relocate(EOQ_adjusted, .after = EOQ) %>% 
   dplyr::select(-EOQ) %>% 
@@ -648,6 +660,7 @@ merge(RM_data, SS_optimization[, c("Loc_SKU", "EOQ_adjusted")], by = "Loc_SKU", 
 RM_data %>% 
   dplyr::mutate(Max_Cycle_Stock =
                   pmax(EOQ, MOQ, OPV*(Next_month_dep_demand/20.83),Total_Last_12_mos_Sales/250)) %>% 
+  dplyr::mutate(Max_Cycle_Stock = round(Max_Cycle_Stock, 2)) %>% 
   dplyr::mutate(Max_Cycle_Stock = replace(Max_Cycle_Stock, is.na(Max_Cycle_Stock), 0)) -> RM_data
 
 
@@ -659,6 +672,7 @@ RM_data %>%
 RM_data %>% 
   dplyr::mutate(Target_Inv_in_cost = Target_Inv * Standard_Cost) %>% 
   dplyr::mutate(Target_Inv_in_cost = as.double(Target_Inv_in_cost)) %>% 
+  dplyr::mutate(Target_Inv_in_cost = round(Target_Inv_in_cost, 2)) %>% 
   dplyr::mutate(Target_Inv_in_cost = replace(Target_Inv_in_cost, is.na(Target_Inv_in_cost), 0)) %>% 
   dplyr::rename("Target_Inv_in_$$" = Target_Inv_in_cost) -> RM_data
 
@@ -671,6 +685,7 @@ RM_data %>%
 RM_data %>% 
   dplyr::mutate(Max_inv_cost = Max_inv * Standard_Cost) %>% 
   dplyr::mutate(Max_inv_cost = as.double(Max_inv_cost)) %>% 
+  dplyr::mutate(Max_inv_cost = round(Max_inv_cost, 2)) %>% 
   dplyr::mutate(Max_inv_cost = replace(Max_inv_cost, is.na(Max_inv_cost), 0)) %>% 
   dplyr::rename("Max_inv_$$" = Max_inv_cost) -> RM_data
 
