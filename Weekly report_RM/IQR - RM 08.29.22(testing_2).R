@@ -269,11 +269,12 @@ readr::type_convert(Inventory_analysis) -> Inventory_analysis
 # Vlookup - campus
 # merge(Inventory_analysis, Campus_ref[, c("Location", "Campus")], by = "Location", all.x = TRUE) -> Inventory_analysis
 
-Inventory_analysis %<>%  
+Inventory_analysis %>%  
+  dplyr::mutate(SKU = sub("^0+", "", SKU)) %>% 
   dplyr::mutate(campus_ref = paste0(Campus, "_", SKU), campus_ref = gsub("-", "", campus_ref)) %>% 
   dplyr::mutate(ref = paste0(Location, "_", SKU), ref = gsub("-", "", ref)) %>% 
   dplyr::relocate(ref, campus_ref, Campus) %>% 
-  dplyr::rename(campus = Campus)
+  dplyr::rename(campus = Campus) -> Inventory_analysis
 
 
 # Inventory_analysis_pivot_ref
@@ -285,47 +286,30 @@ pivot_campus_ref_Inventory_analysis %<>%
   dplyr::rename(Usable = Useable, Loc_SKU = campus_ref, Hard_Hold = "Hard Hold", Soft_Hold = "Soft Hold")
 
 # BoM_dep_demand ----
-BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/JDE BoM 09.14.22.xlsx",
-                             sheet = "BoM")
+BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/Bill of Material 09.14.22.xlsx",
+                             sheet = "Sheet1")
 
 BoM_dep_demand %>% 
   janitor::clean_names() %>% 
   dplyr::rename(Loc_SKU = comp_ref) %>% 
-  dplyr::mutate(Loc_SKU = gsub("-", "_", Loc_SKU)) -> BoM_dep_demand
-
-str(BoM_dep_demand)
-
-reshape2::dcast(BoM_dep_demand, Loc_SKU ~ ., value.var = "mon_a_dep_demand", sum) %>% 
-  dplyr::rename(mon_a_dep_demand = ".") -> month_a_dep_demand
-
-reshape2::dcast(BoM_dep_demand, Loc_SKU ~ ., value.var = "mon_b_dep_demand", sum) %>% 
-  dplyr::rename(mon_b_dep_demand = ".") %>% 
-  dplyr::select(mon_b_dep_demand ) -> month_b_dep_demand
-
-reshape2::dcast(BoM_dep_demand, Loc_SKU ~ ., value.var = "mon_c_dep_demand", sum) %>% 
-  dplyr::rename(mon_c_dep_demand = ".") %>% 
-  dplyr::select(mon_c_dep_demand ) -> month_c_dep_demand
-
-reshape2::dcast(BoM_dep_demand, Loc_SKU ~ ., value.var = "mon_d_dep_demand", sum) %>% 
-  dplyr::rename(mon_d_dep_demand = ".") %>% 
-  dplyr::select(mon_d_dep_demand ) -> month_d_dep_demand
-
-reshape2::dcast(BoM_dep_demand, Loc_SKU ~ ., value.var = "mon_e_dep_demand", sum) %>% 
-  dplyr::rename(mon_e_dep_demand = ".") %>% 
-  dplyr::select(mon_e_dep_demand ) -> month_e_dep_demand
-
-reshape2::dcast(BoM_dep_demand, Loc_SKU ~ ., value.var = "mon_f_dep_demand", sum) %>% 
-  dplyr::rename(mon_f_dep_demand = ".") %>% 
-  dplyr::select(mon_f_dep_demand ) -> month_f_dep_demand
-
-bind_cols(month_a_dep_demand, month_b_dep_demand, month_c_dep_demand, month_d_dep_demand, month_e_dep_demand, month_f_dep_demand)  %>% 
-  dplyr::rename(current_month = mon_a_dep_demand,
-                next_month = mon_b_dep_demand) -> BoM_dep_demand
+  dplyr::mutate(Loc_SKU = gsub("-", "_", Loc_SKU)) %>% 
+  data.frame() -> BoM_dep_demand
 
 BoM_dep_demand %>% 
+  dplyr::group_by(Loc_SKU) %>% 
+  dplyr::summarise(mon_a_dep_demand = sum(mon_a_dep_demand),
+                   mon_b_dep_demand = sum(mon_b_dep_demand),
+                   mon_c_dep_demand = sum(mon_c_dep_demand),
+                   mon_d_dep_demand = sum(mon_d_dep_demand),
+                   mon_e_dep_demand = sum(mon_e_dep_demand),
+                   mon_f_dep_demand = sum(mon_f_dep_demand)) %>% 
+  dplyr::rename(current_month = mon_a_dep_demand,
+                next_month = mon_b_dep_demand) %>% 
   dplyr::mutate(sum_of_months = current_month + next_month + mon_c_dep_demand + mon_d_dep_demand + mon_e_dep_demand + mon_f_dep_demand) -> BoM_dep_demand
+  
 
-rm(month_a_dep_demand, month_b_dep_demand, month_c_dep_demand, month_d_dep_demand, month_e_dep_demand, month_f_dep_demand)
+
+
 
 
 # Consumption data component # Updated once a month ----
@@ -395,9 +379,11 @@ po %>%
   dplyr::relocate(ref) -> PO
 
 
+
 # PO_Pivot 
-PO %<>% 
-  dplyr::mutate(next_28_days = ifelse(date <= Sys.Date() + 28, "Y", "N")) 
+PO %>% 
+  dplyr::mutate(next_28_days = ifelse(date >= Sys.Date() & date <= Sys.Date() + 28, "Y", "N")) -> PO
+
 
 reshape2::dcast(PO, ref ~ next_28_days, value.var = "Qty", sum) %>% 
   dplyr::rename(Loc_SKU = ref) -> PO_Pivot
@@ -427,7 +413,7 @@ receipt %>%
                 day = day(date)) %>% 
   readr::type_convert() %>% 
   dplyr::mutate(ref = paste0(Loc, "_", Item),
-                next_28_days = ifelse(date <= Sys.Date() + 28, "Y", "N")) %>% 
+                next_28_days = ifelse(date >= Sys.Date() & date <= Sys.Date() + 28, "Y", "N")) %>% 
   dplyr::relocate(ref) -> Receipt
 
 
@@ -560,13 +546,20 @@ RM_data %>%
 
 
 # vlookup - OPV
-merge(RM_data, exception_report[, c("Loc_SKU", "Order_Policy_Value")], by = "Loc_SKU", all.x = TRUE) %>% 
+exception_report %>% 
+  dplyr::arrange(Loc_SKU, desc(Order_Policy_Code)) -> exception_report_opv
+
+exception_report_opv[!duplicated(exception_report_opv[,c("Loc_SKU")]),] -> exception_report_opv
+
+merge(RM_data, exception_report_opv[, c("Loc_SKU", "Order_Policy_Value")], by = "Loc_SKU", all.x = TRUE) %>% 
   dplyr::mutate(Order_Policy_Value = replace(Order_Policy_Value, is.na(Order_Policy_Value), 0)) %>% 
   dplyr::relocate(Order_Policy_Value, .after = OPV) %>% 
   dplyr::select(-OPV) %>% 
   dplyr::rename(OPV = Order_Policy_Value) -> RM_data
 
 RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
+
+
 
 # vlookup - PO in next 28 days
 merge(RM_data, PO_Pivot[, c("Loc_SKU", "Y")], by = "Loc_SKU", all.x = TRUE) %>% 
@@ -778,6 +771,7 @@ RM_data %>% dplyr::filter(Loc_SKU != "60_8883") -> RM_data
 
 
 
+
 #####################################################################################################################
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
@@ -819,9 +813,10 @@ RM_data %>%
 
 ########### Don't forget to rearrange!! #################
 
-RM_data %<>% 
+RM_data %>% 
   dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
-  dplyr::relocate(Mfg_Loc, Loc_Name)
+  dplyr::relocate(Mfg_Loc, Loc_Name) -> RM_data
+
 
 colnames(RM_data)[1]<-"Mfg Loc"
 colnames(RM_data)[2]<-"Loc Name"
