@@ -715,21 +715,36 @@ RM_data %>%
 
 # Calculation - Inv Health
 # add today's date col
+# RM_data %>% 
+#   dplyr::mutate(today = Sys.Date(),
+#                 today = as.Date(today, format = "%Y-%m-%d"),
+#                 Birthday = as.Date(Birthday, format = "%Y-%m-%d"),
+#                 diff_days = today - Birthday,
+#                 diff_days = as.numeric(diff_days),
+#                 Inv_Health = ifelse(On_Hand_usable_and_soft_hold < Safety_Stock, "BELOW SS", 
+#                                     ifelse(Item_Type == "Non-Commodity" & DOS > 0.6*Shelf_Life_day, "AT RISK", 
+#                                            ifelse(On_Hand_usable_and_soft_hold > 0 & Lead_time == "DNRR", "DEAD", 
+#                                                   ifelse(On_Hand_usable_and_soft_hold > 0 & Current_month_dep_demand == 0 & 
+#                                                            Next_month_dep_demand == 0 & Total_dep_demand_Next_6_Months == 0 & 
+#                                                            diff_days > 90, "DEAD", 
+#                                                          ifelse(on_hand_Inv_greaterthan_max == 0 | diff_days < 91, "HEALTHY", "EXCESS")))))) %>% 
+#   dplyr::select(-today, -diff_days) %>% 
+#   dplyr::rename("on_hand_Inv>max" = on_hand_Inv_greaterthan_max) -> RM_data
+
+
 RM_data %>% 
   dplyr::mutate(today = Sys.Date(),
                 today = as.Date(today, format = "%Y-%m-%d"),
                 Birthday = as.Date(Birthday, format = "%Y-%m-%d"),
                 diff_days = today - Birthday,
                 diff_days = as.numeric(diff_days),
-                Inv_Health = ifelse(On_Hand_usable_and_soft_hold < Safety_Stock, "BELOW SS", 
-                                    ifelse(Item_Type == "Non-Commodity" & DOS > 0.6*Shelf_Life_day, "AT RISK", 
-                                           ifelse(On_Hand_usable_and_soft_hold > 0 & Lead_time == "DNRR", "DEAD", 
-                                                  ifelse(On_Hand_usable_and_soft_hold > 0 & Current_month_dep_demand == 0 & 
-                                                           Next_month_dep_demand == 0 & Total_dep_demand_Next_6_Months == 0 & 
-                                                           diff_days > 90, "DEAD", 
-                                                         ifelse(on_hand_Inv_greaterthan_max == 0 | diff_days < 91, "HEALTHY", "EXCESS")))))) %>% 
+                Inv_Health = ifelse(On_Hand_usable_and_soft_hold < Safety_Stock, "BELOW SS", (ifelse(Item_Type == "Non-Commodity" & DOS > 0.6 * Shelf_Life_day, "AT RISK",
+                                                                                                     ifelse(On_Hand_usable_and_soft_hold > 0 & Lead_time == "DNRR" | On_Hand_usable_and_soft_hold > 0 & Current_month_dep_demand == 0 & Next_month_dep_demand == 0 & Total_dep_demand_Next_6_Months == 0 & diff_days > 90, "DEAD",
+                                                                                                            ifelse(on_hand_Inv_greaterthan_max == 0, "HEALTHY", "EXCESS")))))) %>% 
   dplyr::select(-today, -diff_days) %>% 
   dplyr::rename("on_hand_Inv>max" = on_hand_Inv_greaterthan_max) -> RM_data
+
+
 
 
 
