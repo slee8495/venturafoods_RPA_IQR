@@ -28,7 +28,7 @@ colnames(Planner_adress)[1] <- "Planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/exception report 09.14.22.xlsx")
+exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_7 9.21.22/exception report 09.21.22.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -162,7 +162,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 # Read IQR Report ----
 
-RM_data <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/Raw Material Inventory Health (IQR) - 09.02.22.xlsx", 
+RM_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 09.14.22.xlsx", 
                       sheet = "RM data", col_names = FALSE, 
                       col_types = c("text", "text", "text", 
                                     "text", "text", "text", "text", "text", 
@@ -243,7 +243,7 @@ RM_data %>%
 
 # Inventory Analysis Read RM ----
 
-Inventory_analysis_RM <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/Inventory Report for all locations - 09.14.22.xlsx", 
+Inventory_analysis_RM <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_7 9.21.22/Inventory Report for all locations - 09.21.22.xlsx", 
                                     sheet = "RM")
 
 
@@ -286,7 +286,7 @@ pivot_campus_ref_Inventory_analysis %<>%
   dplyr::rename(Usable = Useable, Loc_SKU = campus_ref, Hard_Hold = "Hard Hold", Soft_Hold = "Soft Hold")
 
 # BoM_dep_demand ----
-BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/Bill of Material 09.14.22.xlsx",
+BoM_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_7 9.21.22/Bill of Material.xlsx",
                              sheet = "Sheet1")
 
 BoM_dep_demand %>% 
@@ -294,6 +294,8 @@ BoM_dep_demand %>%
   dplyr::rename(Loc_SKU = comp_ref) %>% 
   dplyr::mutate(Loc_SKU = gsub("-", "_", Loc_SKU)) %>% 
   data.frame() -> BoM_dep_demand
+
+BoM_dep_demand[is.na(BoM_dep_demand)] <- 0
 
 BoM_dep_demand %>% 
   dplyr::group_by(Loc_SKU) %>% 
@@ -309,7 +311,7 @@ BoM_dep_demand %>%
   
 
 
-
+BoM_dep_demand %>% filter(Loc_SKU == "622_240202061")
 
 
 # Consumption data component # Updated once a month ----
@@ -319,12 +321,19 @@ consumption_data[-1:-2,] -> consumption_data
 colnames(consumption_data) <- consumption_data[1, ]
 consumption_data[-1, ] -> consumption_data
 
+
 colnames(consumption_data)[1] <- "Loc_SKU"
 colnames(consumption_data)[ncol(consumption_data)-1] <- "sum_12mos"
 colnames(consumption_data)[ncol(consumption_data)] <- "sum_6mos"
 
-consumption_data %<>% 
-  dplyr::mutate(Loc_SKU = gsub("-", "_", Loc_SKU))
+consumption_data %>% 
+  dplyr::mutate(Loc_SKU = gsub("-", "_", Loc_SKU)) -> consumption_data
+
+consumption_data %>% 
+  data.frame() %>% 
+  readr::type_convert() -> consumption_data
+
+consumption_data[is.na(consumption_data)] <- 0
 
 
 # SS Optimization RM for EOQ ----
@@ -352,7 +361,7 @@ ss_opt_Loc_SKU %>%
 SS_optimization[-which(duplicated(SS_optimization$Loc_SKU)),] -> SS_optimization
 
 # Custord PO ----
-po <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/wo receipt custord po - 09.14.22.xlsx", 
+po <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_7 9.21.22/wo receipt custord po - 09.21.22.xlsx", 
                  sheet = "po", col_names = FALSE)
 
 
@@ -391,7 +400,7 @@ reshape2::dcast(PO, ref ~ next_28_days, value.var = "Qty", sum) %>%
 rm(po)
 
 # Custord Receipt ----
-receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/wo receipt custord po - 09.14.22.xlsx", 
+receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_7 9.21.22/wo receipt custord po - 09.21.22.xlsx", 
                       sheet = "receipt", col_names = FALSE)
 
 
@@ -547,7 +556,7 @@ RM_data %>%
 
 # vlookup - OPV
 exception_report %>% 
-  dplyr::arrange(Loc_SKU, desc(Order_Policy_Code)) -> exception_report_opv
+  dplyr::arrange(Loc_SKU, desc(Order_Policy_Value)) -> exception_report_opv
 
 exception_report_opv[!duplicated(exception_report_opv[,c("Loc_SKU")]),] -> exception_report_opv
 
@@ -615,7 +624,8 @@ RM_data %>%
   dplyr::mutate(DOS = On_Hand_usable_and_soft_hold / (pmax(Current_month_dep_demand, Next_month_dep_demand)/30)) %>% 
   dplyr::mutate(DOS = round(DOS, 0)) %>% 
   dplyr::mutate(DOS = replace(DOS, is.na(DOS), 0)) %>% 
-  dplyr::mutate(DOS = replace(DOS, is.nan(DOS), 0))  -> RM_data
+  dplyr::mutate(DOS = replace(DOS, is.nan(DOS), 0)) %>% 
+  dplyr::mutate(DOS = replace(DOS, is.infinite(DOS), 0)) -> RM_data
 
 
 # vlookup - Total Last 6 mos Sales
@@ -652,7 +662,7 @@ merge(RM_data, SS_optimization[, c("Loc_SKU", "EOQ_adjusted")], by = "Loc_SKU", 
 # Calculation - Max Cycle Stock
 RM_data %>% 
   dplyr::mutate(Max_Cycle_Stock =
-                  pmax(EOQ, MOQ, OPV*(Next_month_dep_demand/20.83),Total_Last_12_mos_Sales/250)) %>% 
+                  pmax(EOQ, MOQ, OPV*(Next_month_dep_demand/20.83), OPV*(Total_Last_12_mos_Sales/250))) %>% 
   dplyr::mutate(Max_Cycle_Stock = round(Max_Cycle_Stock, 2)) %>% 
   dplyr::mutate(Max_Cycle_Stock = replace(Max_Cycle_Stock, is.na(Max_Cycle_Stock), 0)) -> RM_data
 
@@ -732,12 +742,12 @@ RM_data %<>%
                                                                          *(Shelf_Life_day*0.6)))*Standard_Cost,0)) 
 
 # Calculation - IQR $$
-RM_data %<>% 
+RM_data %>% 
   dplyr::rename(On_Hand_in_cost = "On_Hand_in_$$",
                 At_Risk_in_cost = "At_Risk_in_$$",
                 Max_inv_cost = "Max_inv_$$") %>% 
   dplyr::mutate("IQR_$$" = ifelse(Inv_Health == "DEAD" | Inv_Health == "HEALTHY" | Inv_Health == "BELOW SS", On_Hand_in_cost, 
-                                  ifelse(Inv_Health == "AT RISK", At_Risk_in_cost, On_Hand_in_cost - Max_inv_cost))) 
+                                  ifelse(Inv_Health == "AT RISK", At_Risk_in_cost, On_Hand_in_cost - Max_inv_cost))) -> RM_data
 
 
 # Calculation - UPI $$
@@ -807,6 +817,9 @@ exception_report_ss %>%
 RM_data %>% 
   dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
   writexl::write_xlsx("test.xlsx")
+
+RM_data %>% filter(Loc_SKU == "60_5198")
+
 
 #
 
