@@ -311,9 +311,6 @@ BoM_dep_demand %>%
   
 
 
-BoM_dep_demand %>% filter(Loc_SKU == "622_240202061")
-
-
 # Consumption data component # Updated once a month ----
 consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 09.14.22.xlsx")
 
@@ -663,8 +660,9 @@ merge(RM_data, SS_optimization[, c("Loc_SKU", "EOQ_adjusted")], by = "Loc_SKU", 
 RM_data %>% 
   dplyr::mutate(Max_Cycle_Stock =
                   pmax(EOQ, MOQ, OPV*(Next_month_dep_demand/20.83), OPV*(Total_Last_12_mos_Sales/250))) %>% 
-  dplyr::mutate(Max_Cycle_Stock = round(Max_Cycle_Stock, 2)) %>% 
-  dplyr::mutate(Max_Cycle_Stock = replace(Max_Cycle_Stock, is.na(Max_Cycle_Stock), 0)) -> RM_data
+  dplyr::mutate(Max_Cycle_Stock = round(Max_Cycle_Stock, 0)) %>% 
+  dplyr::mutate(Max_Cycle_Stock = replace(Max_Cycle_Stock, is.na(Max_Cycle_Stock), 0)) %>% 
+  dplyr::mutate(Max_Cycle_Stock = ifelse(Lead_time == "DNRR", EOQ, Max_Cycle_Stock)) -> RM_data
 
 
 # Calculation - Target Inv
@@ -729,17 +727,17 @@ RM_data %>%
                                                   ifelse(On_Hand_usable_and_soft_hold > 0 & Current_month_dep_demand == 0 & 
                                                            Next_month_dep_demand == 0 & Total_dep_demand_Next_6_Months == 0 & 
                                                            diff_days > 90, "DEAD", 
-                                                         ifelse(on_hand_Inv_greaterthan_max == 0 | diff_days < 91, "HEALTHY", "EXECESS")))))) %>% 
+                                                         ifelse(on_hand_Inv_greaterthan_max == 0 | diff_days < 91, "HEALTHY", "EXCESS")))))) %>% 
   dplyr::select(-today, -diff_days) %>% 
   dplyr::rename("on_hand_Inv>max" = on_hand_Inv_greaterthan_max) -> RM_data
 
 
 
 # Calculation - At Risk in $$
-RM_data %<>% 
-  dplyr::mutate("At_Risk_in_$$" = ifelse(Inv_Health=="At Risk",
+RM_data %>% 
+  dplyr::mutate("At_Risk_in_$$" = ifelse(Inv_Health == "At Risk",
                                          (On_Hand_usable_and_soft_hold -((pmax(Current_month_dep_demand,Next_month_dep_demand)/30) 
-                                                                         *(Shelf_Life_day*0.6)))*Standard_Cost,0)) 
+                                                                         *(Shelf_Life_day*0.6)))*Standard_Cost,0)) -> RM_data
 
 # Calculation - IQR $$
 RM_data %>% 
@@ -818,7 +816,7 @@ RM_data %>%
   dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
   writexl::write_xlsx("test.xlsx")
 
-RM_data %>% filter(Loc_SKU == "60_5198")
+RM_data %>% filter(Loc_SKU == "75_10941")
 
 
 #
