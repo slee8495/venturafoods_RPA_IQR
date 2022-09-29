@@ -162,23 +162,13 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 # Read IQR Report ----
 
-RM_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 09.21.22.xlsx", 
-                      sheet = "RM data", col_names = FALSE, 
-                      col_types = c("text", "text", "text", 
-                                    "text", "text", "text", "text", "text", 
-                                    "text", "numeric", "date", "text", "numeric", 
-                                    "text", "text", "numeric", "numeric", "numeric", 
-                                    "numeric", "numeric", "numeric", "numeric", "numeric", 
-                                    "numeric", "numeric", "numeric", "numeric", "numeric", 
-                                    "numeric", "numeric", "numeric", "numeric", "numeric", 
-                                    "numeric", "numeric", "text", "numeric", "numeric", 
-                                    "numeric", "numeric", "numeric", "numeric", "numeric", 
-                                    "numeric", "numeric", "numeric", "numeric", "numeric", 
-                                    "numeric", "numeric", "text", "text"))
+RM_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 09.21.22 rev2.xlsx", 
+                      sheet = "RM data", col_names = FALSE)
 
 RM_data[-1:-3,] -> RM_data
 colnames(RM_data) <- RM_data[1, ]
 RM_data[-1, ] -> RM_data
+
 
 
 colnames(RM_data)[1] <- "Mfg Loc"
@@ -523,6 +513,9 @@ merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Hard_Hold")],
 
 # Calculation - Quality Hold in $$
 RM_data %>% 
+  dplyr::mutate(Standard_Cost = as.numeric(Standard_Cost)) -> RM_data
+
+RM_data %>% 
   dplyr::mutate(Quality_hold_in_cost = Quality_hold * Standard_Cost) %>% 
   dplyr::mutate(Quality_hold_in_cost = round(Quality_hold_in_cost, 2)) %>% 
   dplyr::mutate(Quality_hold_in_cost = replace(Quality_hold_in_cost, is.na(Quality_hold_in_cost), 0)) %>% 
@@ -660,7 +653,7 @@ merge(RM_data, SS_optimization[, c("Loc_SKU", "EOQ_adjusted")], by = "Loc_SKU", 
 RM_data %>% 
   dplyr::mutate(Max_Cycle_Stock =
                   pmax(EOQ, MOQ, OPV*(Next_month_dep_demand/20.83), OPV*(Total_Last_12_mos_Sales/250))) %>% 
-  dplyr::mutate(Max_Cycle_Stock = round(Max_Cycle_Stock, 0)) %>% 
+  dplyr::mutate(Max_Cycle_Stock = round(Max_Cycle_Stock, 1)) %>% 
   dplyr::mutate(Max_Cycle_Stock = replace(Max_Cycle_Stock, is.na(Max_Cycle_Stock), 0)) %>% 
   dplyr::mutate(Max_Cycle_Stock = ifelse(Lead_time == "DNRR", EOQ, Max_Cycle_Stock)) -> RM_data
 
@@ -714,6 +707,7 @@ RM_data %>%
 
 
 # Calculation - Inv Health
+
 # add today's date col
 # RM_data %>% 
 #   dplyr::mutate(today = Sys.Date(),
@@ -733,15 +727,19 @@ RM_data %>%
 
 
 RM_data %>% 
+  dplyr::mutate(Shelf_Life_day = as.numeric(Shelf_Life_day),
+                Birthday = as.integer(Birthday)) -> RM_data
+
+
+RM_data %>% 
   dplyr::mutate(today = Sys.Date(),
                 today = as.Date(today, format = "%Y-%m-%d"),
-                Birthday = as.Date(Birthday, format = "%Y-%m-%d"),
+                Birthday = as.Date(Birthday, origin = "1899-12-30"),
                 diff_days = today - Birthday,
                 diff_days = as.numeric(diff_days),
                 Inv_Health = ifelse(On_Hand_usable_and_soft_hold < Safety_Stock, "BELOW SS", (ifelse(Item_Type == "Non-Commodity" & DOS > 0.6 * Shelf_Life_day, "AT RISK",
-                                                                                                     ifelse(On_Hand_usable_and_soft_hold > 0 & Lead_time == "DNRR" | On_Hand_usable_and_soft_hold > 0 & Current_month_dep_demand == 0 & Next_month_dep_demand == 0 & Total_dep_demand_Next_6_Months == 0 & diff_days > 90, "DEAD",
+                                                                                                     ifelse((On_Hand_usable_and_soft_hold > 0 & Lead_time == "DNRR") | (On_Hand_usable_and_soft_hold > 0 & Current_month_dep_demand == 0 & Next_month_dep_demand == 0 & Total_dep_demand_Next_6_Months == 0 & diff_days > 90), "DEAD",
                                                                                                             ifelse(on_hand_Inv_greaterthan_max == 0, "HEALTHY", "EXCESS")))))) %>% 
-  dplyr::select(-today, -diff_days) %>% 
   dplyr::rename("on_hand_Inv>max" = on_hand_Inv_greaterthan_max) -> RM_data
 
 
@@ -800,49 +798,17 @@ writexl::write_xlsx(RM_data, "test.xlsx")
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
 
-# sum supposed to be
-# OPV: 273956  (Need an explanation again the sorting logic)
-# Supplier NO: 1283530430   (This one, I got the similar number)
-
-# Total row number, I have 9689 instead of 9691
-# check with "36_44391", "36_45854"
-
-# test
 RM_data %>% 
-  dplyr::mutate(Lead_time = as.numeric(Lead_time),
-                Supplier_No = as.numeric(Supplier_No)) -> test_data
-
-sum(test_data$Lead_time, na.rm = TRUE)  
-sum(test_data$MOQ, na.rm = TRUE)
-sum(test_data$Supplier_No, na.rm = TRUE)
-sum(test_data$Safety_Stock)
-sum(test_data$Usable)
-sum(test_data$Quality_hold)
-sum(test_data$OPV)
-
-test_data %>% filter(Item == 97491)
-
-exception_report %>% 
-  filter(Loc_SKU == "75_42556")
-
-exception_report_ss %>% 
-  dplyr::filter(Loc_SKU == "75_42556")
-
-RM_data %>% 
-  dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
-  writexl::write_xlsx("test.xlsx")
-
-RM_data %>% filter(Loc_SKU == "75_10941")
-
+  dplyr::filter(Loc_SKU == "622_310000611")
 
 #
 
 
-########### Don't forget to rearrange!! #################
-
+########### Don't forget to rearrange and bring cols only what you need! #################
 RM_data %>% 
   dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
-  dplyr::relocate(Mfg_Loc, Loc_Name) -> RM_data
+  janitor::clean_names() %>% 
+  dplyr::select() -> RM_data
 
 
 colnames(RM_data)[1]<-"Mfg Loc"
