@@ -365,82 +365,84 @@ reshape2::dcast(receipt, ref ~ next_28_days, value.var = "qty", sum) %>%
 #####################################################################################################################
 
 # vlookup - UoM
-merge(RM_data, exception_report[, c("Loc_SKU", "UOM")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::mutate(UOM = replace(UOM, is.na(UOM), "DNRR")) %>% 
-  dplyr::relocate(UOM, .after = UoM) %>% 
-  dplyr::select(-UoM) -> RM_data
+merge(rm_data, exception_report[, c("loc_sku", "uom")], by = "loc_sku", all.x = TRUE) %>% 
+  dplyr::mutate(uom = replace(uom, is.na(uom), "DNRR")) %>% 
+  dplyr::relocate(uom, .after = uo_m) %>% 
+  dplyr::select(-uo_m) -> rm_data
 
-RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
+rm_data[!duplicated(rm_data[,c("loc_sku")]),] -> rm_data
+
 
 # vlookup - Supplier No
-merge(RM_data, exception_report_supplier_no[, c("Loc_SKU", "Supplier")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::arrange(Loc_SKU, desc(Supplier)) %>% 
-  dplyr::select(-Supplier_No) %>% 
-  dplyr::rename(Supplier_No = Supplier) %>% 
-  dplyr::mutate(Supplier_No = replace(Supplier_No, is.na(Supplier_No), "DNRR")) -> RM_data
+merge(rm_data, exception_report_supplier_no[, c("loc_sku", "supplier")], by = "loc_sku", all.x = TRUE) %>% 
+  dplyr::arrange(loc_sku, desc(supplier)) %>% 
+  dplyr::select(-supplier_number) %>% 
+  dplyr::rename(supplier_number = supplier) %>% 
+  dplyr::mutate(supplier_number = replace(supplier_number, is.na(supplier_number), "DNRR")) -> rm_data
 
-RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
+rm_data[!duplicated(rm_data[,c("loc_sku")]),] -> rm_data
 
 # vlookup - Lead Time
-exception_report_lead %>% 
-  dplyr::mutate(Leadtime_Days = replace(Leadtime_Days, is.na(Leadtime_Days), 0)) -> exception_report_lead
 
-merge(RM_data, exception_report_lead[, c("Loc_SKU", "Leadtime_Days")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::relocate(Leadtime_Days, .after = Lead_time) %>% 
-  dplyr::mutate(Leadtime_Days = replace(Leadtime_Days, is.na(Leadtime_Days), "DNRR")) %>% 
-  dplyr::select(-Lead_time) %>% 
-  dplyr::rename(Lead_time = Leadtime_Days) -> RM_data
+exception_report_lead %>% 
+  dplyr::mutate(leadtime_days = replace(leadtime_days, is.na(leadtime_days), 0)) -> exception_report_lead
+
+merge(rm_data, exception_report_lead[, c("loc_sku", "leadtime_days")], by = "loc_sku", all.x = TRUE) %>% 
+  dplyr::relocate(leadtime_days, .after = lead_time) %>% 
+  dplyr::mutate(leadtime_days = replace(leadtime_days, is.na(leadtime_days), "DNRR")) %>% 
+  dplyr::select(-lead_time) %>% 
+  dplyr::rename(lead_time = leadtime_days) -> rm_data
 
 
 # vlookup - Planner
-merge(RM_data, exception_report[, c("Loc_SKU", "Planner")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::relocate(Planner.y, .after = "Planner.x") %>% 
-  dplyr::select(-Planner.x) %>% 
-  dplyr::rename(Planner = Planner.y) %>% 
-  dplyr::mutate(Planner = replace(Planner, is.na(Planner), "DNRR")) -> RM_data
+merge(rm_data, exception_report[, c("loc_sku", "planner")], by = "loc_sku", all.x = TRUE) %>% 
+  dplyr::relocate(planner.y, .after = "planner.x") %>% 
+  dplyr::select(-planner.x) %>% 
+  dplyr::rename(planner = planner.y) %>% 
+  dplyr::mutate(planner = replace(planner, is.na(planner), "DNRR")) -> rm_data
 
-RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
+rm_data[!duplicated(rm_data[,c("loc_sku")]),] -> rm_data
 
 # vlookup - Planner Name
-merge(RM_data, Planner_adress[, c("Planner", "Alpha_Name")], by = "Planner", all.x = TRUE) %>% 
-  dplyr::relocate(Alpha_Name, .after = Planner_Name) %>% 
-  dplyr::select(-Planner_Name) %>% 
-  dplyr::rename(Planner_Name = Alpha_Name) %>% 
-  dplyr::relocate(Planner, .before = Planner_Name) %>% 
-  dplyr::mutate(Planner_Name = ifelse(Planner == "DNRR", "DNRR", Planner_Name)) -> RM_data
+merge(rm_data, planner_adress[, c("planner", "alpha_name")], by = "planner", all.x = TRUE) %>% 
+  dplyr::relocate(alpha_name, .after = planner_name) %>% 
+  dplyr::select(-planner_name) %>% 
+  dplyr::rename(planner_name = alpha_name) %>% 
+  dplyr::relocate(planner, .before = planner_name) %>% 
+  dplyr::mutate(planner_name = ifelse(planner == "DNRR", "DNRR", planner_name)) -> rm_data
 
 
 
 # vlookup - MOQ
 exception_report_moq %>% 
-  dplyr::mutate(Reorder_MIN = replace(Reorder_MIN, is.na(Reorder_MIN), 0)) -> exception_report_moq
+  dplyr::mutate(reorder_min = replace(reorder_min, is.na(reorder_min), 0)) -> exception_report_moq
 
-merge(RM_data, exception_report_moq[, c("Loc_SKU", "Reorder_MIN")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::relocate(Reorder_MIN, .after = MOQ) %>% 
-  dplyr::select(-MOQ) %>% 
-  dplyr::rename(MOQ = Reorder_MIN) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+merge(rm_data, exception_report_moq[, c("loc_sku", "reorder_min")], by = "loc_sku", all.x = TRUE) %>% 
+  dplyr::relocate(reorder_min, .after = moq) %>% 
+  dplyr::select(-moq) %>% 
+  dplyr::rename(moq = reorder_min) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 # vlookup - Safety Stock
-merge(RM_data, exception_report_ss[, c("Loc_SKU", "Safety_Stock")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::mutate(Safety_Stock.y = round(Safety_Stock.y, 0)) %>% 
-  dplyr::mutate(Safety_Stock.y = replace(Safety_Stock.y, is.na(Safety_Stock.y), 0)) %>% 
-  dplyr::relocate(Safety_Stock.y, .after = Safety_Stock.x) %>% 
-  dplyr::select(-Safety_Stock.x) %>% 
-  dplyr::rename(Safety_Stock = Safety_Stock.y) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+merge(rm_data, exception_report_ss[, c("loc_sku", "safety_stock")], by = "loc_sku", all.x = TRUE) %>% 
+  dplyr::mutate(safety_stock.y = round(safety_stock.y, 0)) %>% 
+  dplyr::mutate(safety_Stock.y = replace(safety_stock.y, is.na(safety_stock.y), 0)) %>% 
+  dplyr::relocate(safety_stock.y, .after = safety_stock.x) %>% 
+  dplyr::select(-safety_stock.x) %>% 
+  dplyr::rename(safety_stock = safety_stock.y) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 # vlookup - Usable
-merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Usable")], by = "Loc_SKU", all.x = TRUE) %>%
-  dplyr::mutate(Usable.y = round(Usable.y, 2)) %>% 
-  dplyr::mutate(Usable.y = replace(Usable.y, is.na(Usable.y), 0)) %>% 
-  dplyr::mutate(Usable.y = as.integer(Usable.y)) %>% 
-  dplyr::relocate(Usable.y, .after = Usable.x) %>% 
-  dplyr::select(-Usable.x) %>% 
-  dplyr::rename(Usable = Usable.y) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "usable")], by = "loc_sku", all.x = TRUE) %>%
+  dplyr::mutate(usable.y = round(usable.y, 2)) %>% 
+  dplyr::mutate(usable.y = replace(usable.y, is.na(usable.y), 0)) %>% 
+  dplyr::mutate(usable.y = as.integer(usable.y)) %>% 
+  dplyr::relocate(usable.y, .after = usable.x) %>% 
+  dplyr::select(-usable.x) %>% 
+  dplyr::rename(usable = usable.y) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 # vlookup - Quality Hold
