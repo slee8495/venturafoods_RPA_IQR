@@ -158,6 +158,8 @@ colnames(rm_data)[47] <- "iqr_cost"
 colnames(rm_data)[48] <- "upi_cost"
 colnames(rm_data)[49] <- "iqr_cost_plus_hold_cost"
 colnames(rm_data)[50] <- "upi_cost_plus_hold_cost"
+colnames(rm_data)[53] <- "current_month_dep_demand_in_cost"
+colnames(rm_data)[54] <- "next_month_dep_demand_in_cost"
 
 
 
@@ -322,7 +324,7 @@ po %>%
 
 
 reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>% 
-  dplyr::rename(loc_sku = ref) -> PO_Pivot
+  dplyr::rename(loc_sku = ref) -> po_pivot
 
 
 
@@ -487,100 +489,100 @@ rm_data %>%
 
 # vlookup - OPV
 exception_report %>% 
-  dplyr::arrange(Loc_SKU, desc(Order_Policy_Value)) -> exception_report_opv
+  dplyr::arrange(loc_sku, desc(order_policy_value)) -> exception_report_opv
 
-exception_report_opv[!duplicated(exception_report_opv[,c("Loc_SKU")]),] -> exception_report_opv
+exception_report_opv[!duplicated(exception_report_opv[,c("loc_sku")]),] -> exception_report_opv
 
-merge(RM_data, exception_report_opv[, c("Loc_SKU", "Order_Policy_Value")], by = "Loc_SKU", all.x = TRUE) %>% 
-  dplyr::mutate(Order_Policy_Value = replace(Order_Policy_Value, is.na(Order_Policy_Value), 0)) %>% 
-  dplyr::relocate(Order_Policy_Value, .after = OPV) %>% 
-  dplyr::select(-OPV) %>% 
-  dplyr::rename(OPV = Order_Policy_Value) -> RM_data
+merge(rm_data, exception_report_opv[, c("loc_sku", "order_policy_value")], by = "loc_sku", all.x = TRUE) %>% 
+  dplyr::mutate(order_policy_value = replace(order_policy_value, is.na(order_policy_value), 0)) %>% 
+  dplyr::relocate(order_policy_value, .after = opv) %>% 
+  dplyr::select(-opv) %>% 
+  dplyr::rename(opv = order_policy_value) -> rm_data
 
-RM_data[!duplicated(RM_data[,c("Loc_SKU")]),] -> RM_data
+rm_data[!duplicated(rm_data[,c("loc_sku")]),] -> rm_data
 
 
 
 # vlookup - PO in next 28 days
-merge(RM_data, PO_Pivot[, c("Loc_SKU", "Y")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(rm_data, po_pivot[, c("loc_sku", "Y")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(Y = round(Y, 2)) %>% 
   dplyr::mutate(Y = replace(Y, is.na(Y), 0)) %>% 
-  dplyr::relocate(Y, .after = PO_in_next_28_days) %>% 
-  dplyr::select(-PO_in_next_28_days) %>% 
-  dplyr::rename(PO_in_next_28_days = Y) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::relocate(Y, .after = po_in_next_30_days) %>% 
+  dplyr::select(-po_in_next_30_days) %>% 
+  dplyr::rename(po_in_next_30_days = Y) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 
 # vlookup - Receipt in next 28 days
-merge(RM_data, Receipt_Pivot[, c("Loc_SKU", "Y")], by = "Loc_SKU", all.x = TRUE) %>%
+merge(rm_data, receipt_pivot[, c("loc_sku", "Y")], by = "loc_sku", all.x = TRUE) %>%
   dplyr::mutate(Y = round(Y, 2)) %>% 
   dplyr::mutate(Y = replace(Y, is.na(Y), 0)) %>% 
-  dplyr::relocate(Y, .after = Receipt_in_the_next_28_days) %>% 
-  dplyr::select(-Receipt_in_the_next_28_days) %>% 
-  dplyr::rename(Receipt_in_the_next_28_days = Y) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::relocate(Y, .after = receipt_in_the_next_30_days) %>% 
+  dplyr::select(-receipt_in_the_next_30_days) %>% 
+  dplyr::rename(receipt_in_the_next_30_days = Y) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 # vlookup - Current month dep demand
-merge(RM_data, BoM_dep_demand[, c("Loc_SKU", "current_month")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(rm_data, bom_dep_demand[, c("loc_sku", "current_month")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(current_month = replace(current_month, is.na(current_month), 0)) %>% 
-  dplyr::relocate(current_month, .after = Current_month_dep_demand) %>% 
-  dplyr::select(-Current_month_dep_demand) %>% 
-  dplyr::rename(Current_month_dep_demand = current_month) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::relocate(current_month, .after = current_month_dep_demand) %>% 
+  dplyr::select(-current_month_dep_demand) %>% 
+  dplyr::rename(current_month_dep_demand = current_month) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 
 # vlookup - Next month dep demand
-merge(RM_data, BoM_dep_demand[, c("Loc_SKU", "next_month")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(rm_data, bom_dep_demand[, c("loc_sku", "next_month")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(next_month = replace(next_month, is.na(next_month), 0)) %>% 
-  dplyr::relocate(next_month, .after = Next_month_dep_demand) %>% 
-  dplyr::select(-Next_month_dep_demand) %>% 
-  dplyr::rename(Next_month_dep_demand = next_month) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::relocate(next_month, .after = next_month_dep_demand) %>% 
+  dplyr::select(-next_month_dep_demand) %>% 
+  dplyr::rename(Nnxt_month_dep_demand = next_month) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 # vlookup - Total dep. demand Next 6 Months
-merge(RM_data, BoM_dep_demand[, c("Loc_SKU", "sum_of_months")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(rm_data, bom_dep_demand[, c("loc_sku", "sum_of_months")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(sum_of_months = replace(sum_of_months, is.na(sum_of_months), 0)) %>% 
-  dplyr::relocate(sum_of_months, .after = Total_dep._demand_Next_6_Months) %>% 
-  dplyr::select(-Total_dep._demand_Next_6_Months) %>% 
-  dplyr::rename(Total_dep_demand_Next_6_Months = sum_of_months) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::relocate(sum_of_months, .after = total_dep_demand_next_6_months) %>% 
+  dplyr::select(-total_dep_demand_next_6_months) %>% 
+  dplyr::rename(total_dep_demand_next_6_months = sum_of_months) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 # Calculation - DOS
-RM_data %>% 
-  dplyr::mutate(DOS = On_Hand_usable_and_soft_hold / (pmax(Current_month_dep_demand, Next_month_dep_demand)/30)) %>% 
-  dplyr::mutate(DOS = round(DOS, 0)) %>% 
-  dplyr::mutate(DOS = replace(DOS, is.na(DOS), 0)) %>% 
-  dplyr::mutate(DOS = replace(DOS, is.nan(DOS), 0)) %>% 
-  dplyr::mutate(DOS = replace(DOS, is.infinite(DOS), 0)) -> RM_data
+rm_data %>% 
+  dplyr::mutate(dos = on_hand_usable_and_soft_hold / (pmax(current_month_dep_demand, next_month_dep_demand)/30)) %>% 
+  dplyr::mutate(dos = round(dos, 0)) %>% 
+  dplyr::mutate(DOS = replace(dos, is.na(dos), 0)) %>% 
+  dplyr::mutate(DOS = replace(dos, is.nan(dos), 0)) %>% 
+  dplyr::mutate(DOS = replace(dos, is.infinite(dos), 0)) -> rm_data
 
 
 # vlookup - Total Last 6 mos Sales
-merge(RM_data, consumption_data[, c("Loc_SKU", "sum_6mos")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(rm_data, consumption_data[, c("loc_sku", "sum_6mos")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(sum_6mos = as.double(sum_6mos)) %>% 
   dplyr::mutate(sum_6mos = round(sum_6mos, 2)) %>% 
   dplyr::mutate(sum_6mos = replace(sum_6mos, is.na(sum_6mos), 0)) %>% 
-  dplyr::relocate(sum_6mos, .after = Total_Last_6_mos_Sales) %>% 
-  dplyr::select(-Total_Last_6_mos_Sales) %>% 
-  dplyr::rename(Total_Last_6_mos_Sales = sum_6mos) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::relocate(sum_6mos, .after = total_last_6_mos_sales) %>% 
+  dplyr::select(-total_last_6_mos_sales) %>% 
+  dplyr::rename(total_last_6_mos_sales = sum_6mos) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 # vlookup - Total Last 12 mos Sales
-merge(RM_data, consumption_data[, c("Loc_SKU", "sum_12mos")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(rm_data, consumption_data[, c("loc_sku", "sum_12mos")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(sum_12mos = as.double(sum_12mos)) %>% 
   dplyr::mutate(sum_12mos = round(sum_12mos, 2)) %>% 
   dplyr::mutate(sum_12mos = replace(sum_12mos, is.na(sum_12mos), 0)) %>% 
-  dplyr::relocate(sum_12mos, .after = Total_Last_12_mos_Sales_) %>% 
-  dplyr::select(-Total_Last_12_mos_Sales_) %>% 
-  dplyr::rename(Total_Last_12_mos_Sales = sum_12mos) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::relocate(sum_12mos, .after = total_last_12_mos_sales) %>% 
+  dplyr::select(-total_last_12_mos_sales) %>% 
+  dplyr::rename(total_last_12_mos_sales = sum_12mos) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 # vlookup - EOQ
-merge(RM_data, SS_optimization[, c("Loc_SKU", "EOQ_adjusted")], by = "Loc_SKU", all.x = TRUE) %>% 
+merge(rm_data, ss_optimization[, c("loc_sku", "eoq_adjusted")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(EOQ_adjusted = as.double(EOQ_adjusted)) %>% 
   dplyr::mutate(EOQ_adjusted = round(EOQ_adjusted, 0)) %>% 
   dplyr::mutate(EOQ_adjusted = replace(EOQ_adjusted, is.na(EOQ_adjusted), 0)) %>% 
