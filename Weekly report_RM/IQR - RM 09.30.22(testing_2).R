@@ -380,7 +380,8 @@ merge(rm_data, exception_report_supplier_no[, c("loc_sku", "supplier")], by = "l
   dplyr::arrange(loc_sku, desc(supplier)) %>% 
   dplyr::select(-supplier_number) %>% 
   dplyr::rename(supplier_number = supplier) %>% 
-  dplyr::mutate(supplier_number = replace(supplier_number, is.na(supplier_number), "DNRR")) -> rm_data
+  dplyr::mutate(supplier_number = replace(supplier_number, is.na(supplier_number), "DNRR")) %>% 
+  dplyr::relocate(supplier_number, .after = loc_sku) -> rm_data
 
 rm_data[!duplicated(rm_data[,c("loc_sku")]),] -> rm_data
 
@@ -429,7 +430,7 @@ merge(rm_data, exception_report_moq[, c("loc_sku", "reorder_min")], by = "loc_sk
 # vlookup - Safety Stock
 merge(rm_data, exception_report_ss[, c("loc_sku", "safety_stock")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(safety_stock.y = round(safety_stock.y, 0)) %>% 
-  dplyr::mutate(safety_Stock.y = replace(safety_stock.y, is.na(safety_stock.y), 0)) %>% 
+  dplyr::mutate(safety_stock.y = replace(safety_stock.y, is.na(safety_stock.y), 0)) %>% 
   dplyr::relocate(safety_stock.y, .after = safety_stock.x) %>% 
   dplyr::select(-safety_stock.x) %>% 
   dplyr::rename(safety_stock = safety_stock.y) %>% 
@@ -450,7 +451,7 @@ merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "usable")], by
 # vlookup - Quality Hold
 merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "hard_hold")], by = "loc_sku", all.x = TRUE) %>%
   dplyr::mutate(hard_hold = round(hard_hold, 2)) %>% 
-  dplyr::mutate(hard_Hold = replace(hard_hold, is.na(hard_hold), 0)) %>% 
+  dplyr::mutate(hard_hold = replace(hard_hold, is.na(hard_hold), 0)) %>% 
   dplyr::relocate(hard_hold, .after = quality_hold) %>% 
   dplyr::select(-quality_hold) %>% 
   dplyr::rename(quality_hold = hard_hold) %>% 
@@ -477,11 +478,11 @@ merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "soft_hold")],
 
 # Calculation - On Hand (usable + soft hold)
 rm_data %>% 
-  dplyr::mutate(on_hand_usable_and_soft_hold = usable + soft_hold) -> rm_data
+  dplyr::mutate(on_hand_usable_soft_hold = usable + soft_hold) -> rm_data
 
 # Calculation - On Hand in $$
 rm_data %>% 
-  dplyr::mutate(on_hand_in_cost = on_hand_usable_and_soft_hold * standard_cost) %>% 
+  dplyr::mutate(on_hand_in_cost = on_hand_usable_soft_hold * standard_cost) %>% 
   dplyr::mutate(on_hand_in_cost = round(on_hand_in_cost, 2)) %>% 
   dplyr::mutate(on_hand_in_cost = replace(on_hand_in_cost, is.na(on_hand_in_cost), 0)) -> rm_data
 
@@ -539,7 +540,7 @@ merge(rm_data, bom_dep_demand[, c("loc_sku", "next_month")], by = "loc_sku", all
   dplyr::mutate(next_month = replace(next_month, is.na(next_month), 0)) %>% 
   dplyr::relocate(next_month, .after = next_month_dep_demand) %>% 
   dplyr::select(-next_month_dep_demand) %>% 
-  dplyr::rename(Nnxt_month_dep_demand = next_month) %>% 
+  dplyr::rename(next_month_dep_demand = next_month) %>% 
   dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
@@ -554,11 +555,11 @@ merge(rm_data, bom_dep_demand[, c("loc_sku", "sum_of_months")], by = "loc_sku", 
 
 # Calculation - DOS
 rm_data %>% 
-  dplyr::mutate(dos = on_hand_usable_and_soft_hold / (pmax(current_month_dep_demand, next_month_dep_demand)/30)) %>% 
+  dplyr::mutate(dos = on_hand_usable_soft_hold / (pmax(current_month_dep_demand, next_month_dep_demand)/30)) %>% 
   dplyr::mutate(dos = round(dos, 0)) %>% 
-  dplyr::mutate(DOS = replace(dos, is.na(dos), 0)) %>% 
-  dplyr::mutate(DOS = replace(dos, is.nan(dos), 0)) %>% 
-  dplyr::mutate(DOS = replace(dos, is.infinite(dos), 0)) -> rm_data
+  dplyr::mutate(dos = replace(dos, is.na(dos), 0)) %>% 
+  dplyr::mutate(dos = replace(dos, is.nan(dos), 0)) %>% 
+  dplyr::mutate(dos = replace(dos, is.infinite(dos), 0)) -> rm_data
 
 
 # vlookup - Total Last 6 mos Sales
@@ -583,231 +584,189 @@ merge(rm_data, consumption_data[, c("loc_sku", "sum_12mos")], by = "loc_sku", al
 
 # vlookup - EOQ
 merge(rm_data, ss_optimization[, c("loc_sku", "eoq_adjusted")], by = "loc_sku", all.x = TRUE) %>% 
-  dplyr::mutate(EOQ_adjusted = as.double(EOQ_adjusted)) %>% 
-  dplyr::mutate(EOQ_adjusted = round(EOQ_adjusted, 0)) %>% 
-  dplyr::mutate(EOQ_adjusted = replace(EOQ_adjusted, is.na(EOQ_adjusted), 0)) %>% 
-  dplyr::relocate(EOQ_adjusted, .after = EOQ) %>% 
-  dplyr::select(-EOQ) %>% 
-  dplyr::rename(EOQ = EOQ_adjusted) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+  dplyr::mutate(eoq_adjusted = as.double(eoq_adjusted)) %>% 
+  dplyr::mutate(eoq_adjusted = round(eoq_adjusted, 0)) %>% 
+  dplyr::mutate(eoq_adjusted = replace(eoq_adjusted, is.na(eoq_adjusted), 0)) %>% 
+  dplyr::relocate(eoq_adjusted, .after = eoq) %>% 
+  dplyr::select(-eoq) %>% 
+  dplyr::rename(eoq = eoq_adjusted) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
 # Calculation - Max Cycle Stock
-RM_data %>% 
-  dplyr::mutate(Max_Cycle_Stock =
-                  pmax(EOQ, MOQ, OPV*(Next_month_dep_demand/20.83), OPV*(Total_Last_12_mos_Sales/250))) %>% 
-  dplyr::mutate(Max_Cycle_Stock = round(Max_Cycle_Stock, 1)) %>% 
-  dplyr::mutate(Max_Cycle_Stock = replace(Max_Cycle_Stock, is.na(Max_Cycle_Stock), 0)) %>% 
-  dplyr::mutate(Max_Cycle_Stock = ifelse(Lead_time == "DNRR", EOQ, Max_Cycle_Stock)) -> RM_data
+rm_data %>% 
+  dplyr::mutate(max_cycle_stock =
+                  pmax(eoq, moq, opv*(next_month_dep_demand/20.83), opv*(total_last_12_mos_sales/250))) %>% 
+  dplyr::mutate(max_cycle_stock = round(max_cycle_stock, 1)) %>% 
+  dplyr::mutate(max_cycle_stock = replace(max_cycle_stock, is.na(max_cycle_stock), 0)) %>% 
+  dplyr::mutate(max_cycle_stock = ifelse(lead_time == "DNRR", eoq, max_cycle_stock)) -> rm_data
 
 
 # Calculation - Target Inv
-RM_data %>% 
-  dplyr::mutate(Target_Inv = Safety_Stock + Max_Cycle_Stock / 2) -> RM_data
+rm_data %>% 
+  dplyr::mutate(target_inv = safety_stock + max_cycle_stock / 2) -> rm_data
 
 # Calculation - Target Inv in $$
-RM_data %>% 
-  dplyr::mutate(Target_Inv_in_cost = Target_Inv * Standard_Cost) %>% 
-  dplyr::mutate(Target_Inv_in_cost = as.double(Target_Inv_in_cost)) %>% 
-  dplyr::mutate(Target_Inv_in_cost = round(Target_Inv_in_cost, 2)) %>% 
-  dplyr::mutate(Target_Inv_in_cost = replace(Target_Inv_in_cost, is.na(Target_Inv_in_cost), 0)) %>% 
-  dplyr::rename("Target_Inv_in_$$" = Target_Inv_in_cost) -> RM_data
+rm_data %>% 
+  dplyr::mutate(target_inv_in_cost = target_inv * standard_cost) %>% 
+  dplyr::mutate(target_inv_in_cost = as.double(target_inv_in_cost)) %>% 
+  dplyr::mutate(target_inv_in_cost = round(target_inv_in_cost, 2)) %>% 
+  dplyr::mutate(target_inv_in_cost = replace(target_inv_in_cost, is.na(target_inv_in_cost), 0)) -> rm_data
 
 
 # Calculation - Max inv
-RM_data %>% 
-  dplyr::mutate(Max_inv = Safety_Stock + Max_Cycle_Stock) -> RM_data
+rm_data %>% 
+  dplyr::mutate(max_inv = safety_stock + max_cycle_stock) -> rm_data
 
 # Calculation - Max inv $$
-RM_data %>% 
-  dplyr::mutate(Max_inv_cost = Max_inv * Standard_Cost) %>% 
-  dplyr::mutate(Max_inv_cost = as.double(Max_inv_cost)) %>% 
-  dplyr::mutate(Max_inv_cost = round(Max_inv_cost, 2)) %>% 
-  dplyr::mutate(Max_inv_cost = replace(Max_inv_cost, is.na(Max_inv_cost), 0)) %>% 
-  dplyr::rename("Max_inv_$$" = Max_inv_cost) -> RM_data
+rm_data %>% 
+  dplyr::mutate(max_inv_cost = max_inv * standard_cost) %>% 
+  dplyr::mutate(max_inv_cost = as.double(max_inv_cost)) %>% 
+  dplyr::mutate(max_inv_cost = round(max_inv_cost, 2)) %>% 
+  dplyr::mutate(max_inv_cost = replace(max_inv_cost, is.na(max_inv_cost), 0)) -> rm_data
 
 
 # Calculation - has Max?
-RM_data %>% 
-  dplyr::mutate("has_Max?" = ifelse(Max_inv > 0, 1, 0)) -> RM_data
+rm_data %>% 
+  dplyr::mutate(has_max = ifelse(max_inv > 0, 1, 0)) -> rm_data
 
 # Calculation - on hand Inv > max
-RM_data %>% 
-  dplyr::mutate("on_hand_Inv>max" = ifelse(On_Hand_usable_and_soft_hold > Max_inv, 1, 0)) %>% 
-  dplyr::rename(on_hand_Inv_greaterthan_max = "on_hand_Inv>max") -> RM_data
+rm_data %>% 
+  dplyr::mutate(on_hand_inv_greater_than_max = ifelse(on_hand_usable_soft_hold > max_inv, 1, 0)) -> rm_data
 
 # Calculation - on hand Inv <= max
-RM_data %>% 
-  dplyr::mutate("on_hand_Inv<=max" = ifelse(On_Hand_usable_and_soft_hold <= Max_inv, 1, 0)) -> RM_data
+rm_data %>% 
+  dplyr::mutate(on_hand_inv_less_or_equal_than_max = ifelse(on_hand_usable_soft_hold <= max_inv, 1, 0)) -> rm_data
 
 # Calculation - on hand Inv > target
-RM_data %>% 
-  dplyr::mutate("on_hand_Inv>target" = ifelse(On_Hand_usable_and_soft_hold > Target_Inv, 1, 0)) -> RM_data
+rm_data %>% 
+  dplyr::mutate(on_hand_inv_greater_than_target = ifelse(on_hand_usable_soft_hold > target_inv, 1, 0)) -> rm_data
 
 # Calculation - on hand Inv <= target
-RM_data %>% 
-  dplyr::mutate("on_hand_Inv<=target" = ifelse(On_Hand_usable_and_soft_hold <= Target_Inv, 1, 0)) -> RM_data
+rm_data %>% 
+  dplyr::mutate(on_hand_inv_less_or_equal_than_target = ifelse(on_hand_usable_soft_hold <= target_inv, 1, 0)) -> rm_data
 
 
 # Calculation - Inv Health
-
-# add today's date col
-# RM_data %>% 
-#   dplyr::mutate(today = Sys.Date(),
-#                 today = as.Date(today, format = "%Y-%m-%d"),
-#                 Birthday = as.Date(Birthday, format = "%Y-%m-%d"),
-#                 diff_days = today - Birthday,
-#                 diff_days = as.numeric(diff_days),
-#                 Inv_Health = ifelse(On_Hand_usable_and_soft_hold < Safety_Stock, "BELOW SS", 
-#                                     ifelse(Item_Type == "Non-Commodity" & DOS > 0.6*Shelf_Life_day, "AT RISK", 
-#                                            ifelse(On_Hand_usable_and_soft_hold > 0 & Lead_time == "DNRR", "DEAD", 
-#                                                   ifelse(On_Hand_usable_and_soft_hold > 0 & Current_month_dep_demand == 0 & 
-#                                                            Next_month_dep_demand == 0 & Total_dep_demand_Next_6_Months == 0 & 
-#                                                            diff_days > 90, "DEAD", 
-#                                                          ifelse(on_hand_Inv_greaterthan_max == 0 | diff_days < 91, "HEALTHY", "EXCESS")))))) %>% 
-#   dplyr::select(-today, -diff_days) %>% 
-#   dplyr::rename("on_hand_Inv>max" = on_hand_Inv_greaterthan_max) -> RM_data
+rm_data %>% 
+  dplyr::mutate(shelf_life_day = as.numeric(shelf_life_day),
+                birthday = as.integer(birthday)) -> rm_data
 
 
-RM_data %>% 
-  dplyr::mutate(Shelf_Life_day = as.numeric(Shelf_Life_day),
-                Birthday = as.integer(Birthday)) -> RM_data
-
-
-RM_data %>% 
+rm_data %>% 
   dplyr::mutate(today = Sys.Date(),
                 today = as.Date(today, format = "%Y-%m-%d"),
-                Birthday = as.Date(Birthday, origin = "1899-12-30"),
-                diff_days = today - Birthday,
+                birthday = as.Date(birthday, origin = "1899-12-30"),
+                diff_days = today - birthday,
                 diff_days = as.numeric(diff_days),
-                Inv_Health = ifelse(On_Hand_usable_and_soft_hold < Safety_Stock, "BELOW SS", (ifelse(Item_Type == "Non-Commodity" & DOS > 0.6 * Shelf_Life_day, "AT RISK",
-                                                                                                     ifelse((On_Hand_usable_and_soft_hold > 0 & Lead_time == "DNRR") | (On_Hand_usable_and_soft_hold > 0 & Current_month_dep_demand == 0 & Next_month_dep_demand == 0 & Total_dep_demand_Next_6_Months == 0 & diff_days > 90), "DEAD",
-                                                                                                            ifelse(on_hand_Inv_greaterthan_max == 0, "HEALTHY", "EXCESS")))))) %>% 
-  dplyr::rename("on_hand_Inv>max" = on_hand_Inv_greaterthan_max) -> RM_data
+                inv_health = ifelse(on_hand_usable_soft_hold < safety_stock, "BELOW SS", (ifelse(item_type == "Non-Commodity" & dos > 0.6 * shelf_life_day, "AT RISK",
+                                                                                                     ifelse((on_hand_usable_soft_hold > 0 & lead_time == "DNRR") | (on_hand_usable_soft_hold > 0 & current_month_dep_demand == 0 & next_month_dep_demand == 0 & total_dep_demand_next_6_months == 0 & diff_days > 90), "DEAD",
+                                                                                                            ifelse(on_hand_inv_greater_than_max == 0, "HEALTHY", "EXCESS")))))) -> rm_data
 
 
 
 
 
 # Calculation - At Risk in $$
-RM_data %>% 
-  dplyr::mutate("At_Risk_in_$$" = ifelse(Inv_Health == "At Risk",
-                                         (On_Hand_usable_and_soft_hold -((pmax(Current_month_dep_demand,Next_month_dep_demand)/30) 
-                                                                         *(Shelf_Life_day*0.6)))*Standard_Cost,0)) -> RM_data
+rm_data %>% 
+  dplyr::mutate(at_risk_in_cost = ifelse(inv_health == "At Risk",
+                                         (on_hand_usable_soft_hold -((pmax(current_month_dep_demand, next_month_dep_demand)/30) 
+                                                                         *(shelf_life_day * 0.6))) * standard_cost,0)) -> rm_data
 
 # Calculation - IQR $$
-RM_data %>% 
-  dplyr::rename(On_Hand_in_cost = "On_Hand_in_$$",
-                At_Risk_in_cost = "At_Risk_in_$$",
-                Max_inv_cost = "Max_inv_$$") %>% 
-  dplyr::mutate("IQR_$$" = ifelse(Inv_Health == "DEAD" | Inv_Health == "HEALTHY" | Inv_Health == "BELOW SS", On_Hand_in_cost, 
-                                  ifelse(Inv_Health == "AT RISK", At_Risk_in_cost, On_Hand_in_cost - Max_inv_cost))) -> RM_data
+rm_data %>% 
+  dplyr::mutate(iqr_cost = ifelse(inv_health == "DEAD" | inv_health == "HEALTHY" | inv_health == "BELOW SS", on_hand_in_cost, 
+                                  ifelse(inv_health == "AT RISK", at_risk_in_cost, on_hand_in_cost - max_inv_cost))) -> rm_data
 
 
 # Calculation - UPI $$
-RM_data %<>% 
-  dplyr::mutate("UPI$$" = ifelse(Inv_Health == "AT RISK", At_Risk_in_cost,
-                                 ifelse(Inv_Health == "EXCESS", On_Hand_in_cost - Max_inv_cost,
-                                        ifelse(Inv_Health == "DEAD", On_Hand_in_cost, 0)))) %>% 
-  dplyr::rename("On_Hand_in_$$" = On_Hand_in_cost,
-                "At_Risk_in_$$" = At_Risk_in_cost,
-                "Max_inv_$$" = Max_inv_cost) 
-
+rm_data %>% 
+  dplyr::mutate(upi_cost = ifelse(inv_health == "AT RISK", at_risk_in_cost,
+                                 ifelse(inv_health == "EXCESS", on_hand_in_cost - max_inv_cost,
+                                        ifelse(inv_health == "DEAD", on_hand_in_cost, 0)))) -> rm_data
 # Calculation - IQR $$ + Hold $$
-RM_data %<>% 
-  dplyr::rename(IQR_cost = "IQR_$$",
-                Quality_hold_in_Cost = "Quality_hold_in_$$") %>% 
-  dplyr::mutate("IQR_$$+Hold_$$" = IQR_cost + Quality_hold_in_Cost) 
+rm_data %>% 
+  dplyr::mutate(iqr_cost_plus_hold_cost = iqr_cost + quality_hold_in_cost) -> rm_data 
 
 # Calculation - UPI $$ + Hold $$
-RM_data %<>% 
-  dplyr::rename(UPI_cost = "UPI$$") %>% 
-  dplyr::mutate("UPI$$+Hold_$$" = UPI_cost + Quality_hold_in_Cost) %>% 
-  dplyr::rename("IQR_$$" = IQR_cost,
-                "Quality_hold_in_$$" = Quality_hold_in_Cost,
-                "UPI$$" = UPI_cost)
+rm_data %>% 
+  dplyr::mutate(upi_cost_plus_hold_cost = upi_cost + quality_hold_in_cost) -> rm_data
 
 
 
 
 ######## Deleting items that we don't need ###########
-RM_data %>% dplyr::filter(Loc_SKU != "60_8883") -> RM_data
+rm_data %>% dplyr::filter(loc_sku != "60_8883") -> rm_data
 
 
 # test excel
-writexl::write_xlsx(RM_data, "test.xlsx")
+writexl::write_xlsx(rm_data, "test.xlsx")
 
 #####################################################################################################################
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
 
-RM_data %>% 
-  dplyr::filter(Loc_SKU == "622_310000611")
-
-#
-
 
 ########### Don't forget to rearrange and bring cols only what you need! #################
-RM_data %>% 
-  dplyr::mutate(Loc_SKU = gsub("_", "-", Loc_SKU)) %>% 
-  janitor::clean_names() %>% 
-  dplyr::select() -> RM_data
+rm_data %>% 
+  dplyr::mutate(loc_sku = gsub("_", "-", loc_sku)) %>% 
+  dplyr::select(1:50) -> rm_data
 
 
-colnames(RM_data)[1]<-"Mfg Loc"
-colnames(RM_data)[2]<-"Loc Name"
-colnames(RM_data)[3]<-"Item"
-colnames(RM_data)[4]<-"Loc-SKU"
-colnames(RM_data)[5]<-"Supplier#"
-colnames(RM_data)[6]<-"Description"
-colnames(RM_data)[7]<-"Used in Priority SKU?"
-colnames(RM_data)[8]<-"Type"
-colnames(RM_data)[9]<-"Item Type"
-colnames(RM_data)[10]<-"Shelf Life (day)"
-colnames(RM_data)[11]<-"Birthday"
-colnames(RM_data)[12]<-"UoM"
-colnames(RM_data)[13]<-"Lead time"
-colnames(RM_data)[14]<-"Planner"
-colnames(RM_data)[15]<-"Planner Name"
-colnames(RM_data)[16]<-"Standard Cost"
-colnames(RM_data)[17]<-"MOQ"
-colnames(RM_data)[18]<-"EOQ"
-colnames(RM_data)[19]<-"Safety Stock"
-colnames(RM_data)[20]<-"Max Cycle Stock"
-colnames(RM_data)[21]<-"Usable"
-colnames(RM_data)[22]<-"Quality hold"
-colnames(RM_data)[23]<-"Quality hold in $$"
-colnames(RM_data)[24]<-"Soft Hold"
-colnames(RM_data)[25]<-"On Hand(usable + soft hold)"
-colnames(RM_data)[26]<-"On Hand in $$"
-colnames(RM_data)[27]<-"Target Inv"
-colnames(RM_data)[28]<-"Target Inv in $$"
-colnames(RM_data)[29]<-"Max inv"
-colnames(RM_data)[30]<-"Max inv $$"
-colnames(RM_data)[31]<-"OPV"
-colnames(RM_data)[32]<-"PO in next 30 days"
-colnames(RM_data)[33]<-"Receipt in the next 30 days"
-colnames(RM_data)[34]<-"DOS"
-colnames(RM_data)[35]<-"At Risk in $$"
-colnames(RM_data)[36]<-"Inv Health"
-colnames(RM_data)[37]<-"Current month dep demand"
-colnames(RM_data)[38]<-"Next month dep demand"
-colnames(RM_data)[39]<-"Total dep. demand Next 6 Months"
-colnames(RM_data)[40]<-"Total Last 6 mos Sales"
-colnames(RM_data)[41]<-"Total Last 12 mos Sales"
-colnames(RM_data)[42]<-"has Max?"
-colnames(RM_data)[43]<-"on hand Inv >max"
-colnames(RM_data)[44]<-"on hand Inv <= max"
-colnames(RM_data)[45]<-"on hand Inv > target"
-colnames(RM_data)[46]<-"on hand Inv <= target"
-colnames(RM_data)[47]<-"IQR $$"
-colnames(RM_data)[48]<-"UPI$$"
-colnames(RM_data)[49]<-"IQR $$ + Hold $$"
-colnames(RM_data)[50]<-"UPI$$ + Hold $$"
+colnames(rm_data)[1]<-"Mfg Loc"
+colnames(rm_data)[2]<-"Loc Name"
+colnames(rm_data)[3]<-"Item"
+colnames(rm_data)[4]<-"Loc-SKU"
+colnames(rm_data)[5]<-"Supplier#"
+colnames(rm_data)[6]<-"Description"
+colnames(rm_data)[7]<-"Used in Priority SKU?"
+colnames(rm_data)[8]<-"Type"
+colnames(rm_data)[9]<-"Item Type"
+colnames(rm_data)[10]<-"Shelf Life (day)"
+colnames(rm_data)[11]<-"Birthday"
+colnames(rm_data)[12]<-"UoM"
+colnames(rm_data)[13]<-"Lead time"
+colnames(rm_data)[14]<-"Planner"
+colnames(rm_data)[15]<-"Planner Name"
+colnames(rm_data)[16]<-"Standard Cost"
+colnames(rm_data)[17]<-"MOQ"
+colnames(rm_data)[18]<-"EOQ"
+colnames(rm_data)[19]<-"Safety Stock"
+colnames(rm_data)[20]<-"Max Cycle Stock"
+colnames(rm_data)[21]<-"Usable"
+colnames(rm_data)[22]<-"Quality hold"
+colnames(rm_data)[23]<-"Quality hold in $$"
+colnames(rm_data)[24]<-"Soft Hold"
+colnames(rm_data)[25]<-"On Hand(usable + soft hold)"
+colnames(rm_data)[26]<-"On Hand in $$"
+colnames(rm_data)[27]<-"Target Inv"
+colnames(rm_data)[28]<-"Target Inv in $$"
+colnames(rm_data)[29]<-"Max inv"
+colnames(rm_data)[30]<-"Max inv $$"
+colnames(rm_data)[31]<-"OPV"
+colnames(rm_data)[32]<-"PO in next 30 days"
+colnames(rm_data)[33]<-"Receipt in the next 30 days"
+colnames(rm_data)[34]<-"DOS"
+colnames(rm_data)[35]<-"At Risk in $$"
+colnames(rm_data)[36]<-"Inv Health"
+colnames(rm_data)[37]<-"Current month dep demand"
+colnames(rm_data)[38]<-"Next month dep demand"
+colnames(rm_data)[39]<-"Total dep. demand Next 6 Months"
+colnames(rm_data)[40]<-"Total Last 6 mos Sales"
+colnames(rm_data)[41]<-"Total Last 12 mos Sales"
+colnames(rm_data)[42]<-"has Max?"
+colnames(rm_data)[43]<-"on hand Inv >max"
+colnames(rm_data)[44]<-"on hand Inv <= max"
+colnames(rm_data)[45]<-"on hand Inv > target"
+colnames(rm_data)[46]<-"on hand Inv <= target"
+colnames(rm_data)[47]<-"IQR $$"
+colnames(rm_data)[48]<-"UPI$$"
+colnames(rm_data)[49]<-"IQR $$ + Hold $$"
+colnames(rm_data)[50]<-"UPI$$ + Hold $$"
 
 
 
-writexl::write_xlsx(RM_data, "IQR_Report_8.17.2022.xlsx")
+writexl::write_xlsx(rm_data, "IQR_Report_8.17.2022.xlsx")
 
 
 
