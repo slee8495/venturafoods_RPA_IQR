@@ -446,44 +446,42 @@ merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "usable")], by
 
 
 # vlookup - Quality Hold
-merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Hard_Hold")], by = "Loc_SKU", all.x = TRUE) %>%
-  dplyr::mutate(Hard_Hold = round(Hard_Hold, 2)) %>% 
-  dplyr::mutate(Hard_Hold = replace(Hard_Hold, is.na(Hard_Hold), 0)) %>% 
-  dplyr::relocate(Hard_Hold, .after = Quality_hold) %>% 
-  dplyr::select(-Quality_hold) %>% 
-  dplyr::rename(Quality_hold = Hard_Hold) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "hard_hold")], by = "loc_sku", all.x = TRUE) %>%
+  dplyr::mutate(hard_hold = round(hard_hold, 2)) %>% 
+  dplyr::mutate(hard_Hold = replace(hard_hold, is.na(hard_hold), 0)) %>% 
+  dplyr::relocate(hard_hold, .after = quality_hold) %>% 
+  dplyr::select(-quality_hold) %>% 
+  dplyr::rename(quality_hold = hard_hold) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 # Calculation - Quality Hold in $$
-RM_data %>% 
-  dplyr::mutate(Standard_Cost = as.numeric(Standard_Cost)) -> RM_data
+rm_data %>% 
+  dplyr::mutate(standard_cost = as.numeric(standard_cost)) -> rm_data
 
-RM_data %>% 
-  dplyr::mutate(Quality_hold_in_cost = Quality_hold * Standard_Cost) %>% 
-  dplyr::mutate(Quality_hold_in_cost = round(Quality_hold_in_cost, 2)) %>% 
-  dplyr::mutate(Quality_hold_in_cost = replace(Quality_hold_in_cost, is.na(Quality_hold_in_cost), 0)) %>% 
-  dplyr::rename("Quality_hold_in_$$" = Quality_hold_in_cost) -> RM_data
+rm_data %>% 
+  dplyr::mutate(quality_hold_in_cost = quality_hold * standard_cost) %>% 
+  dplyr::mutate(quality_hold_in_cost = round(quality_hold_in_cost, 2)) %>% 
+  dplyr::mutate(quality_hold_in_cost = replace(quality_hold_in_cost, is.na(quality_hold_in_cost), 0)) -> rm_data
 
 
 # vlookup - Soft Hold
-merge(RM_data, pivot_campus_ref_Inventory_analysis[, c("Loc_SKU", "Soft_Hold")], by = "Loc_SKU", all.x = TRUE) %>%
-  dplyr::mutate(Soft_Hold.y = round(Soft_Hold.y, 2)) %>% 
-  dplyr::mutate(Soft_Hold.y = replace(Soft_Hold.y, is.na(Soft_Hold.y), 0)) %>% 
-  dplyr::relocate(Soft_Hold.y, .after = Soft_Hold.x) %>% 
-  dplyr::select(-Soft_Hold.x) %>% 
-  dplyr::rename(Soft_Hold = Soft_Hold.y) %>% 
-  dplyr::relocate(Loc_SKU, .after = Item) -> RM_data
+merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "soft_hold")], by = "loc_sku", all.x = TRUE) %>%
+  dplyr::mutate(soft_hold.y = round(soft_hold.y, 2)) %>% 
+  dplyr::mutate(soft_hold.y = replace(soft_hold.y, is.na(soft_hold.y), 0)) %>% 
+  dplyr::relocate(soft_hold.y, .after = soft_hold.x) %>% 
+  dplyr::select(-soft_hold.x) %>% 
+  dplyr::rename(soft_hold = soft_hold.y) %>% 
+  dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 # Calculation - On Hand (usable + soft hold)
-RM_data %>% 
-  dplyr::mutate(On_Hand_usable_and_soft_hold = Usable + Soft_Hold) -> RM_data
+rm_data %>% 
+  dplyr::mutate(on_hand_usable_and_soft_hold = usable + soft_hold) -> rm_data
 
 # Calculation - On Hand in $$
-RM_data %>% 
-  dplyr::mutate(On_Hand_in_cost = On_Hand_usable_and_soft_hold * Standard_Cost) %>% 
-  dplyr::mutate(On_Hand_in_cost = round(On_Hand_in_cost, 2)) %>% 
-  dplyr::mutate(On_Hand_in_cost = replace(On_Hand_in_cost, is.na(On_Hand_in_cost), 0)) %>% 
-  dplyr::rename("On_Hand_in_$$" = On_Hand_in_cost) -> RM_data
+rm_data %>% 
+  dplyr::mutate(on_hand_in_cost = on_hand_usable_and_soft_hold * standard_cost) %>% 
+  dplyr::mutate(on_hand_in_cost = round(on_hand_in_cost, 2)) %>% 
+  dplyr::mutate(on_hand_in_cost = replace(on_hand_in_cost, is.na(on_hand_in_cost), 0)) -> rm_data
 
 
 
