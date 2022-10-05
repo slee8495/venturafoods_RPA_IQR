@@ -699,9 +699,6 @@ rm_data %>%
 rm_data %>% dplyr::filter(loc_sku != "60_8883") -> rm_data
 
 
-# test excel
-writexl::write_xlsx(rm_data, "test.xlsx")
-
 #####################################################################################################################
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
@@ -710,7 +707,14 @@ writexl::write_xlsx(rm_data, "test.xlsx")
 ########### Don't forget to rearrange and bring cols only what you need! #################
 rm_data %>% 
   dplyr::mutate(loc_sku = gsub("_", "-", loc_sku)) %>% 
-  dplyr::select(1:50) -> rm_data
+  dplyr::select(1:50) %>% 
+  dplyr::relocate(mfg_loc, loc_name, item, loc_sku, supplier_number, description, used_in_priority_sku, type, item_type, shelf_life_day,
+                  birthday, uom, lead_time, planner, planner_name, standard_cost, moq, eoq, safety_stock, max_cycle_stock, usable, quality_hold,
+                  quality_hold_in_cost, soft_hold, on_hand_usable_soft_hold, on_hand_in_cost, target_inv, target_inv_in_cost, max_inv, max_inv_cost,
+                  opv, po_in_next_30_days, receipt_in_the_next_30_days, dos, at_risk_in_cost, inv_health, current_month_dep_demand, next_month_dep_demand,
+                  total_dep_demand_next_6_months, total_last_6_mos_sales, total_last_12_mos_sales, has_max, on_hand_inv_greater_than_max,
+                  on_hand_inv_less_or_equal_than_max, on_hand_inv_greater_than_target, on_hand_inv_less_or_equal_than_target,
+                  iqr_cost, upi_cost, iqr_cost_plus_hold_cost, upi_cost_plus_hold_cost) -> rm_data
 
 
 colnames(rm_data)[1]<-"Mfg Loc"
