@@ -145,7 +145,7 @@ rm_data %>%
 
 str(rm_data)
 
-colnames(rm_data)[23] <- "quality_hold_in_cost"
+colnames(rm_data)[24] <- "quality_hold_in_cost"
 colnames(rm_data)[26] <- "on_hand_in_cost"
 colnames(rm_data)[28] <- "target_inv_in_cost"
 colnames(rm_data)[30] <- "max_inv_cost"
