@@ -18,7 +18,7 @@ library(janitor)
 ##################################################################################################################################################################
 
 # Planner Address Book (If updated, correct this link) ----
-planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 08.23.22.xlsx", 
+planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 10.04.22.xlsx", 
                              sheet = "Sheet1", col_types = c("text", 
                                                              "text", "text", "text", "text"))
 
@@ -30,7 +30,7 @@ colnames(planner_adress)[1] <- "planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_8 9.28.22/exception report 09.28.22.xlsx")
+exception_report <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/exception report 10.05.22.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -132,7 +132,7 @@ reshape2::dcast(exception_report, loc_sku ~ ., value.var = "safety_stock", sum) 
 
 # Read IQR Report ----
 
-rm_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR archive/Raw Material Inventory Health (IQR) - 09.21.22 rev2.xlsx", 
+rm_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 09.28.22.xlsx", 
                       sheet = "RM data", col_names = FALSE)
 
 rm_data[-1:-3,] -> rm_data
@@ -171,7 +171,7 @@ rm_data %>%
 
 # Inventory Analysis Read RM ----
 
-inventory_analysis_rm <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_8 9.28.22/Inventory Report for all locations - 09.28.22.xlsx", 
+inventory_analysis_rm <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/Inventory Report for all locations - 10.05.22.xlsx", 
                                     sheet = "RM")
 
 
@@ -212,7 +212,7 @@ pivot_campus_ref_inventory_analysis %>%
   dplyr::rename(usable = Useable, loc_sku = campus_ref, hard_hold = "Hard Hold", soft_hold = "Soft Hold") -> pivot_campus_ref_inventory_analysis
 
 # BoM_dep_demand ----
-bom_dep_demand <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_8 9.28.22/Bill of Material.xlsx",
+bom_dep_demand <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/BOM/BoM Git/venturafoods_RPA_BoM/Bill of Material.xlsx",
                              sheet = "Sheet1")
 
 bom_dep_demand %>% 
@@ -238,7 +238,7 @@ bom_dep_demand %>%
 
 
 # Consumption data component # Updated once a month ----
-consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 09.14.22.xlsx")
+consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 10.04.22.xlsx")
 
 consumption_data[-1:-2,] -> consumption_data
 colnames(consumption_data) <- consumption_data[1, ]
@@ -260,7 +260,7 @@ consumption_data[is.na(consumption_data)] <- 0
 
 
 # SS Optimization RM for EOQ ----
-ss_optimization <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_6 9.14.22/SS Optimization by Location - Raw Material August 2022.xlsx",
+ss_optimization <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/Desktop/SS Optimization by Location - Raw Material September 2022.xlsx",
                               sheet = "Sheet1")
 
 ss_optimization[-1:-5,] -> ss_optimization
@@ -289,7 +289,7 @@ ss_opt_loc_sku %>%
 ss_optimization[-which(duplicated(ss_optimization$loc_sku)),] -> ss_optimization
 
 # Custord PO ----
-po <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_8 9.28.22/wo receipt custord po - 09.28.22.xlsx", 
+po <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 10.05.22.xlsx", 
                  sheet = "po", col_names = FALSE)
 
 
@@ -329,7 +329,7 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # Custord Receipt ----
-receipt <- read_excel("C:/Users/SLee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Test_8 9.28.22/wo receipt custord po - 09.28.22.xlsx", 
+receipt <- read_excel("C:/Users/lliang/OneDrive - Ventura Foods/R Studio/Source Data/wo receipt custord po - 10.05.22.xlsx", 
                       sheet = "receipt", col_names = FALSE)
 
 
@@ -770,7 +770,7 @@ colnames(rm_data)[50]<-"UPI$$ + Hold $$"
 
 
 
-writexl::write_xlsx(rm_data, "IQR_Report_8.17.2022.xlsx")
+writexl::write_xlsx(rm_data, "IQR_RM_10.05.2022.xlsx")
 
 
 
