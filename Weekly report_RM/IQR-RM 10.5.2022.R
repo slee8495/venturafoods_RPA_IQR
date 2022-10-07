@@ -143,23 +143,22 @@ rm_data %>%
   janitor::clean_names() %>% 
   readr::type_convert()-> rm_data
 
-str(rm_data)
 
 colnames(rm_data)[24] <- "quality_hold_in_cost"
-colnames(rm_data)[26] <- "on_hand_in_cost"
-colnames(rm_data)[28] <- "target_inv_in_cost"
-colnames(rm_data)[30] <- "max_inv_cost"
-colnames(rm_data)[35] <- "at_risk_in_cost"
-colnames(rm_data)[43] <- "on_hand_inv_greater_than_max"
-colnames(rm_data)[44] <- "on_hand_inv_less_or_equal_than_max"
-colnames(rm_data)[45] <- "on_hand_inv_greater_than_target"
-colnames(rm_data)[46] <- "on_hand_inv_less_or_equal_than_target"
-colnames(rm_data)[47] <- "iqr_cost"
-colnames(rm_data)[48] <- "upi_cost"
-colnames(rm_data)[49] <- "iqr_cost_plus_hold_cost"
-colnames(rm_data)[50] <- "upi_cost_plus_hold_cost"
-colnames(rm_data)[53] <- "current_month_dep_demand_in_cost"
-colnames(rm_data)[54] <- "next_month_dep_demand_in_cost"
+colnames(rm_data)[27] <- "on_hand_in_cost"
+colnames(rm_data)[29] <- "target_inv_in_cost"
+colnames(rm_data)[31] <- "max_inv_cost"
+colnames(rm_data)[36] <- "at_risk_in_cost"
+colnames(rm_data)[45] <- "on_hand_inv_greater_than_max"
+colnames(rm_data)[46] <- "on_hand_inv_less_or_equal_than_max"
+colnames(rm_data)[47] <- "on_hand_inv_greater_than_target"
+colnames(rm_data)[48] <- "on_hand_inv_less_or_equal_than_target"
+colnames(rm_data)[49] <- "iqr_cost"
+colnames(rm_data)[50] <- "upi_cost"
+colnames(rm_data)[51] <- "iqr_cost_plus_hold_cost"
+colnames(rm_data)[52] <- "upi_cost_plus_hold_cost"
+colnames(rm_data)[55] <- "current_month_dep_demand_in_cost"
+colnames(rm_data)[56] <- "next_month_dep_demand_in_cost"
 
 
 
@@ -427,6 +426,7 @@ merge(rm_data, exception_report_moq[, c("loc_sku", "reorder_min")], by = "loc_sk
   dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
+
 # vlookup - Safety Stock
 merge(rm_data, exception_report_ss[, c("loc_sku", "safety_stock")], by = "loc_sku", all.x = TRUE) %>% 
   dplyr::mutate(safety_stock.y = round(safety_stock.y, 0)) %>% 
@@ -593,6 +593,16 @@ merge(rm_data, ss_optimization[, c("loc_sku", "eoq_adjusted")], by = "loc_sku", 
   dplyr::relocate(loc_sku, .after = item) -> rm_data
 
 
+
+
+# Calculation - Moq in days
+rm_data %>% 
+  dplyr::mutate(moq_in_days = as.numeric(moq_in_days),
+                moq_in_days = ifelse(lead_time == "DNRR", "DNRR", moq/(total_dep_demand_next_6_months/180)),
+                moq_in_days = replace(moq_in_days, is.na(moq_in_days), 999),
+                moq_in_days = round(moq_in_days, 1)) -> rm_data
+
+
 # Calculation - Max Cycle Stock
 rm_data %>% 
   dplyr::mutate(max_cycle_stock =
@@ -624,6 +634,15 @@ rm_data %>%
   dplyr::mutate(max_inv_cost = as.double(max_inv_cost)) %>% 
   dplyr::mutate(max_inv_cost = round(max_inv_cost, 2)) %>% 
   dplyr::mutate(max_inv_cost = replace(max_inv_cost, is.na(max_inv_cost), 0)) -> rm_data
+
+
+# Calculation - MOQ Flag
+rm_data %>% 
+  dplyr::mutate(moq_flag = ifelse(lead_time == "DNRR", "DNRR",
+                                  ifelse(total_dep_demand_next_6_months == 0, "No demand", 
+                                         ifelse(moq / (total_dep_demand_next_6_months / 180) >= (shelf_life_day * 0.6), "High MOQ", 
+                                                "OK")))) -> rm_data
+
 
 
 # Calculation - has Max?
@@ -692,6 +711,17 @@ rm_data %>%
 rm_data %>% 
   dplyr::mutate(upi_cost_plus_hold_cost = upi_cost + quality_hold_in_cost) -> rm_data
 
+
+# Calculation - current month dep demand in $$
+rm_data %>% 
+  dplyr::mutate(current_month_dep_demand_in_cost = current_month_dep_demand * standard_cost,
+                current_month_dep_demand_in_cost = round(current_month_dep_demand_in_cost, 2)) -> rm_data
+
+
+# Calculation - next month dep demand in $$
+rm_data %>% 
+  dplyr::mutate(next_month_dep_demand_in_cost = next_month_dep_demand * standard_cost,
+                next_month_dep_demand_in_cost = round(next_month_dep_demand_in_cost, 2)) -> rm_data
 
 
 
