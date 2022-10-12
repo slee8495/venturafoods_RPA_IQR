@@ -597,10 +597,11 @@ merge(rm_data, ss_optimization[, c("loc_sku", "eoq_adjusted")], by = "loc_sku", 
 
 # Calculation - Moq in days
 rm_data %>% 
-  dplyr::mutate(moq_in_days = as.numeric(moq_in_days),
-                moq_in_days = ifelse(lead_time == "DNRR", "DNRR", moq/(total_dep_demand_next_6_months/180)),
+  dplyr::mutate(moq_in_days = ifelse(lead_time == "DNRR", "DNRR", moq/(total_dep_demand_next_6_months/180)),
                 moq_in_days = replace(moq_in_days, is.na(moq_in_days), 999),
-                moq_in_days = round(moq_in_days, 1)) -> rm_data
+                moq_in_days = as.numeric(moq_in_days),
+                moq_in_days = round(moq_in_days, 1),
+                moq_in_days = replace(moq_in_days, is.na(moq_in_days), "DNRR")) -> rm_data
 
 
 # Calculation - Max Cycle Stock
