@@ -738,7 +738,6 @@ rm_data %>% dplyr::filter(loc_sku != "60_8883") -> rm_data
 ########### Don't forget to rearrange and bring cols only what you need! #################
 rm_data %>% 
   dplyr::mutate(loc_sku = gsub("_", "-", loc_sku)) %>% 
-  dplyr::select(1:50) %>% 
   dplyr::relocate(mfg_loc, loc_name, item, loc_sku, supplier_number, description, used_in_priority_sku, type, item_type, shelf_life_day,
                   birthday, uom, lead_time, planner, planner_name, standard_cost, moq, eoq, safety_stock, max_cycle_stock, usable, quality_hold,
                   quality_hold_in_cost, soft_hold, on_hand_usable_soft_hold, on_hand_in_cost, target_inv, target_inv_in_cost, max_inv, max_inv_cost,
