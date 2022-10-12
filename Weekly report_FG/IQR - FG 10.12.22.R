@@ -705,7 +705,7 @@ names(pivot_campus_ref_Inventory_analysis) <- str_replace_all(names(pivot_campus
 
 # (Path Revision Needed) Main Dataset Board ----
 
-IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 10.12.22-2.xlsx",
+IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 10.05.22-2.xlsx",
                             sheet = "FG without BKO BKM TST")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
@@ -824,9 +824,10 @@ merge(IQR_FG_sample, exception_report[, c("ref", "Planner")], by = "ref", all.x 
 
 # vlookup - Planner Name 
 merge(IQR_FG_sample, Planner_address[, c("Planner", "Alpha_Name")], by = "Planner", all.x = TRUE) %>% 
-  dplyr::mutate(Alpha_Name = ifelse(Planner == 0, NA,
+  dplyr::mutate(Planner_Name = ifelse(Planner == 0, NA,
                                     ifelse(Planner == "DNRR", "DNRR",
-                                           Alpha_Name))) -> IQR_FG_sample
+                                           Alpha_Name))) %>% 
+  dplyr::select(-Alpha_Name) -> IQR_FG_sample
 
 
 # vlookup - JDE MOQ
