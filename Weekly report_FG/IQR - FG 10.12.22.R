@@ -824,7 +824,7 @@ merge(IQR_FG_sample, exception_report[, c("ref", "Planner")], by = "ref", all.x 
 
 # vlookup - Planner Name 
 merge(IQR_FG_sample, Planner_address[, c("Planner", "Alpha_Name")], by = "Planner", all.x = TRUE) %>% 
-  dplyr::mutate(Planner_Name = ifelse(Planner == 0, NA,
+  dplyr::mutate(Planner_Name = ifelse(Planner == 0, "NA",
                                     ifelse(Planner == "DNRR", "DNRR",
                                            Alpha_Name))) %>% 
   dplyr::select(-Alpha_Name) -> IQR_FG_sample
