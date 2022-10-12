@@ -150,7 +150,6 @@ exception_report %>%
   dplyr::mutate(Planner = replace(Planner, is.na(Planner), 0)) -> exception_report
 
 
-
 # MPF NA to 0 in exception_report before vlookup
 exception_report %>% 
   dplyr::mutate(MPF_or_Line = replace(MPF_or_Line, is.na(MPF_or_Line), 0)) -> exception_report
@@ -825,9 +824,10 @@ merge(IQR_FG_sample, exception_report[, c("ref", "Planner")], by = "ref", all.x 
 
 # vlookup - Planner Name 
 merge(IQR_FG_sample, Planner_address[, c("Planner", "Alpha_Name")], by = "Planner", all.x = TRUE) %>% 
-  dplyr::mutate(alpha_name_na = !is.na(Alpha_Name)) %>% 
-  dplyr::mutate(Planner_Name = ifelse(alpha_name_na == TRUE, Alpha_Name, "DNRR")) %>% 
-  dplyr::select(-alpha_name_na, -Alpha_Name) -> IQR_FG_sample
+  dplyr::mutate(Alpha_Name = ifelse(Planner == 0, NA,
+                                    ifelse(Planner == "DNRR", "DNRR",
+                                           Alpha_Name))) -> IQR_FG_sample
+
 
 # vlookup - JDE MOQ
 merge(IQR_FG_sample, exception_report[, c("ref", "Reorder_MIN")], by = "ref", all.x = TRUE) %>% 
