@@ -727,7 +727,10 @@ rm_data %>%
 
 
 ######## Deleting items that we don't need ###########
-rm_data %>% dplyr::filter(loc_sku != "60_8883") -> rm_data
+rm_data %>% 
+  dplyr::filter(loc_sku != "60_8883") %>% 
+  dplyr::filter(loc_sku != "75_16795") %>% 
+  dplyr::filter(loc_sku != "75_21645") -> rm_data
 
 
 #####################################################################################################################
