@@ -285,7 +285,7 @@ ss_opt_loc_sku %>%
   dplyr::select(-loc_sku...4) %>% 
   dplyr::rename(loc_sku = loc_sku...1) -> ss_optimization
 
-ss_optimization[-which(duplicated(ss_optimization$loc_sku)),] -> ss_optimization
+ss_optimization[!duplicated(ss_optimization[,c("loc_sku")]),] -> ss_optimization
 
 # Custord PO ----
 po <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/4.19.2023/custord po wo receipt.xlsx", 
