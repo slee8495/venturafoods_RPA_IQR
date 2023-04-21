@@ -201,6 +201,9 @@ inventory_analysis %>%
   dplyr::mutate(ref = paste0(location, "_", item), ref = gsub("-", "", ref)) %>% 
   dplyr::relocate(ref, campus_ref, campus) -> inventory_analysis
 
+inventory_analysis %>% 
+  dplyr::mutate(inventory_qty_cases = ifelse(is.na(inventory_qty_cases), 0, inventory_qty_cases)) -> inventory_analysis
+
 
 # Inventory_analysis_pivot_ref
 
