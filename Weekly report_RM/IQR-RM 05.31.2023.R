@@ -768,8 +768,26 @@ inv_bal %>%
                 hard_hold = replace(hard_hold, is.na(hard_hold), 0),
                 soft_hold = replace(soft_hold, is.na(soft_hold), 0)) %>% 
   dplyr::left_join(campus_ref) %>% 
-  dplyr::mutate(campus_ref = paste0(campus, "_", item)) %>% 
-  dplyr::select(campus_ref, usable, hard_hold, soft_hold)
+  dplyr::mutate(loc_sku = paste0(campus, "_", item)) %>% 
+  dplyr::rename(usable_2 = usable,
+                quality_hold_2 = hard_hold,
+                soft_hold_2 = soft_hold) %>% 
+  dplyr::select(loc_sku, usable_2, quality_hold_2, soft_hold_2) -> inv_bal
+
+inv_bal[!duplicated(inv_bal[,c("loc_sku")]),] -> inv_bal
+
+
+rm_data %>% 
+  dplyr::mutate(label_ref = paste0(mfg_loc, "_", item_type)) %>% 
+  dplyr::left_join(inv_bal) %>% 
+  dplyr::mutate(usable = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", usable_2, usable),
+                quality_hold = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", quality_hold_2, quality_hold),
+                soft_hold = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", soft_hold_2, soft_hold)) %>% 
+  dplyr::select(-usable_2, -quality_hold_2, -soft_hold_2, -label_ref) %>% 
+  dplyr::mutate(usable = replace(usable, is.na(usable), 0),
+                hard_hold = replace(quality_hold, is.na(quality_hold), 0),
+                soft_hold = replace(soft_hold, is.na(soft_hold), 0)) -> rm_data
+
 
 
 
