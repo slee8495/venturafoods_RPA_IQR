@@ -745,7 +745,7 @@ rm_data %>%
 rm_data %>% 
   dplyr::mutate(moq  = ifelse(is.na(moq), 0, moq)) -> rm_data
 
-# Usable, hold, label work
+# Usable, hold, label work ----
 inv_bal <- read_csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/5.31.23/ATT44274.csv")
 
 inv_bal[-1:-2, ] -> inv_bal
@@ -791,7 +791,7 @@ rm_data %>%
 
 
 
-# Arrange
+# Arrange ----
 rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/5.24.23/Raw Material Inventory Health (IQR) - 05.24.23.xlsx",
                                   sheet = "RM data")
 
