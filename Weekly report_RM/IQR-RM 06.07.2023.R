@@ -793,7 +793,8 @@ rm_data %>%
 rm_data %>% 
   dplyr::mutate(quality_hold = ifelse(is.na(quality_hold), 0, quality_hold),
                 quality_hold = ifelse(quality_hold < 0, 0, quality_hold),
-                soft_hold = ifelse(is.na(soft_hold), 0, soft_hold)) -> rm_data
+                soft_hold = ifelse(is.na(soft_hold), 0, soft_hold),
+                soft_hold = ifelse(soft_hold < 0, 0, soft_hold)) -> rm_data
 
 
 # Arrange ----
