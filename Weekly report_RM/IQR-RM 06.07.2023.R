@@ -789,6 +789,10 @@ rm_data %>%
                 soft_hold = replace(soft_hold, is.na(soft_hold), 0)) -> rm_data
 
 
+# Quality Hold blank to 0
+rm_data %>% 
+  dplyr::mutate(quality_hold = ifelse(is.na(quality_hold), 0, quality_hold),
+                soft_hold = ifelse(is.na(soft_hold), 0, soft_hold)) -> rm_data 
 
 
 # Arrange ----
