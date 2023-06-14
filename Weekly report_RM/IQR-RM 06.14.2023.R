@@ -749,6 +749,7 @@ rm_data %>%
                 current_month_dep_demand_in_cost = round(current_month_dep_demand_in_cost, 2)) -> rm_data
 
 
+
 # Calculation - next month dep demand in $$
 rm_data %>% 
   dplyr::mutate(next_month_dep_demand_in_cost = next_month_dep_demand * standard_cost,
@@ -852,18 +853,20 @@ rm_data %>%
 #####################################################################################################################
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
-
+rm_data %>% select(next_month_dep_demand_in_cost)
 
 ########### Don't forget to rearrange and bring cols only what you need! #################
 rm_data %>% 
   dplyr::mutate(loc_sku = gsub("_", "-", loc_sku)) %>% 
-  dplyr::relocate(mfg_loc, loc_name, item, loc_sku, supplier_number, description, class, item_type, shelf_life_day,
-                  birthday, uom, lead_time, planner, planner_name, standard_cost, moq, eoq, safety_stock, max_cycle_stock, usable, quality_hold,
+  dplyr::select(mfg_loc, loc_name, item, loc_sku, supplier_number, description, class, item_type, shelf_life_day,
+                  birthday, uom, lead_time, planner, planner_name, standard_cost, moq, moq_in_days, eoq, safety_stock, max_cycle_stock, usable, quality_hold,
                   quality_hold_in_cost, soft_hold, on_hand_usable_soft_hold, on_hand_in_cost, target_inv, target_inv_in_cost, max_inv, max_inv_cost,
-                  opv, po_in_next_30_days, receipt_in_the_next_30_days, dos, at_risk_in_cost, inv_health, current_month_dep_demand, next_month_dep_demand,
+                  opv, po_in_next_30_days, receipt_in_the_next_30_days, dos, at_risk_in_cost, moq_flag, inv_health,  
+                  current_month_dep_demand, next_month_dep_demand,
                   total_dep_demand_next_6_months, total_last_6_mos_sales, total_last_12_mos_sales, has_max, on_hand_inv_greater_than_max,
                   on_hand_inv_less_or_equal_than_max, on_hand_inv_greater_than_target, on_hand_inv_less_or_equal_than_target,
-                  iqr_cost, upi_cost, iqr_cost_plus_hold_cost, upi_cost_plus_hold_cost) -> rm_data
+                  iqr_cost, upi_cost, iqr_cost_plus_hold_cost, upi_cost_plus_hold_cost, current_month_dep_demand_in_cost, 
+                  next_month_dep_demand_in_cost) -> rm_data
 
 
 colnames(rm_data)[1]<-"Mfg Loc"
@@ -882,41 +885,43 @@ colnames(rm_data)[13]<-"Planner"
 colnames(rm_data)[14]<-"Planner Name"
 colnames(rm_data)[15]<-"Standard Cost"
 colnames(rm_data)[16]<-"MOQ"
-colnames(rm_data)[17]<-"EOQ"
-colnames(rm_data)[18]<-"Safety Stock"
-colnames(rm_data)[19]<-"Max Cycle Stock"
-colnames(rm_data)[20]<-"Usable"
-colnames(rm_data)[21]<-"Quality hold"
-colnames(rm_data)[22]<-"Quality hold in $$"
-colnames(rm_data)[23]<-"Soft Hold"
-colnames(rm_data)[24]<-"On Hand(usable + soft hold)"
-colnames(rm_data)[25]<-"On Hand in $$"
-colnames(rm_data)[26]<-"Target Inv"
-colnames(rm_data)[27]<-"Target Inv in $$"
-colnames(rm_data)[28]<-"Max inv"
-colnames(rm_data)[29]<-"Max inv $$"
-colnames(rm_data)[30]<-"OPV"
-colnames(rm_data)[31]<-"PO in next 30 days"
-colnames(rm_data)[32]<-"Receipt in the next 30 days"
-colnames(rm_data)[33]<-"DOS"
-colnames(rm_data)[34]<-"At Risk in $$"
-colnames(rm_data)[35]<-"Inv Health"
-colnames(rm_data)[36]<-"Current month dep demand"
-colnames(rm_data)[37]<-"Next month dep demand"
-colnames(rm_data)[38]<-"Total dep. demand Next 6 Months"
-colnames(rm_data)[39]<-"Total Last 6 mos Sales"
-colnames(rm_data)[40]<-"Total Last 12 mos Sales"
-colnames(rm_data)[41]<-"has Max?"
-colnames(rm_data)[42]<-"on hand Inv >max"
-colnames(rm_data)[43]<-"on hand Inv <= max"
-colnames(rm_data)[44]<-"on hand Inv > target"
-colnames(rm_data)[45]<-"on hand Inv <= target"
-colnames(rm_data)[46]<-"IQR $$"
-colnames(rm_data)[47]<-"UPI$$"
-colnames(rm_data)[48]<-"IQR $$ + Hold $$"
-colnames(rm_data)[49]<-"UPI$$ + Hold $$"
-
-
+colnames(rm_data)[17]<-"MOQ in days"
+colnames(rm_data)[18]<-"EOQ"
+colnames(rm_data)[19]<-"Safety Stock"
+colnames(rm_data)[20]<-"Max Cycle Stock"
+colnames(rm_data)[21]<-"Usable"
+colnames(rm_data)[22]<-"Quality hold"
+colnames(rm_data)[23]<-"Quality hold in $$"
+colnames(rm_data)[24]<-"Soft Hold"
+colnames(rm_data)[25]<-"On Hand(usable + soft hold)"
+colnames(rm_data)[26]<-"On Hand in $$"
+colnames(rm_data)[27]<-"Target Inv"
+colnames(rm_data)[28]<-"Target Inv in $$"
+colnames(rm_data)[29]<-"Max inv"
+colnames(rm_data)[30]<-"Max inv $$"
+colnames(rm_data)[31]<-"OPV"
+colnames(rm_data)[32]<-"PO in next 30 days"
+colnames(rm_data)[33]<-"Receipt in the next 30 days"
+colnames(rm_data)[34]<-"DOS"
+colnames(rm_data)[35]<-"At Risk in $$"
+colnames(rm_data)[36]<-"MOQ Flag"
+colnames(rm_data)[37]<-"Inv Health"
+colnames(rm_data)[38]<-"Current month dep demand"
+colnames(rm_data)[39]<-"Next month dep demand"
+colnames(rm_data)[40]<-"Total dep. demand Next 6 Months"
+colnames(rm_data)[41]<-"Total Last 6 mos Sales"
+colnames(rm_data)[42]<-"Total Last 12 mos Sales"
+colnames(rm_data)[43]<-"has Max?"
+colnames(rm_data)[44]<-"on hand Inv >max"
+colnames(rm_data)[45]<-"on hand Inv <= max"
+colnames(rm_data)[46]<-"on hand Inv > target"
+colnames(rm_data)[47]<-"on hand Inv <= target"
+colnames(rm_data)[48]<-"IQR $$"
+colnames(rm_data)[49]<-"UPI$$"
+colnames(rm_data)[50]<-"IQR $$ + Hold $$"
+colnames(rm_data)[51]<-"UPI$$ + Hold $$"
+colnames(rm_data)[52]<-"current month dep demand in $$"
+colnames(rm_data)[53]<-"next month dep demand in $$"
 
 writexl::write_xlsx(rm_data, "IQR_RM_Report_061423.xlsx")
 
