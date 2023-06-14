@@ -798,7 +798,7 @@ rm_data %>%
 
 
 # Arrange ----
-rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/6.07.23/Raw Material Inventory Health (IQR) - 06.07.23.xlsx",
+rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/6.7.23/Raw Material Inventory Health (IQR) - 06.07.23.xlsx",
                                   sheet = "RM data")
 
 rm_data_for_arrange[-1:-2, ] -> rm_data_for_arrange
