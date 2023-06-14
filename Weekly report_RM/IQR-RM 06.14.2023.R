@@ -746,7 +746,7 @@ rm_data %>%
   dplyr::mutate(moq  = ifelse(is.na(moq), 0, moq)) -> rm_data
 
 # Usable, hold, label work ----
-inv_bal <- read_csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/6.7.23/ATT61837.csv")
+inv_bal <- read_csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/6.14.23/ATT61837.csv")
 
 inv_bal[-1:-2, ] -> inv_bal
 colnames(inv_bal) <- inv_bal[1, ]
