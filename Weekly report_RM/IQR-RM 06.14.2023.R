@@ -239,25 +239,51 @@ bom_dep_demand %>%
 
 
 # Consumption data component # Updated once a month ----
-consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 05.04.23.xlsx")
+# consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 05.04.23.xlsx")
+# 
+# consumption_data[-1:-2,] -> consumption_data
+# colnames(consumption_data) <- consumption_data[1, ]
+# consumption_data[-1, ] -> consumption_data
+# 
+# 
+# colnames(consumption_data)[1] <- "loc_sku"
+# colnames(consumption_data)[ncol(consumption_data)-1] <- "sum_12mos"
+# colnames(consumption_data)[ncol(consumption_data)] <- "sum_6mos"
+# 
+# consumption_data %>% 
+#   dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) -> consumption_data
+# 
+# consumption_data %>% 
+#   data.frame() %>% 
+#   readr::type_convert() -> consumption_data
+# 
+# consumption_data[is.na(consumption_data)] <- 0
 
-consumption_data[-1:-2,] -> consumption_data
+
+
+# Consumption data component # Updated once a month ----
+consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Raw Material Monthly Consumption - 06.09.23.xlsx")
+consumption_data[-1:-3, ] -> consumption_data
 colnames(consumption_data) <- consumption_data[1, ]
 consumption_data[-1, ] -> consumption_data
 
-
-colnames(consumption_data)[1] <- "loc_sku"
-colnames(consumption_data)[ncol(consumption_data)-1] <- "sum_12mos"
-colnames(consumption_data)[ncol(consumption_data)] <- "sum_6mos"
+consumption_data -> consumption_data
 
 consumption_data %>% 
+  janitor::clean_names() %>% 
+  data.frame() %>%
+  readr::type_convert() %>% 
+  dplyr::select(-na_6) %>% 
+  dplyr::rename(loc_sku = ref,
+                unit.cost = unit_cost,
+                sum_12mos = na_7) %>% 
+  dplyr::mutate(sum_6mos = monthly_usage_8 + monthly_usage_9 + monthly_usage_10 + monthly_usage_11 + monthly_usage_12 + monthly_usage_13) %>% 
+  dplyr::relocate(sum_6mos, .before = sum_12mos) %>% 
   dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) -> consumption_data
-
-consumption_data %>% 
-  data.frame() %>% 
-  readr::type_convert() -> consumption_data
-
+  
+  
 consumption_data[is.na(consumption_data)] <- 0
+
 
 
 # SS Optimization RM for EOQ ----
