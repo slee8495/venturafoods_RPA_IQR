@@ -215,7 +215,7 @@ pivot_campus_ref_inventory_analysis %>%
   dplyr::rename(usable = Useable, loc_sku = campus_ref, hard_hold = "Hard Hold", soft_hold = "Soft Hold") -> pivot_campus_ref_inventory_analysis
 
 # BoM_dep_demand ----
-bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/6.28.2023/Bill of Material_070523.xlsx",
+bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/7.5.2023/Bill of Material_070523.xlsx",
                              sheet = "Sheet1")
 
 bom_dep_demand %>% 
