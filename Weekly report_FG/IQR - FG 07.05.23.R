@@ -1541,15 +1541,14 @@ fg_data_for_arrange[-1, ] -> fg_data_for_arrange
 fg_data_for_arrange %>% 
   janitor::clean_names() %>% 
   data.frame() %>% 
-  dplyr::select(mfg_ref) %>%
-  dplyr::mutate(mfg_ref = gsub("-", "_", mfg_ref)) %>% 
+  dplyr::select(ref) %>%
+  dplyr::mutate(ref = gsub("-", "_", ref)) %>% 
   dplyr::mutate(arrange = row_number()) -> fg_data_for_arrange
 
 IQR_FG_sample %>% 
   dplyr::left_join(fg_data_for_arrange) %>% 
   dplyr::arrange(arrange) %>% 
   dplyr::select(-arrange)-> IQR_FG_sample
-
 
 
 ####################################### transform to original format ####################################
