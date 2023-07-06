@@ -1567,6 +1567,38 @@ wo_2 %>%
   dplyr::mutate(ref = gsub("_", "-", ref)) -> wo_2
 
 
+# receipt_2
+receipt_2 <- read.csv("Z:/IMPORT_RECEIPTS.csv",
+                    header = FALSE)
+
+
+# Base receipt variable
+receipt_2 %>% 
+  dplyr::rename(aa = V1) %>% 
+  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
+  dplyr::rename(a = "1") %>% 
+  tidyr::separate(a, c("global", "rp", "Item")) %>% 
+  dplyr::rename(Location = "2",
+                scheduled = "4",
+                qty = "5",
+                receipt_no = "6",
+                date = "7",
+                receipt_no_2 = "8") %>% 
+  dplyr::select(-global, -rp, -"3") %>% 
+  dplyr::mutate(Item = gsub("^0+", "", Item),
+                Location = gsub("^0+", "", Location)) %>% 
+  dplyr::mutate(date = as.Date(date)) %>% 
+  readr::type_convert() %>% 
+  dplyr::mutate(ref = paste0(Location, "-", Item),
+                next_7_days = ifelse(date >= Sys.Date() & date <= Sys.Date() + 7, "Y", "N")) %>% 
+  dplyr::rename(item = Item) %>% 
+  dplyr::left_join(Campus_ref %>% mutate(Campus = as.character(Campus),
+                                         Location = as.character(Location)) %>% select(Location, Campus)) %>% 
+  dplyr::mutate(campus_ref = paste0(Campus, "-", item)) %>% 
+  dplyr::relocate(ref, campus_ref, Campus, item, Location, scheduled, qty, receipt_no, date, receipt_no_2, next_7_days) -> receipt_2
+
+
+
 # Planner Name N/A
 IQR_FG_sample %>% 
   dplyr::mutate(Planner_Name = ifelse(is.na(Planner_Name) & Planner == 0, 0, Planner_Name)) -> IQR_FG_sample
@@ -1756,6 +1788,7 @@ colnames(IQR_FG_sample)[113]<-"on hand inv after mfg 28 days CustOrd > 0"
 
 # (Path Revision Needed)
 writexl::write_xlsx(wo_2, "wo.xlsx")
+writexl::write_xlsx(receipt_2, "receipt.xlsx")
 writexl::write_xlsx(IQR_FG_sample, "IQR_FG_report_070523.xlsx")
 
 
@@ -1766,5 +1799,6 @@ file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/I
 file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/IQR/venturafoods_RPA_IQR/wo.xlsx",
             to="C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.5.2023/wo.xlsx")
 
-
+file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/IQR/venturafoods_RPA_IQR/receipt.xlsx",
+            to="C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.5.2023/receipt.xlsx")
 
