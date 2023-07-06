@@ -696,38 +696,38 @@ names(IQR_FG_sample) <- str_replace_all(names(IQR_FG_sample), c("<=" = "less_or_
 
 
 colnames(IQR_FG_sample)[9] <- "On_Priority_list"
-colnames(IQR_FG_sample)[32] <- "Useable"
-colnames(IQR_FG_sample)[34] <- "Quality_hold_in_cost"
-colnames(IQR_FG_sample)[36] <- "On_Hand_usable_and_soft_hold"
-colnames(IQR_FG_sample)[38] <- "On_Hand_in_cost"
-colnames(IQR_FG_sample)[39] <- "On_Hand_Adjusted_Forward_Max_in_cost"
-colnames(IQR_FG_sample)[40] <- "On_Hand_Mfg_Adjusted_Forward_Max_in_cost"
-colnames(IQR_FG_sample)[41] <- "Forward_Inv_Target_Current_Month_Fcst"
-colnames(IQR_FG_sample)[43] <- "Forward_Inv_Target_Current_Month_Fcst_in_cost"
-colnames(IQR_FG_sample)[46] <- "Adjusted_Forward_Inv_Target_in_cost"
-colnames(IQR_FG_sample)[49] <- "Adjusted_Forward_Inv_Max_in_cost"
-colnames(IQR_FG_sample)[52] <- "Mfg_Adjusted_Forward_Inv_Target_in_cost"
-colnames(IQR_FG_sample)[55] <- "Mfg_Adjusted_Forward_Inv_Max_in_cost"
-colnames(IQR_FG_sample)[56] <- "Forward_Inv_Target_lag_1_Current_Month_Fcst"
-colnames(IQR_FG_sample)[58] <- "Forward_Inv_Target_lag_1_Current_Month_Fcst_in_cost"
-colnames(IQR_FG_sample)[64] <- "CustOrd_in_next_28_days_in_cost"
-colnames(IQR_FG_sample)[69] <- "Mfg_CustOrd_in_next_28_days_in_cost"
-colnames(IQR_FG_sample)[75] <- "Forward_Target_Inv_DOS_fcst_only"
-colnames(IQR_FG_sample)[76] <- "Adjusted_Forward_Target_Inv_DOS_includes_Orders"
-colnames(IQR_FG_sample)[80] <- "Mfg_Forward_Target_Inv_DOS_fcst_only"
-colnames(IQR_FG_sample)[81] <- "Mfg_Adjusted_Forward_Target_Inv_DOS_includes_Orders"
-colnames(IQR_FG_sample)[85] <- "Lag_1_Current_Month_Fcst_in_cost"
-colnames(IQR_FG_sample)[94] <- "has_adjusted_forward_looking_Max"
-colnames(IQR_FG_sample)[104] <- "has_mfg_adjusted_forward_looking_Max"
+colnames(IQR_FG_sample)[34] <- "Useable"
+colnames(IQR_FG_sample)[36] <- "Quality_hold_in_cost"
+colnames(IQR_FG_sample)[38] <- "On_Hand_usable_and_soft_hold"
+colnames(IQR_FG_sample)[40] <- "On_Hand_in_cost"
+colnames(IQR_FG_sample)[41] <- "On_Hand_Adjusted_Forward_Max_in_cost"
+colnames(IQR_FG_sample)[42] <- "On_Hand_Mfg_Adjusted_Forward_Max_in_cost"
+colnames(IQR_FG_sample)[43] <- "Forward_Inv_Target_Current_Month_Fcst"
+colnames(IQR_FG_sample)[45] <- "Forward_Inv_Target_Current_Month_Fcst_in_cost"
+colnames(IQR_FG_sample)[48] <- "Adjusted_Forward_Inv_Target_in_cost"
+colnames(IQR_FG_sample)[51] <- "Adjusted_Forward_Inv_Max_in_cost"
+colnames(IQR_FG_sample)[54] <- "Mfg_Adjusted_Forward_Inv_Target_in_cost"
+colnames(IQR_FG_sample)[57] <- "Mfg_Adjusted_Forward_Inv_Max_in_cost"
+colnames(IQR_FG_sample)[58] <- "Forward_Inv_Target_lag_1_Current_Month_Fcst"
+colnames(IQR_FG_sample)[60] <- "Forward_Inv_Target_lag_1_Current_Month_Fcst_in_cost"
+colnames(IQR_FG_sample)[66] <- "CustOrd_in_next_28_days_in_cost"
+colnames(IQR_FG_sample)[71] <- "Mfg_CustOrd_in_next_28_days_in_cost"
+colnames(IQR_FG_sample)[77] <- "Forward_Target_Inv_DOS_fcst_only"
+colnames(IQR_FG_sample)[78] <- "Adjusted_Forward_Target_Inv_DOS_includes_Orders"
+colnames(IQR_FG_sample)[82] <- "Mfg_Forward_Target_Inv_DOS_fcst_only"
+colnames(IQR_FG_sample)[83] <- "Mfg_Adjusted_Forward_Target_Inv_DOS_includes_Orders"
+colnames(IQR_FG_sample)[87] <- "Lag_1_Current_Month_Fcst_in_cost"
+colnames(IQR_FG_sample)[96] <- "has_adjusted_forward_looking_Max"
+colnames(IQR_FG_sample)[106] <- "has_mfg_adjusted_forward_looking_Max"
 
 
-IQR_FG_sample %<>% 
+IQR_FG_sample %>% 
   dplyr::mutate(Ref = gsub("-", "_", Ref),
                 Campus_Ref = gsub("-", "_", Campus_Ref),
                 Mfg_Ref = gsub("-", "_", Mfg_Ref)) %>% 
   dplyr::rename(ref = Ref,
                 Loc_SKU = Campus_Ref,
-                mfg_ref = Mfg_Ref)
+                mfg_ref = Mfg_Ref) -> IQR_FG_sample
 
 
 # (Path Revision Needed) read SD & CV file ----
@@ -737,19 +737,26 @@ sdcv[-1:-3,] -> sdcv
 colnames(sdcv) <- sdcv[1,]
 sdcv[-1, ] -> sdcv
 
-colnames(sdcv)[3] <- "ref"
-colnames(sdcv)[6] <- "last_6_month_sales"
-colnames(sdcv)[7] <- "last_12_month_sales"
-colnames(sdcv)[65] <- "total_forecast_next_12_months"
+sdcv %>% 
+  janitor::clean_names() %>% 
+  dplyr::rename(last_6_month_sales = last_6_months_sales,
+                last_12_month_sales = last_12_months_sales,
+                total_forecast_next_12_months = x3_months_fcst) -> sdcv
 
-sdcv %<>%
-  dplyr::select(3, 6, 7, 65) %>%
+
+sdcv %>%
+  dplyr::select(ref, last_6_month_sales, last_12_month_sales, total_forecast_next_12_months) %>%
   dplyr::mutate(ref = gsub("-", "_", ref),
                 last_6_month_sales = as.double(last_6_month_sales),
                 last_12_month_sales = as.double(last_12_month_sales),
-                total_forecast_next_12_months = as.double(total_forecast_next_12_months))
+                total_forecast_next_12_months = as.double(total_forecast_next_12_months)) -> sdcv
 
-sdcv[-which(duplicated(sdcv$ref)),] -> sdcv
+sdcv %>% 
+  dplyr::group_by(ref) %>% 
+  dplyr::summarise(sum(last_6_month_sales), sum(last_12_month_sales), sum(total_forecast_next_12_months)) %>% 
+  dplyr::rename(last_6_month_sales = "sum(last_6_month_sales)",
+                last_12_month_sales = "sum(last_12_month_sales)",
+                total_forecast_next_12_months = "sum(total_forecast_next_12_months)") -> sdcv
 
 ##########################################################################################################
 ##################################################  ETL  #################################################
@@ -927,9 +934,9 @@ merge(IQR_FG_sample, sdcv[, c("ref", "last_12_month_sales")], by = "ref", all.x 
 # vlookup - Total Forecast Next 12 Months
 merge(IQR_FG_sample, DSX_pivot_1[, c("ref", "total_12_month")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(total_12_month = replace(total_12_month, is.na(total_12_month), 0)) %>% 
-  dplyr::relocate(total_12_month, .after = Total_mfg_Forecast_Next_12_Months) %>% 
-  dplyr::select(-Total_mfg_Forecast_Next_12_Months) %>% 
-  dplyr::rename(Total_mfg_Forecast_Next_12_Months = total_12_month) -> IQR_FG_sample
+  dplyr::relocate(total_12_month, .after = Total_Forecast_Next_12_Months) %>% 
+  dplyr::select(-Total_Forecast_Next_12_Months) %>% 
+  dplyr::rename(Total_Forecast_Next_12_Months = total_12_month) -> IQR_FG_sample
 
 
 
@@ -1189,7 +1196,7 @@ IQR_FG_sample %<>%
                 aa = replace(aa, is.na(aa), 0),
                 aa = replace(aa, is.nan(aa), 0),
                 aa = replace(aa, is.infinite(aa), 0)) %>% 
-  dplyr::mutate(Forward_Target_Inv_DOS_fcst_only = ifelse(Total_mfg_Forecast_Next_12_Months == 0, 0,
+  dplyr::mutate(Forward_Target_Inv_DOS_fcst_only = ifelse(Total_Forecast_Next_12_Months == 0, 0,
                                                           OPV + aa)) %>% 
   dplyr::mutate(Forward_Target_Inv_DOS_fcst_only = round(Forward_Target_Inv_DOS_fcst_only, 1)) %>% 
   dplyr::select(-aa)
@@ -1205,7 +1212,7 @@ IQR_FG_sample %<>%
                 aa = replace(aa, is.na(aa), 0),
                 aa = replace(aa, is.nan(aa), 0),
                 aa = replace(aa, is.infinite(aa), 0)) %>% 
-  dplyr::mutate(Adjusted_Forward_Target_Inv_DOS_includes_Orders = ifelse(Total_mfg_Forecast_Next_12_Months == 0, 0, 
+  dplyr::mutate(Adjusted_Forward_Target_Inv_DOS_includes_Orders = ifelse(Total_Forecast_Next_12_Months == 0, 0, 
                                                                          OPV + aa)) %>% 
   dplyr::mutate(Adjusted_Forward_Target_Inv_DOS_includes_Orders = round(Adjusted_Forward_Target_Inv_DOS_includes_Orders, 1)) %>% 
   dplyr::select(-aa)
@@ -1225,7 +1232,7 @@ IQR_FG_sample %<>%
 IQR_FG_sample %<>% 
   dplyr::mutate(Inv_Health = ifelse(On_Hand_usable_and_soft_hold < Current_SS, "BELOW SS",
                                     ifelse(DOS_after_CustOrd > Shippable_Shelf_Life, "AT RISK" ,
-                                           ifelse(Total_mfg_Forecast_Next_12_Months <= 0 & CustOrd_in_next_28_days <= 0,
+                                           ifelse(Total_Forecast_Next_12_Months <= 0 & CustOrd_in_next_28_days <= 0,
                                                   ifelse(On_Hand_usable_and_soft_hold > 0, "DEAD",
                                                          ifelse(on_hand_Inv_after_CustOrd_greater_AF_max == 0, "HEALTHY", "EXCESS")),
                                                   ifelse(on_hand_Inv_after_CustOrd_greater_AF_max == 1, "EXCESS", "HEALTHY"))))) 
@@ -1530,6 +1537,42 @@ IQR_FG_sample %>%
 
 
 
+
+######## added 7/5/2023 #########
+# wo_2
+wo_2 <- read.csv("Z:/IMPORT_JDE_OPENWO.csv",
+                 header = FALSE)
+
+
+wo_2 %>% 
+  dplyr::rename(aa = V1) %>% 
+  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
+  dplyr::select(-"3") %>% 
+  dplyr::rename(aa = "1") %>%  
+  tidyr::separate(aa, c("global", "rp", "Item")) %>% 
+  dplyr::select(-global, -rp) %>% 
+  dplyr::rename(Location = "2",
+                Workorder = "4",
+                qty = "5",
+                wo_no = "6",
+                date = "7",
+                wo_no_2 = "8") %>% 
+  dplyr::mutate(ref = paste0(Location, "_", Item)) %>% 
+  dplyr::mutate(qty = as.double(qty),
+                date = as.Date(date)) %>% 
+  dplyr::mutate(Location = sub("^0+", "", Location)) %>% 
+  
+  dplyr::relocate(ref, Item, Location, Workorder) %>% 
+  dplyr::mutate(in_next_7_days = ifelse(date >= Sys.Date() & date < Sys.Date()+7, "Y", "N") ) %>% 
+  dplyr::mutate(ref = gsub("_", "-", ref)) -> wo_2
+
+
+# Planner Name N/A
+IQR_FG_sample %>% 
+  dplyr::mutate(Planner_Name = ifelse(is.na(Planner_Name) & Planner == 0, 0, Planner_Name)) -> IQR_FG_sample
+
+
+
 # Arrange ----
 fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.5.2023/Finished Goods Inventory Health Adjusted Forward (IQR) - 06.28.23.xlsx",
                             sheet = "FG without BKO BKM TST")
@@ -1582,7 +1625,7 @@ IQR_FG_sample %>%
                   Mfg_Adjusted_Forward_Max_Inv_DOS, Mfg_Forward_Target_Inv_DOS_fcst_only, 
                   Mfg_Adjusted_Forward_Target_Inv_DOS_includes_Orders, Inv_Health, Mfg_Inv_Health, Lag_1_Current_Month_Fcst,
                   Lag_1_Current_Month_Fcst_in_cost, Current_Month_Fcst, Next_Month_Fcst, Mfg_Current_Month_Fcst,
-                  Mfg_Next_Month_Fcst, Total_Last_6_mos_Sales, Total_Last_12_mos_Sales, Total_mfg_Forecast_Next_12_Months,
+                  Mfg_Next_Month_Fcst, Total_Last_6_mos_Sales, Total_Last_12_mos_Sales, Total_Forecast_Next_12_Months,
                   Total_mfg_Forecast_Next_12_Months, has_adjusted_forward_looking_Max, 
                   on_hand_Inv_greater_AF_max, on_hand_Inv_less_or_equal_AF_max, 
                   on_hand_Inv_greater_Adjusted_Forward_looking_target,
@@ -1712,6 +1755,7 @@ colnames(IQR_FG_sample)[113]<-"on hand inv after mfg 28 days CustOrd > 0"
 
 
 # (Path Revision Needed)
+writexl::write_xlsx(wo_2, "wo.xlsx")
 writexl::write_xlsx(IQR_FG_sample, "IQR_FG_report_070523.xlsx")
 
 
@@ -1719,7 +1763,8 @@ file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/I
             to="C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.5.2023/IQR_FG_Report_070523.xlsx")
 
 
-
+file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/IQR/venturafoods_RPA_IQR/wo.xlsx",
+            to="C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.5.2023/wo.xlsx")
 
 
 
