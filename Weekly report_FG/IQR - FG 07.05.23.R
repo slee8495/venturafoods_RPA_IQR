@@ -1529,9 +1529,32 @@ IQR_FG_sample %>%
                   ifelse(On_Hand_usable_and_soft_hold - Mfg_CustOrd_in_next_28_days > 0, 1, 0)) -> IQR_FG_sample
 
 
+
+# Arrange ----
+fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.5.2023/Finished Goods Inventory Health Adjusted Forward (IQR) - 06.28.23.xlsx",
+                            sheet = "FG without BKO BKM TST")
+
+fg_data_for_arrange[-1:-2, ] -> fg_data_for_arrange
+colnames(fg_data_for_arrange) <- fg_data_for_arrange[1, ]
+fg_data_for_arrange[-1, ] -> fg_data_for_arrange
+
+fg_data_for_arrange %>% 
+  janitor::clean_names() %>% 
+  data.frame() %>% 
+  dplyr::select(mfg_ref) %>%
+  dplyr::mutate(mfg_ref = gsub("-", "_", mfg_ref)) %>% 
+  dplyr::mutate(arrange = row_number()) -> fg_data_for_arrange
+
+IQR_FG_sample %>% 
+  dplyr::left_join(fg_data_for_arrange) %>% 
+  dplyr::arrange(arrange) %>% 
+  dplyr::select(-arrange)-> IQR_FG_sample
+
+
+
 ####################################### transform to original format ####################################
 
-IQR_FG_sample %<>% 
+IQR_FG_sample %>% 
   dplyr::mutate(ref = gsub("_", "-", ref),
                 Loc_SKU = gsub("_", "-", Loc_SKU),
                 mfg_ref = gsub("_", "-", mfg_ref)) %>%
@@ -1571,7 +1594,7 @@ IQR_FG_sample %<>%
                   on_hand_Inv_greater_mfg_Adjusted_Forward_looking_target, on_hand_Inv_less_or_equal_mfg_AF_target,
                   on_hand_Inv_after_CustOrd_greater_mfg_AF_max, on_hand_Inv_after_CustOrd_less_or_equal_mfg_AF_max,
                   on_hand_Inv_after_CustOrd_greater_mfg_AF_target, on_hand_Inv_after_CustOrd_less_or_equal_mfg_AF_target,
-                  on_hand_inv_after_mfg_28_days_CustOrd_greater_0)
+                  on_hand_inv_after_mfg_28_days_CustOrd_greater_0) -> IQR_FG_sample
 
 
 colnames(IQR_FG_sample)[1]<-"Loc"
