@@ -28,6 +28,17 @@ colnames(Planner_address)[1] <- "Planner"
 Planner_address %>% 
   dplyr::select(1:2) -> Planner_address
 
+
+# macro_platform
+macro_platform <- read_excel("S:/Supply Chain Projects/RStudio/Macro-platform.xlsx",
+                             col_names = FALSE)
+
+colnames(macro_platform) <- macro_platform[1, ]
+macro_platform[-1, ] -> macro_platform
+
+macro_platform %>% 
+  dplyr::rename(Macro_Platform = `Macro-Platform`) -> macro_platform
+
 ## FG_ref_to_mpg_ref 
 
 FG_ref_to_mfg_ref <- read_excel("S:/Supply Chain Projects/RStudio/BoM/Master formats/FG_On_Hand/FG_ref_to_mfg_ref.xlsx")
@@ -1602,6 +1613,36 @@ receipt_2 %>%
 # Planner Name N/A
 IQR_FG_sample %>% 
   dplyr::mutate(Planner_Name = ifelse(is.na(Planner_Name) & Planner == 0, 0, Planner_Name)) -> IQR_FG_sample
+
+
+# completed sku_list
+completed_sku_list <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/7.12.2023/Completed SKU list - Linda (21).xlsx")
+completed_sku_list[-1, ] -> completed_sku_list
+colnames(completed_sku_list) <- completed_sku_list[1, ]
+completed_sku_list[-1, ] -> completed_sku_list
+
+completed_sku_list %>% 
+  janitor::clean_names() %>% 
+  data.frame() %>% 
+  dplyr::select(product_label_sku, na_4, na_5) %>% 
+  dplyr::rename(Item_2 = product_label_sku,
+                category = na_4,
+                platform = na_5) %>% 
+  dplyr::mutate(Item_2 = gsub("-", "_", Item_2)) -> completed_sku_list
+
+completed_sku_list %>% 
+  dplyr::select(Item_2, category) -> completed_sku_list_category
+
+completed_sku_list %>% 
+  dplyr::select(Item_2, platform) -> completed_sku_list_platform
+
+
+IQR_FG_sample %>% 
+  dplyr::mutate(category = ifelse(is.na(category), left_join(IQR_FG_sample, completed_sku_list_category), category)) %>% 
+  dplyr::mutate(Platform = ifelse(is.na(Platform), left_join(IQR_FG_sample, completed_sku_list_platform), Platform)) %>% 
+  dplyr::mutate(Macro_Platform = ifelse(is.na(Macro_Platform), left_join(IQR_FG_sample, macro_platform), Macro_Platform)) -> IQR_FG_sample
+
+
 
 
 
