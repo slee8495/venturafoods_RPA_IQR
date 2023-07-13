@@ -1615,34 +1615,26 @@ IQR_FG_sample %>%
   dplyr::mutate(Planner_Name = ifelse(is.na(Planner_Name) & Planner == 0, 0, Planner_Name)) -> IQR_FG_sample
 
 
-# completed sku_list
-completed_sku_list <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/7.12.2023/Completed SKU list - Linda (21).xlsx")
-completed_sku_list[-1, ] -> completed_sku_list
-colnames(completed_sku_list) <- completed_sku_list[1, ]
-completed_sku_list[-1, ] -> completed_sku_list
+# pre_data
+pre_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.5.2023/IQR_FG_Report_070523.xlsx")
 
-completed_sku_list %>% 
+pre_data %>% 
   janitor::clean_names() %>% 
-  data.frame() %>% 
-  dplyr::select(product_label_sku, na_4, na_5) %>% 
-  dplyr::rename(Item_2 = product_label_sku,
-                category = na_4,
-                platform = na_5) %>% 
-  dplyr::mutate(Item_2 = gsub("-", "_", Item_2)) -> completed_sku_list
+  dplyr::select(item_2, category, platform, macro_platform) %>% 
+  dplyr::rename(category_2 = category,
+                platform_2 = platform,
+                macro_platform_2 = macro_platform,
+                Item_2 = item_2) -> pre_data
 
-completed_sku_list %>% 
-  dplyr::select(Item_2, category) -> completed_sku_list_category
-
-completed_sku_list %>% 
-  dplyr::select(Item_2, platform) -> completed_sku_list_platform
+pre_data[!duplicated(pre_data[,c("Item_2")]),] -> pre_data
 
 
 IQR_FG_sample %>% 
-  dplyr::mutate(category = ifelse(is.na(category), left_join(IQR_FG_sample, completed_sku_list_category), category)) %>% 
-  dplyr::mutate(Platform = ifelse(is.na(Platform), left_join(IQR_FG_sample, completed_sku_list_platform), Platform)) %>% 
-  dplyr::mutate(Macro_Platform = ifelse(is.na(Macro_Platform), left_join(IQR_FG_sample, macro_platform), Macro_Platform)) -> IQR_FG_sample
-
-
+  dplyr::left_join(pre_data) %>% 
+  dplyr::mutate(category = ifelse(is.na(category), category_2, category),
+                Platform = ifelse(is.na(Platform), platform_2, Platform),
+                Macro_Platform = ifelse(is.na(Macro_Platform), macro_platform_2, Macro_Platform)) %>% 
+  dplyr::select(-category_2, -platform_2, -macro_platform_2) -> IQR_FG_sample
 
 
 
@@ -1842,4 +1834,5 @@ file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/I
 
 file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/IQR/venturafoods_RPA_IQR/receipt.xlsx",
             to="C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.12.2023/receipt.xlsx")
+
 
