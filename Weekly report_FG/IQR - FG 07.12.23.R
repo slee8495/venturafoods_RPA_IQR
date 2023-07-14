@@ -54,6 +54,16 @@ FG_ref_to_mfg_ref %<>%
 
 FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_ref_to_mfg_ref
 
+# FG Cases Per Pallet ----
+# https://edgeanalytics.venturafoods.com/MicroStrategyLibrary/app/DF007F1C11E9B3099BB30080EF7513D2/01DF5B390C4A8AD45D236FB8DE0BA232/K53--K46
+per_pallet <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.12.2023/FG Cases per Pallet.xlsx")
+per_pallet %>% 
+  janitor::clean_names() %>% 
+  dplyr::rename(Item_2 = product_label_sku) %>% 
+  dplyr::mutate(Item_2 = gsub("-", "", Item_2)) %>% 
+  dplyr::select(1, 3) -> per_pallet
+
+
 
 # (Path Revision Needed) Exception Report ----
 
@@ -505,7 +515,7 @@ colnames(DSX_pivot_1_pre)[9]  <- "Mon_g_fcst"
 # (Path Revision Needed) DSX Forecast pulling (Current Month file) ---- Change Directory ----
 
 DSX_Forecast_Backup <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2023.07.11.xlsx")
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/2023/DSX Forecast Backup - 2023.07.11.xlsx")
 
 DSX_Forecast_Backup[-1,] -> DSX_Forecast_Backup
 colnames(DSX_Forecast_Backup) <- DSX_Forecast_Backup[1, ]
@@ -1637,6 +1647,10 @@ IQR_FG_sample %>%
   dplyr::select(-category_2, -platform_2, -macro_platform_2) -> IQR_FG_sample
 
 
+################################ added on 7/14/23 #########################
+IQR_FG_sample %>% 
+  dplyr::left_join(per_pallet) -> IQR_FG_sample
+
 
 # Arrange ----
 fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.12.2023/Finished Goods Inventory Health Adjusted Forward (IQR) - 07.12.23.xlsx",
@@ -1668,7 +1682,7 @@ IQR_FG_sample %>%
   dplyr::rename(Campus_Ref = Loc_SKU) %>% 
   dplyr::relocate(Loc, mfg_loc, Campus, Item_2, category, Platform, Macro_Platform, Sub_Type, On_Priority_list, ref, 
                   mfg_ref, Campus_Ref, Base, Label,Description, MTO_MTS, MPF, Planner, Planner_Name, Pack_Size, Formula, 
-                  Net_Wt_Lbs, Unit_Cost, JDE_MOQ,
+                  Net_Wt_Lbs, Unit_Cost, fg_cases_per_pallet, JDE_MOQ,
                   Shippable_Shelf_Life, Hold_days, Current_SS, Max_Cycle_Stock, Max_Cycle_Stock_lag_1, 
                   Max_Cycle_Stock_Adjusted_Forward, Max_Cycle_Stock_Mfg_Adjusted_Forward, 
                   Useable, Quality_hold, Quality_hold_in_cost, Soft_Hold, 
@@ -1727,96 +1741,97 @@ colnames(IQR_FG_sample)[20]<-"Pack Size"
 colnames(IQR_FG_sample)[21]<-"Formula"
 colnames(IQR_FG_sample)[22]<-"Net Wt Lbs"
 colnames(IQR_FG_sample)[23]<-"Unit Cost"
-colnames(IQR_FG_sample)[24]<-"JDE MOQ"
-colnames(IQR_FG_sample)[25]<-"Shippable Shelf Life"
-colnames(IQR_FG_sample)[26]<-"Hold days"
-colnames(IQR_FG_sample)[27]<-"Current SS"
-colnames(IQR_FG_sample)[28]<-"Max Cycle Stock"
-colnames(IQR_FG_sample)[29]<-"Max Cycle Stock lag 1"
-colnames(IQR_FG_sample)[30]<-"Max Cycle Stock Adjusted Forward "
-colnames(IQR_FG_sample)[31]<-"Max Cycle Stock Mfg Adjusted Forward "
-colnames(IQR_FG_sample)[32]<-"Usable"
-colnames(IQR_FG_sample)[33]<-"Quality hold"
-colnames(IQR_FG_sample)[34]<-"Quality hold in $$"
-colnames(IQR_FG_sample)[35]<-"Soft Hold"
-colnames(IQR_FG_sample)[36]<-"On Hand (usable + soft hold)"
-colnames(IQR_FG_sample)[37]<-"On Hand in pounds"
-colnames(IQR_FG_sample)[38]<-"On Hand in $$"
-colnames(IQR_FG_sample)[39]<-"On Hand - Adjusted Forward Max in $$"
-colnames(IQR_FG_sample)[40]<-"On Hand - Mfg Adjusted Forward Max in $$"
-colnames(IQR_FG_sample)[41]<-"Forward Inv Target Current Month Fcst"
-colnames(IQR_FG_sample)[42]<-"Forward Inv Target Current Month Fcst in lbs."
-colnames(IQR_FG_sample)[43]<-"Forward Inv Target Current Month Fcst in $$"
-colnames(IQR_FG_sample)[44]<-"Adjusted Forward Inv Target"
-colnames(IQR_FG_sample)[45]<-"Adjusted Forward Inv Target in lbs."
-colnames(IQR_FG_sample)[46]<-"Adjusted Forward Inv Target in $$"
-colnames(IQR_FG_sample)[47]<-"Adjusted Forward Inv Max"
-colnames(IQR_FG_sample)[48]<-"Adjusted Forward Inv Max in lbs."
-colnames(IQR_FG_sample)[49]<-"Adjusted Forward Inv Max in $$"
-colnames(IQR_FG_sample)[50]<-"Mfg Adjusted Forward Inv Target"
-colnames(IQR_FG_sample)[51]<-"Mfg Adjusted Forward Inv Target in lbs."
-colnames(IQR_FG_sample)[52]<-"Mfg Adjusted Forward Inv Target in $$"
-colnames(IQR_FG_sample)[53]<-"Mfg Adjusted Forward Inv Max"
-colnames(IQR_FG_sample)[54]<-"Mfg Adjusted Forward Inv Max in lbs."
-colnames(IQR_FG_sample)[55]<-"Mfg Adjusted Forward Inv Max in $$"
-colnames(IQR_FG_sample)[56]<-"Forward Inv Target lag 1 Current Month Fcst"
-colnames(IQR_FG_sample)[57]<-"Forward Inv Target lag 1 Current Month Fcst in lbs."
-colnames(IQR_FG_sample)[58]<-"Forward Inv Target lag 1 Current Month Fcst in $$"
-colnames(IQR_FG_sample)[59]<-"OPV"
-colnames(IQR_FG_sample)[60]<-"CustOrd in next 7 days"
-colnames(IQR_FG_sample)[61]<-"CustOrd in next 14 days"
-colnames(IQR_FG_sample)[62]<-"CustOrd in next 21 days"
-colnames(IQR_FG_sample)[63]<-"CustOrd in next 28 days"
-colnames(IQR_FG_sample)[64]<-"CustOrd in next 28 days in $$"
-colnames(IQR_FG_sample)[65]<-"Mfg CustOrd in next 7 days"
-colnames(IQR_FG_sample)[66]<-"Mfg CustOrd in next 14 days"
-colnames(IQR_FG_sample)[67]<-"Mfg CustOrd in next 21 days"
-colnames(IQR_FG_sample)[68]<-"Mfg CustOrd in next 28 days"
-colnames(IQR_FG_sample)[69]<-"Mfg CustOrd in next 28 days in $$"
-colnames(IQR_FG_sample)[70]<-"Firm WO in next 28 days"
-colnames(IQR_FG_sample)[71]<-"Receipt in the next 28 days"
-colnames(IQR_FG_sample)[72]<-"DOS"
-colnames(IQR_FG_sample)[73]<-"DOS after CustOrd"
-colnames(IQR_FG_sample)[74]<-"Adjusted Forward Max Inv DOS"
-colnames(IQR_FG_sample)[75]<-"Forward Target Inv DOS (fcst only)"
-colnames(IQR_FG_sample)[76]<-"Adjusted Forward Target Inv DOS (includes Orders)"
-colnames(IQR_FG_sample)[77]<-"Mfg DOS"
-colnames(IQR_FG_sample)[78]<-"Mfg DOS after CustOrd"
-colnames(IQR_FG_sample)[79]<-"Mfg Adjusted Forward Max Inv DOS"
-colnames(IQR_FG_sample)[80]<-"Mfg Forward Target Inv DOS (fcst only)"
-colnames(IQR_FG_sample)[81]<-"Mfg Adjusted Forward Target Inv DOS (includes Orders)"
-colnames(IQR_FG_sample)[82]<-"Inv Health"
-colnames(IQR_FG_sample)[83]<-"Mfg Inv Health"
-colnames(IQR_FG_sample)[84]<-"Lag 1 Current Month Fcst"
-colnames(IQR_FG_sample)[85]<-"Lag 1 Current Month Fcst in $$"
-colnames(IQR_FG_sample)[86]<-"Current Month Fcst"
-colnames(IQR_FG_sample)[87]<-"Next Month Fcst"
-colnames(IQR_FG_sample)[88]<-"Mfg Current Month Fcst"
-colnames(IQR_FG_sample)[89]<-"Mfg Next Month Fcst"
-colnames(IQR_FG_sample)[90]<-"Total Last 6 mos Sales"
-colnames(IQR_FG_sample)[91]<-"Total Last 12 mos Sales "
-colnames(IQR_FG_sample)[92]<-"Total Forecast Next 12 Months"
-colnames(IQR_FG_sample)[93]<-"Total mfg Forecast Next 12 Months"
-colnames(IQR_FG_sample)[94]<-"has adjusted forward looking Max?"
-colnames(IQR_FG_sample)[95]<-"on hand Inv > AF max"
-colnames(IQR_FG_sample)[96]<-"on hand Inv <= AF max"
-colnames(IQR_FG_sample)[97]<-"on hand Inv > Adjusted Forward looking target"
-colnames(IQR_FG_sample)[98]<-"on hand Inv <= AF target"
-colnames(IQR_FG_sample)[99]<-"on hand Inv after CustOrd > AF max"
-colnames(IQR_FG_sample)[100]<-"on hand Inv after CustOrd <= AF max"
-colnames(IQR_FG_sample)[101]<-"on hand Inv after CustOrd > AF target"
-colnames(IQR_FG_sample)[102]<-"on hand Inv after CustOrd <= AF target"
-colnames(IQR_FG_sample)[103]<-"on hand inv after 28 days CustOrd > 0"
-colnames(IQR_FG_sample)[104]<-"has mfg adjusted forward looking Max?"
-colnames(IQR_FG_sample)[105]<-"on hand Inv > mfg AF max"
-colnames(IQR_FG_sample)[106]<-"on hand Inv <= mfg AF max"
-colnames(IQR_FG_sample)[107]<-"on hand Inv > mfg Adjusted Forward looking target"
-colnames(IQR_FG_sample)[108]<-"on hand Inv <= mfg AF target"
-colnames(IQR_FG_sample)[109]<-"on hand Inv after CustOrd > mfg AF max"
-colnames(IQR_FG_sample)[110]<-"on hand Inv after CustOrd <= mfg AF max"
-colnames(IQR_FG_sample)[111]<-"on hand Inv after CustOrd > mfg AF target"
-colnames(IQR_FG_sample)[112]<-"on hand Inv after CustOrd <= mfg AF target"
-colnames(IQR_FG_sample)[113]<-"on hand inv after mfg 28 days CustOrd > 0"
+colnames(IQR_FG_sample)[24]<-"FG cases per Pallet"
+colnames(IQR_FG_sample)[25]<-"JDE MOQ"
+colnames(IQR_FG_sample)[26]<-"Shippable Shelf Life"
+colnames(IQR_FG_sample)[27]<-"Hold days"
+colnames(IQR_FG_sample)[28]<-"Current SS"
+colnames(IQR_FG_sample)[29]<-"Max Cycle Stock"
+colnames(IQR_FG_sample)[30]<-"Max Cycle Stock lag 1"
+colnames(IQR_FG_sample)[31]<-"Max Cycle Stock Adjusted Forward "
+colnames(IQR_FG_sample)[32]<-"Max Cycle Stock Mfg Adjusted Forward "
+colnames(IQR_FG_sample)[33]<-"Usable"
+colnames(IQR_FG_sample)[34]<-"Quality hold"
+colnames(IQR_FG_sample)[35]<-"Quality hold in $$"
+colnames(IQR_FG_sample)[36]<-"Soft Hold"
+colnames(IQR_FG_sample)[37]<-"On Hand (usable + soft hold)"
+colnames(IQR_FG_sample)[38]<-"On Hand in pounds"
+colnames(IQR_FG_sample)[39]<-"On Hand in $$"
+colnames(IQR_FG_sample)[40]<-"On Hand - Adjusted Forward Max in $$"
+colnames(IQR_FG_sample)[41]<-"On Hand - Mfg Adjusted Forward Max in $$"
+colnames(IQR_FG_sample)[42]<-"Forward Inv Target Current Month Fcst"
+colnames(IQR_FG_sample)[43]<-"Forward Inv Target Current Month Fcst in lbs."
+colnames(IQR_FG_sample)[44]<-"Forward Inv Target Current Month Fcst in $$"
+colnames(IQR_FG_sample)[45]<-"Adjusted Forward Inv Target"
+colnames(IQR_FG_sample)[46]<-"Adjusted Forward Inv Target in lbs."
+colnames(IQR_FG_sample)[47]<-"Adjusted Forward Inv Target in $$"
+colnames(IQR_FG_sample)[48]<-"Adjusted Forward Inv Max"
+colnames(IQR_FG_sample)[49]<-"Adjusted Forward Inv Max in lbs."
+colnames(IQR_FG_sample)[50]<-"Adjusted Forward Inv Max in $$"
+colnames(IQR_FG_sample)[51]<-"Mfg Adjusted Forward Inv Target"
+colnames(IQR_FG_sample)[52]<-"Mfg Adjusted Forward Inv Target in lbs."
+colnames(IQR_FG_sample)[53]<-"Mfg Adjusted Forward Inv Target in $$"
+colnames(IQR_FG_sample)[54]<-"Mfg Adjusted Forward Inv Max"
+colnames(IQR_FG_sample)[55]<-"Mfg Adjusted Forward Inv Max in lbs."
+colnames(IQR_FG_sample)[56]<-"Mfg Adjusted Forward Inv Max in $$"
+colnames(IQR_FG_sample)[57]<-"Forward Inv Target lag 1 Current Month Fcst"
+colnames(IQR_FG_sample)[58]<-"Forward Inv Target lag 1 Current Month Fcst in lbs."
+colnames(IQR_FG_sample)[59]<-"Forward Inv Target lag 1 Current Month Fcst in $$"
+colnames(IQR_FG_sample)[60]<-"OPV"
+colnames(IQR_FG_sample)[61]<-"CustOrd in next 7 days"
+colnames(IQR_FG_sample)[62]<-"CustOrd in next 14 days"
+colnames(IQR_FG_sample)[63]<-"CustOrd in next 21 days"
+colnames(IQR_FG_sample)[64]<-"CustOrd in next 28 days"
+colnames(IQR_FG_sample)[65]<-"CustOrd in next 28 days in $$"
+colnames(IQR_FG_sample)[66]<-"Mfg CustOrd in next 7 days"
+colnames(IQR_FG_sample)[67]<-"Mfg CustOrd in next 14 days"
+colnames(IQR_FG_sample)[68]<-"Mfg CustOrd in next 21 days"
+colnames(IQR_FG_sample)[69]<-"Mfg CustOrd in next 28 days"
+colnames(IQR_FG_sample)[70]<-"Mfg CustOrd in next 28 days in $$"
+colnames(IQR_FG_sample)[71]<-"Firm WO in next 28 days"
+colnames(IQR_FG_sample)[72]<-"Receipt in the next 28 days"
+colnames(IQR_FG_sample)[73]<-"DOS"
+colnames(IQR_FG_sample)[74]<-"DOS after CustOrd"
+colnames(IQR_FG_sample)[75]<-"Adjusted Forward Max Inv DOS"
+colnames(IQR_FG_sample)[76]<-"Forward Target Inv DOS (fcst only)"
+colnames(IQR_FG_sample)[77]<-"Adjusted Forward Target Inv DOS (includes Orders)"
+colnames(IQR_FG_sample)[78]<-"Mfg DOS"
+colnames(IQR_FG_sample)[79]<-"Mfg DOS after CustOrd"
+colnames(IQR_FG_sample)[80]<-"Mfg Adjusted Forward Max Inv DOS"
+colnames(IQR_FG_sample)[81]<-"Mfg Forward Target Inv DOS (fcst only)"
+colnames(IQR_FG_sample)[82]<-"Mfg Adjusted Forward Target Inv DOS (includes Orders)"
+colnames(IQR_FG_sample)[83]<-"Inv Health"
+colnames(IQR_FG_sample)[84]<-"Mfg Inv Health"
+colnames(IQR_FG_sample)[85]<-"Lag 1 Current Month Fcst"
+colnames(IQR_FG_sample)[86]<-"Lag 1 Current Month Fcst in $$"
+colnames(IQR_FG_sample)[87]<-"Current Month Fcst"
+colnames(IQR_FG_sample)[88]<-"Next Month Fcst"
+colnames(IQR_FG_sample)[89]<-"Mfg Current Month Fcst"
+colnames(IQR_FG_sample)[90]<-"Mfg Next Month Fcst"
+colnames(IQR_FG_sample)[91]<-"Total Last 6 mos Sales"
+colnames(IQR_FG_sample)[92]<-"Total Last 12 mos Sales "
+colnames(IQR_FG_sample)[93]<-"Total Forecast Next 12 Months"
+colnames(IQR_FG_sample)[94]<-"Total mfg Forecast Next 12 Months"
+colnames(IQR_FG_sample)[95]<-"has adjusted forward looking Max?"
+colnames(IQR_FG_sample)[96]<-"on hand Inv > AF max"
+colnames(IQR_FG_sample)[97]<-"on hand Inv <= AF max"
+colnames(IQR_FG_sample)[98]<-"on hand Inv > Adjusted Forward looking target"
+colnames(IQR_FG_sample)[99]<-"on hand Inv <= AF target"
+colnames(IQR_FG_sample)[100]<-"on hand Inv after CustOrd > AF max"
+colnames(IQR_FG_sample)[101]<-"on hand Inv after CustOrd <= AF max"
+colnames(IQR_FG_sample)[102]<-"on hand Inv after CustOrd > AF target"
+colnames(IQR_FG_sample)[103]<-"on hand Inv after CustOrd <= AF target"
+colnames(IQR_FG_sample)[104]<-"on hand inv after 28 days CustOrd > 0"
+colnames(IQR_FG_sample)[105]<-"has mfg adjusted forward looking Max?"
+colnames(IQR_FG_sample)[106]<-"on hand Inv > mfg AF max"
+colnames(IQR_FG_sample)[107]<-"on hand Inv <= mfg AF max"
+colnames(IQR_FG_sample)[108]<-"on hand Inv > mfg Adjusted Forward looking target"
+colnames(IQR_FG_sample)[109]<-"on hand Inv <= mfg AF target"
+colnames(IQR_FG_sample)[110]<-"on hand Inv after CustOrd > mfg AF max"
+colnames(IQR_FG_sample)[111]<-"on hand Inv after CustOrd <= mfg AF max"
+colnames(IQR_FG_sample)[112]<-"on hand Inv after CustOrd > mfg AF target"
+colnames(IQR_FG_sample)[113]<-"on hand Inv after CustOrd <= mfg AF target"
+colnames(IQR_FG_sample)[114]<-"on hand inv after mfg 28 days CustOrd > 0"
 
 
 # (Path Revision Needed)
