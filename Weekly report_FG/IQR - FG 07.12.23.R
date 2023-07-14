@@ -1651,7 +1651,8 @@ IQR_FG_sample %>%
 
 ################################ added on 7/14/23 #########################
 IQR_FG_sample %>% 
-  dplyr::left_join(per_pallet) -> IQR_FG_sample
+  dplyr::left_join(per_pallet) %>% 
+  dplyr::mutate(fg_cases_per_pallet = ifelse(is.na(fg_cases_per_pallet), "NA", fg_cases_per_pallet)) -> IQR_FG_sample
 
 
 # Arrange ----
