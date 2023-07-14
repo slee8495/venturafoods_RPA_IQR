@@ -56,13 +56,15 @@ FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_r
 
 # FG Cases Per Pallet ----
 # https://edgeanalytics.venturafoods.com/MicroStrategyLibrary/app/DF007F1C11E9B3099BB30080EF7513D2/01DF5B390C4A8AD45D236FB8DE0BA232/K53--K46
-per_pallet <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.12.2023/FG Cases per Pallet.xlsx")
+per_pallet <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/7.12.2023/FG Cases per Pallet (1).xlsx")
 per_pallet %>% 
   janitor::clean_names() %>% 
-  dplyr::rename(Item_2 = product_label_sku) %>% 
-  dplyr::mutate(Item_2 = gsub("-", "", Item_2)) %>% 
-  dplyr::select(1, 3) -> per_pallet
-
+  dplyr::rename(Item_2 = product_label_sku,
+                Location = location) %>% 
+  dplyr::select(1, 3, 5) %>% 
+  dplyr::mutate(Item_2 = gsub("-", "", Item_2),
+                ref = paste0(Location, "_", Item_2)) %>% 
+  dplyr::select(ref, fg_cases_per_pallet) -> per_pallet
 
 
 # (Path Revision Needed) Exception Report ----
