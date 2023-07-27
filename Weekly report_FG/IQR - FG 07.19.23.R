@@ -517,7 +517,7 @@ colnames(DSX_pivot_1_pre)[9]  <- "Mon_g_fcst"
 # (Path Revision Needed) DSX Forecast pulling (Current Month file) ---- Change Directory ----
 
 DSX_Forecast_Backup <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/DSX Forecast Backup - 2023.07.18.xlsx")
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/Demand Planning Team/BI Forecast Backup/2023/DSX Forecast Backup - 2023.07.18.xlsx")
 
 DSX_Forecast_Backup[-1,] -> DSX_Forecast_Backup
 colnames(DSX_Forecast_Backup) <- DSX_Forecast_Backup[1, ]
@@ -703,7 +703,7 @@ names(pivot_campus_ref_Inventory_analysis) <- str_replace_all(names(pivot_campus
 
 # (Path Revision Needed) Main Dataset Board ----
 
-IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) - 07.12.23.xlsx",
+IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/FG/2023/Finished Goods Inventory Health Adjusted Forward (IQR) - 07.12.23.xlsx",
                             sheet = "FG without BKO BKM TST")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
