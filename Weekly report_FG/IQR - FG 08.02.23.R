@@ -29,8 +29,9 @@ Planner_address %>%
   dplyr::select(1:2) -> Planner_address
 
 
-# macro_platform
-macro_platform <- read_excel("S:/Supply Chain Projects/RStudio/Macro-platform.xlsx",
+# macro_platform ----
+macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/8.2.2023/Finished Goods Inventory Health Adjusted Forward (IQR) - 08.02.23.xlsx",
+                             sheet = "Macro-Platform",
                              col_names = FALSE)
 
 colnames(macro_platform) <- macro_platform[1, ]
@@ -689,9 +690,9 @@ reshape2::dcast(Inventory_analysis_FG, campus_ref ~ Inventory_Hold_Status, value
 names(pivot_campus_ref_Inventory_analysis) <- str_replace_all(names(pivot_campus_ref_Inventory_analysis), c(" " = "_"))
 
 
-# (Path Revision Needed) Main Dataset Board ----  ##################################  ############################ ################################# ######################Do not change this until Further Notice! 0----0
+# (Path Revision Needed) Main Dataset Board ----  
 
-IQR_FG_sample <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/FG/2023/Finished Goods Inventory Health Adjusted Forward (IQR) - 07.12.23.xlsx",
+IQR_FG_sample <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/8.2.2023/Finished Goods Inventory Health Adjusted Forward (IQR) - 08.02.23.xlsx",
                             sheet = "FG without BKO BKM TST")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
@@ -1637,6 +1638,58 @@ IQR_FG_sample %>%
   dplyr::select(-category_2, -platform_2, -macro_platform_2) -> IQR_FG_sample
 
 
+# Category & Platform
+completed_sku_list <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/8.2.2023/Completed SKU list - Linda (27).xlsx")
+completed_sku_list[-1:-2, ]  %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(x6, x9, x11) %>% 
+  dplyr::rename(Parent_Item_Number = x6,
+                Category = x9,
+                Platform = x11) %>% 
+  dplyr::mutate(Parent_Item_Number = gsub("-", "", Parent_Item_Number)) -> completed_sku_list
+
+completed_sku_list[!duplicated(completed_sku_list[,c("Parent_Item_Number")]),] -> completed_sku_list
+
+completed_sku_list %>% 
+  dplyr::select(Parent_Item_Number, Category) %>% 
+  dplyr::rename(Item_2 = Parent_Item_Number)-> completed_sku_list_category
+
+
+completed_sku_list %>% 
+  dplyr::select(Parent_Item_Number, Platform) %>% 
+  dplyr::rename(Item_2 = Parent_Item_Number)-> completed_sku_list_platform
+
+
+IQR_FG_sample %>% 
+  dplyr::select(-category, -Platform) %>% 
+  dplyr::left_join(completed_sku_list_category) %>% 
+  dplyr::left_join(completed_sku_list_platform) -> IQR_FG_sample
+
+macro_platform
+macro_platform[!duplicated(macro_platform[,c("Platform")]),] -> macro_platform
+
+IQR_FG_sample %>% 
+  dplyr::select(-Macro_Platform) %>% 
+  dplyr::left_join(macro_platform) -> IQR_FG_sample
+
+# On Priority List
+priority_sku <- read_excel("S:/Supply Chain Projects/RStudio/Priority_Sku_and_uniques.xlsx",
+                           col_names = FALSE)
+
+colnames(priority_sku) <- priority_sku[1, ]
+priority_sku[-1, ] -> priority_sku
+
+colnames(priority_sku)[1] <- "priority_sku"
+
+priority_sku %>% 
+  dplyr::mutate(Item_2 = priority_sku) %>% 
+  dplyr::rename(On_Priority_list = priority_sku)-> priority_sku
+
+
+IQR_FG_sample %>% 
+  dplyr::left_join(priority_sku) %>% 
+  dplyr::mutate(On_Priority_list = ifelse(is.na(On_Priority_list), "N", "Y")) -> IQR_FG_sample
+
 
 # Arrange ----
 fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/8.2.2023/Finished Goods Inventory Health Adjusted Forward (IQR) - 08.02.23.xlsx",
@@ -1666,8 +1719,8 @@ IQR_FG_sample %>%
                 Loc_SKU = gsub("_", "-", Loc_SKU),
                 mfg_ref = gsub("_", "-", mfg_ref)) %>%
   dplyr::rename(Campus_Ref = Loc_SKU) %>% 
-  dplyr::relocate(Loc, mfg_loc, Campus, Item_2, category, Platform, Macro_Platform, Sub_Type, On_Priority_list, ref, 
-                  mfg_ref, Campus_Ref, Base, Label,Description, MTO_MTS, MPF, Planner, Planner_Name, Pack_Size, Formula, 
+  dplyr::relocate(Loc, mfg_loc, Campus, Item_2, Category, Platform, Macro_Platform, Sub_Type, On_Priority_list, ref, 
+                  mfg_ref, Campus_Ref, Base, Label,Description, MTO_MTS, MPF, Planner, Planner_Name, Qty_per_pallet,Storage_condition, Pack_Size, Formula, 
                   Net_Wt_Lbs, Unit_Cost, JDE_MOQ,
                   Shippable_Shelf_Life, Hold_days, Current_SS, Max_Cycle_Stock, Max_Cycle_Stock_lag_1, 
                   Max_Cycle_Stock_Adjusted_Forward, Max_Cycle_Stock_Mfg_Adjusted_Forward, 
@@ -1704,119 +1757,7 @@ IQR_FG_sample %>%
                   on_hand_inv_after_mfg_28_days_CustOrd_greater_0) -> IQR_FG_sample
 
 
-colnames(IQR_FG_sample)[1]<-"Loc"
-colnames(IQR_FG_sample)[2]<-"mfg loc"
-colnames(IQR_FG_sample)[3]<-"Campus"
-colnames(IQR_FG_sample)[4]<-"Item 2"
-colnames(IQR_FG_sample)[5]<-"category"
-colnames(IQR_FG_sample)[6]<-"Platform"
-colnames(IQR_FG_sample)[7]<-"Macro-Platform"
-colnames(IQR_FG_sample)[8]<-"Sub Type"
-colnames(IQR_FG_sample)[9]<-"On Priority list?"
-colnames(IQR_FG_sample)[10]<-"Ref"
-colnames(IQR_FG_sample)[11]<-"Mfg Ref"
-colnames(IQR_FG_sample)[12]<-"Campus Ref"
-colnames(IQR_FG_sample)[13]<-"Base"
-colnames(IQR_FG_sample)[14]<-"Label"
-colnames(IQR_FG_sample)[15]<-"Description"
-colnames(IQR_FG_sample)[16]<-"MTO/MTS"
-colnames(IQR_FG_sample)[17]<-"MPF"
-colnames(IQR_FG_sample)[18]<-"Planner"
-colnames(IQR_FG_sample)[19]<-"Planner Name"
-colnames(IQR_FG_sample)[20]<-"Pack Size"
-colnames(IQR_FG_sample)[21]<-"Formula"
-colnames(IQR_FG_sample)[22]<-"Net Wt Lbs"
-colnames(IQR_FG_sample)[23]<-"Unit Cost"
-colnames(IQR_FG_sample)[24]<-"JDE MOQ"
-colnames(IQR_FG_sample)[25]<-"Shippable Shelf Life"
-colnames(IQR_FG_sample)[26]<-"Hold days"
-colnames(IQR_FG_sample)[27]<-"Current SS"
-colnames(IQR_FG_sample)[28]<-"Max Cycle Stock"
-colnames(IQR_FG_sample)[29]<-"Max Cycle Stock lag 1"
-colnames(IQR_FG_sample)[30]<-"Max Cycle Stock Adjusted Forward "
-colnames(IQR_FG_sample)[31]<-"Max Cycle Stock Mfg Adjusted Forward "
-colnames(IQR_FG_sample)[32]<-"Usable"
-colnames(IQR_FG_sample)[33]<-"Quality hold"
-colnames(IQR_FG_sample)[34]<-"Quality hold in $$"
-colnames(IQR_FG_sample)[35]<-"Soft Hold"
-colnames(IQR_FG_sample)[36]<-"On Hand (usable + soft hold)"
-colnames(IQR_FG_sample)[37]<-"On Hand in pounds"
-colnames(IQR_FG_sample)[38]<-"On Hand in $$"
-colnames(IQR_FG_sample)[39]<-"On Hand - Adjusted Forward Max in $$"
-colnames(IQR_FG_sample)[40]<-"On Hand - Mfg Adjusted Forward Max in $$"
-colnames(IQR_FG_sample)[41]<-"Forward Inv Target Current Month Fcst"
-colnames(IQR_FG_sample)[42]<-"Forward Inv Target Current Month Fcst in lbs."
-colnames(IQR_FG_sample)[43]<-"Forward Inv Target Current Month Fcst in $$"
-colnames(IQR_FG_sample)[44]<-"Adjusted Forward Inv Target"
-colnames(IQR_FG_sample)[45]<-"Adjusted Forward Inv Target in lbs."
-colnames(IQR_FG_sample)[46]<-"Adjusted Forward Inv Target in $$"
-colnames(IQR_FG_sample)[47]<-"Adjusted Forward Inv Max"
-colnames(IQR_FG_sample)[48]<-"Adjusted Forward Inv Max in lbs."
-colnames(IQR_FG_sample)[49]<-"Adjusted Forward Inv Max in $$"
-colnames(IQR_FG_sample)[50]<-"Mfg Adjusted Forward Inv Target"
-colnames(IQR_FG_sample)[51]<-"Mfg Adjusted Forward Inv Target in lbs."
-colnames(IQR_FG_sample)[52]<-"Mfg Adjusted Forward Inv Target in $$"
-colnames(IQR_FG_sample)[53]<-"Mfg Adjusted Forward Inv Max"
-colnames(IQR_FG_sample)[54]<-"Mfg Adjusted Forward Inv Max in lbs."
-colnames(IQR_FG_sample)[55]<-"Mfg Adjusted Forward Inv Max in $$"
-colnames(IQR_FG_sample)[56]<-"Forward Inv Target lag 1 Current Month Fcst"
-colnames(IQR_FG_sample)[57]<-"Forward Inv Target lag 1 Current Month Fcst in lbs."
-colnames(IQR_FG_sample)[58]<-"Forward Inv Target lag 1 Current Month Fcst in $$"
-colnames(IQR_FG_sample)[59]<-"OPV"
-colnames(IQR_FG_sample)[60]<-"CustOrd in next 7 days"
-colnames(IQR_FG_sample)[61]<-"CustOrd in next 14 days"
-colnames(IQR_FG_sample)[62]<-"CustOrd in next 21 days"
-colnames(IQR_FG_sample)[63]<-"CustOrd in next 28 days"
-colnames(IQR_FG_sample)[64]<-"CustOrd in next 28 days in $$"
-colnames(IQR_FG_sample)[65]<-"Mfg CustOrd in next 7 days"
-colnames(IQR_FG_sample)[66]<-"Mfg CustOrd in next 14 days"
-colnames(IQR_FG_sample)[67]<-"Mfg CustOrd in next 21 days"
-colnames(IQR_FG_sample)[68]<-"Mfg CustOrd in next 28 days"
-colnames(IQR_FG_sample)[69]<-"Mfg CustOrd in next 28 days in $$"
-colnames(IQR_FG_sample)[70]<-"Firm WO in next 28 days"
-colnames(IQR_FG_sample)[71]<-"Receipt in the next 28 days"
-colnames(IQR_FG_sample)[72]<-"DOS"
-colnames(IQR_FG_sample)[73]<-"DOS after CustOrd"
-colnames(IQR_FG_sample)[74]<-"Adjusted Forward Max Inv DOS"
-colnames(IQR_FG_sample)[75]<-"Forward Target Inv DOS (fcst only)"
-colnames(IQR_FG_sample)[76]<-"Adjusted Forward Target Inv DOS (includes Orders)"
-colnames(IQR_FG_sample)[77]<-"Mfg DOS"
-colnames(IQR_FG_sample)[78]<-"Mfg DOS after CustOrd"
-colnames(IQR_FG_sample)[79]<-"Mfg Adjusted Forward Max Inv DOS"
-colnames(IQR_FG_sample)[80]<-"Mfg Forward Target Inv DOS (fcst only)"
-colnames(IQR_FG_sample)[81]<-"Mfg Adjusted Forward Target Inv DOS (includes Orders)"
-colnames(IQR_FG_sample)[82]<-"Inv Health"
-colnames(IQR_FG_sample)[83]<-"Mfg Inv Health"
-colnames(IQR_FG_sample)[84]<-"Lag 1 Current Month Fcst"
-colnames(IQR_FG_sample)[85]<-"Lag 1 Current Month Fcst in $$"
-colnames(IQR_FG_sample)[86]<-"Current Month Fcst"
-colnames(IQR_FG_sample)[87]<-"Next Month Fcst"
-colnames(IQR_FG_sample)[88]<-"Mfg Current Month Fcst"
-colnames(IQR_FG_sample)[89]<-"Mfg Next Month Fcst"
-colnames(IQR_FG_sample)[90]<-"Total Last 6 mos Sales"
-colnames(IQR_FG_sample)[91]<-"Total Last 12 mos Sales "
-colnames(IQR_FG_sample)[92]<-"Total Forecast Next 12 Months"
-colnames(IQR_FG_sample)[93]<-"Total mfg Forecast Next 12 Months"
-colnames(IQR_FG_sample)[94]<-"has adjusted forward looking Max?"
-colnames(IQR_FG_sample)[95]<-"on hand Inv > AF max"
-colnames(IQR_FG_sample)[96]<-"on hand Inv <= AF max"
-colnames(IQR_FG_sample)[97]<-"on hand Inv > Adjusted Forward looking target"
-colnames(IQR_FG_sample)[98]<-"on hand Inv <= AF target"
-colnames(IQR_FG_sample)[99]<-"on hand Inv after CustOrd > AF max"
-colnames(IQR_FG_sample)[100]<-"on hand Inv after CustOrd <= AF max"
-colnames(IQR_FG_sample)[101]<-"on hand Inv after CustOrd > AF target"
-colnames(IQR_FG_sample)[102]<-"on hand Inv after CustOrd <= AF target"
-colnames(IQR_FG_sample)[103]<-"on hand inv after 28 days CustOrd > 0"
-colnames(IQR_FG_sample)[104]<-"has mfg adjusted forward looking Max?"
-colnames(IQR_FG_sample)[105]<-"on hand Inv > mfg AF max"
-colnames(IQR_FG_sample)[106]<-"on hand Inv <= mfg AF max"
-colnames(IQR_FG_sample)[107]<-"on hand Inv > mfg Adjusted Forward looking target"
-colnames(IQR_FG_sample)[108]<-"on hand Inv <= mfg AF target"
-colnames(IQR_FG_sample)[109]<-"on hand Inv after CustOrd > mfg AF max"
-colnames(IQR_FG_sample)[110]<-"on hand Inv after CustOrd <= mfg AF max"
-colnames(IQR_FG_sample)[111]<-"on hand Inv after CustOrd > mfg AF target"
-colnames(IQR_FG_sample)[112]<-"on hand Inv after CustOrd <= mfg AF target"
-colnames(IQR_FG_sample)[113]<-"on hand inv after mfg 28 days CustOrd > 0"
+
 
 # (Path Revision Needed)
 writexl::write_xlsx(wo_2, "wo.xlsx")
