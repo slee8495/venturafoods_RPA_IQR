@@ -132,7 +132,7 @@ reshape2::dcast(exception_report, loc_sku ~ ., value.var = "safety_stock", sum) 
 
 # Read IQR Report ----
 
-rm_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 07.26.23.xlsx", 
+rm_data <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) - 07.26.23-2.xlsx", 
                       sheet = "RM data", col_names = FALSE)
 
 rm_data[-1:-3,] -> rm_data
@@ -630,7 +630,8 @@ rm_data %>%
                 moq_in_days = replace(moq_in_days, is.na(moq_in_days), 999),
                 moq_in_days = as.numeric(moq_in_days),
                 moq_in_days = round(moq_in_days, 1),
-                moq_in_days = replace(moq_in_days, is.na(moq_in_days), "DNRR")) -> rm_data
+                moq_in_days = replace(moq_in_days, is.na(moq_in_days), "DNRR"),
+                moq_in_days = replace(moq_in_days, is.infinite(moq_in_days), 0)) -> rm_data
 
 
 # Calculation - Max Cycle Stock
