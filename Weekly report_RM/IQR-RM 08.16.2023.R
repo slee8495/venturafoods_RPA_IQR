@@ -135,7 +135,7 @@ reshape2::dcast(exception_report, loc_sku ~ ., value.var = "safety_stock", sum) 
 
 # Read IQR Report ----
 
-rm_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/8.9.23/Raw Material Inventory Health (IQR) - 08.09.23.xlsx", 
+rm_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/8.16.23/Raw Material Inventory Health (IQR) - 08.16.23.xlsx", 
                       sheet = "RM data", col_names = FALSE)
 
 rm_data[-1:-3,] -> rm_data
