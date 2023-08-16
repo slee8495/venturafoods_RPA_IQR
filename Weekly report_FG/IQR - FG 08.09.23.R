@@ -16,7 +16,6 @@ library(janitor)
 
 # (Path Revision Needed) Planner Address Book (If updated, correct this link) ----
 # sdrive: S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 04.26.22.xlsx
-
 Planner_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 08.01.23.xlsx", 
                               sheet = "Sheet1", col_types = c("text", 
                                                               "text", "text", "text", "text"))
