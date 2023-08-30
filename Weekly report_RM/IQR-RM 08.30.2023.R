@@ -885,7 +885,7 @@ rm_data %>%
                 next_month_dep_demand_in_cost) -> rm_data
 
 
-writexl::write_xlsx(rm_data, "IQR_RM_Report_082330.xlsx")
+writexl::write_xlsx(rm_data, "IQR_RM_Report_083023.xlsx")
 
 
 file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/IQR/venturafoods_RPA_IQR/IQR_RM_Report_083023.xlsx",
