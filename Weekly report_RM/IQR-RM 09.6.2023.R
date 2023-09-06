@@ -481,9 +481,10 @@ rm_data %>%
 
 # vlookup - Soft Hold
 merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "soft_hold")], by = "loc_sku", all.x = TRUE) %>%
+  dplyr::select(-soft_hold.x) %>%
+  dplyr::rename(soft_hold = soft_hold.y) %>% 
   dplyr::mutate(soft_hold = round(soft_hold, 2)) %>% 
-  dplyr::mutate(soft_hold = replace(soft_hold, is.na(soft_hold), 0)) %>% 
-  dplyr::relocate(loc_sku, .after = item) -> rm_data
+  dplyr::mutate(soft_hold = replace(soft_hold, is.na(soft_hold), 0)) -> rm_data
 
 # Calculation - On Hand (usable + soft hold)
 rm_data %>% 
