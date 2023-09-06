@@ -967,5 +967,5 @@ rm_data %>%
                 next_month_dep_demand_in_cost) -> rm_data
 
 
-writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/8.30.23/IQR_RM_Report_090623.xlsx")
+writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/9.6.23/IQR_RM_Report_090623.xlsx")
 
