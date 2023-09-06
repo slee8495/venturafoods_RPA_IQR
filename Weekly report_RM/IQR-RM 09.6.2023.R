@@ -146,26 +146,6 @@ rm_data %>%
   janitor::clean_names() %>% 
   readr::type_convert()-> rm_data
 
-str(rm_data)
-
-colnames(rm_data)[8]  <- "class"
-colnames(rm_data)[24] <- "quality_hold_in_cost"
-colnames(rm_data)[25] <- "on_hand_in_cost"
-colnames(rm_data)[29] <- "target_inv_in_cost"
-colnames(rm_data)[31] <- "max_inv_cost"
-colnames(rm_data)[36] <- "at_risk_in_cost"
-colnames(rm_data)[45] <- "on_hand_inv_greater_than_max"
-colnames(rm_data)[46] <- "on_hand_inv_less_or_equal_than_max"
-colnames(rm_data)[47] <- "on_hand_inv_greater_than_target"
-colnames(rm_data)[48] <- "on_hand_inv_less_or_equal_than_target"
-colnames(rm_data)[49] <- "iqr_cost"
-colnames(rm_data)[50] <- "upi_cost"
-colnames(rm_data)[51] <- "iqr_cost_plus_hold_cost"
-colnames(rm_data)[52] <- "upi_cost_plus_hold_cost"
-colnames(rm_data)[55] <- "current_month_dep_demand_in_cost"
-colnames(rm_data)[56] <- "next_month_dep_demand_in_cost"
-
-
 
 rm_data %>% 
   dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) %>% 
