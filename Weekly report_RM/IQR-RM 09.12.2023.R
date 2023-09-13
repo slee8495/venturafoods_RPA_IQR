@@ -21,7 +21,7 @@ library(rio)
 
 supplier_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book Supplier - 2023.09.05.xlsx")
 
-planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 2023.09.05", 
+planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 2023.09.05.xlsx", 
                              sheet = "Sheet1", col_types = c("text", 
                                                              "text", "text", "text", "text"))
 
