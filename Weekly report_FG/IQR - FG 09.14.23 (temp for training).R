@@ -1673,7 +1673,9 @@ IQR_FG_sample %>%
   dplyr::mutate(next_month_fcst_2 = next_month_fcst * unit_cost) -> IQR_FG_sample
 
 
-
+############################################ Custord ###################################################
+custord %>% 
+  dplyr::select(1:5) -> custord_open_order
 
 ########################################################################################################
 
@@ -1750,6 +1752,8 @@ IQR_FG_sample %>%
 
 # (Path Revision Needed)
 writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/9.14.2023 - temp for training/IQR_FG_Report_091423.xlsx")
+writexl::write_xlsx(custord_open_order, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/9.14.2023 - temp for training/Open Order.xlsx")
+
 
 
 
