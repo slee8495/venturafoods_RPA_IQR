@@ -313,7 +313,7 @@ custord %>%
 
 
 # (Path Revision Needed) Loc 624 for custord ----
-loc_624_custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/9.12.2023/Canada Open Orders (24).xlsx", 
+loc_624_custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/9.14.2023 - temp for training/Canada Open Orders (25).xlsx", 
                               col_names = FALSE)
 
 loc_624_custord[-1:-2, ] -> loc_624_custord
@@ -653,7 +653,7 @@ DSX_mfg_pivot_1 %>%
 # (Path Revision Needed) Inventory ----
 
 # Read FG ----
-Inventory_analysis_FG <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2023/9.12.23/Inventory Report for all locations (FG).xlsx")
+Inventory_analysis_FG <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/9.14.2023 - temp for training/Inventory Report for all locations (73).xlsx")
 
 
 Inventory_analysis_FG[-1,] -> Inventory_analysis_FG
@@ -994,12 +994,12 @@ readr::type_convert(IQR_FG_sample) -> IQR_FG_sample
 # calculate - Max Cycle Stock
 IQR_FG_sample %>% 
   dplyr::mutate(max_cycle_stock = ifelse(opv == 0, pmax(cust_ord_in_next_28_days, jde_moq), pmax(jde_moq, 
-                                                                                                ifelse(opv >= 20, cust_ord_in_next_28_days,
-                                                                                                       ifelse(opv >= 12 & opv < 20, cust_ord_in_next_21_days,
-                                                                                                              ifelse(opv >= 8 & opv < 12, cust_ord_in_next_14_days, cust_ord_in_next_7_days))) +
-                                                                                                  current_month_fcst / 20.83 * hold_days,
-                                                                                                current_month_fcst / 20.83 * (opv + hold_days),
-                                                                                                total_last_12_mos_sales / 250 * (opv + hold_days) ))) %>% 
+                                                                                                 ifelse(opv >= 20, cust_ord_in_next_28_days,
+                                                                                                        ifelse(opv >= 12 & opv < 20, cust_ord_in_next_21_days,
+                                                                                                               ifelse(opv >= 8 & opv < 12, cust_ord_in_next_14_days, cust_ord_in_next_7_days))) +
+                                                                                                   current_month_fcst / 20.83 * hold_days,
+                                                                                                 current_month_fcst / 20.83 * (opv + hold_days),
+                                                                                                 total_last_12_mos_sales / 250 * (opv + hold_days) ))) %>% 
   dplyr::mutate(max_cycle_stock = round(max_cycle_stock, 0)) -> IQR_FG_sample
 
 
@@ -1008,11 +1008,11 @@ IQR_FG_sample %>%
 # calculate - max_cycle_stock_lag_1
 IQR_FG_sample %>% 
   dplyr::mutate(max_cycle_stock_lag_1 = ifelse(opv == 0, pmax(cust_ord_in_next_28_days, jde_moq), pmax(jde_moq, 
-                                                                                                      ifelse(opv >= 20, cust_ord_in_next_28_days,
-                                                                                                             ifelse(opv >= 12 & opv < 20, cust_ord_in_next_21_days,
-                                                                                                                    ifelse(opv >= 8 & opv < 12, cust_ord_in_next_14_days, cust_ord_in_next_7_days))) +
-                                                                                                        lag_1_current_month_fcst / 20.83 * hold_days,
-                                                                                                      lag_1_current_month_fcst / 20.83 * (opv + hold_days) ))) %>% 
+                                                                                                       ifelse(opv >= 20, cust_ord_in_next_28_days,
+                                                                                                              ifelse(opv >= 12 & opv < 20, cust_ord_in_next_21_days,
+                                                                                                                     ifelse(opv >= 8 & opv < 12, cust_ord_in_next_14_days, cust_ord_in_next_7_days))) +
+                                                                                                         lag_1_current_month_fcst / 20.83 * hold_days,
+                                                                                                       lag_1_current_month_fcst / 20.83 * (opv + hold_days) ))) %>% 
   dplyr::mutate(max_cycle_stock_lag_1 = round(max_cycle_stock_lag_1, 0)) -> IQR_FG_sample
 
 
@@ -1021,10 +1021,10 @@ IQR_FG_sample %>%
 # calculate - Max Cycle Stock Adjusted Forward 
 IQR_FG_sample %>% 
   dplyr::mutate(max_cycle_stock = ifelse(opv == 0, pmax(cust_ord_in_next_28_days, jde_moq), pmax(jde_moq, ifelse(opv >= 20, cust_ord_in_next_28_days,
-                                                                                                                        ifelse(opv >= 12 & opv < 20, cust_ord_in_next_21_days,
-                                                                                                                               ifelse(opv >= 8 & opv < 12, cust_ord_in_next_14_days, cust_ord_in_next_7_days))) +
-                                                                                                                   pmax(current_month_fcst, next_month_fcst) / 20.83 * hold_days,
-                                                                                                                 pmax(current_month_fcst, next_month_fcst) / 20.83 * (opv + hold_days) ))) %>% 
+                                                                                                                 ifelse(opv >= 12 & opv < 20, cust_ord_in_next_21_days,
+                                                                                                                        ifelse(opv >= 8 & opv < 12, cust_ord_in_next_14_days, cust_ord_in_next_7_days))) +
+                                                                                                   pmax(current_month_fcst, next_month_fcst) / 20.83 * hold_days,
+                                                                                                 pmax(current_month_fcst, next_month_fcst) / 20.83 * (opv + hold_days) ))) %>% 
   dplyr::mutate(max_cycle_stock = round(max_cycle_stock, 0)) -> IQR_FG_sample
 
 
@@ -1099,10 +1099,10 @@ IQR_FG_sample %>%
 # calculate - dos
 IQR_FG_sample %>% 
   dplyr::mutate(dos = on_hand_usable_soft_hold / pmax((ifelse(opv == 0 | opv >= 20, 
-                                                                  cust_ord_in_next_28_days, 
-                                                                  ifelse(opv < 20  & opv >= 12, cust_ord_in_next_21_days,
-                                                                         ifelse(opv < 12  & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))) / opv), 
-                                                          (pmax(current_month_fcst, next_month_fcst) / 20.83) ),
+                                                              cust_ord_in_next_28_days, 
+                                                              ifelse(opv < 20  & opv >= 12, cust_ord_in_next_21_days,
+                                                                     ifelse(opv < 12  & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))) / opv), 
+                                                      (pmax(current_month_fcst, next_month_fcst) / 20.83) ),
                 dos_na = !is.na(dos),
                 dos = ifelse(dos_na == TRUE, dos, 0),
                 dos = round(dos, 1),
@@ -1116,8 +1116,8 @@ IQR_FG_sample %>%
 # calculate - dos after CustOrd
 IQR_FG_sample %>% 
   dplyr::mutate(dos_after_cust_ord = (on_hand_usable_soft_hold - ifelse(opv == 0 | opv >= 20, cust_ord_in_next_28_days, 
-                                                                           ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days, 
-                                                                                  ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))))/
+                                                                        ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days, 
+                                                                               ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))))/
                   pmax((ifelse(opv == 0 | opv >= 20, cust_ord_in_next_28_days, 
                                ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days,
                                       ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days)))/opv),
@@ -1161,7 +1161,7 @@ IQR_FG_sample %>%
                 aa = replace(aa, is.nan(aa), 0),
                 aa = replace(aa, is.infinite(aa), 0)) %>% 
   dplyr::mutate(target_inv_dos_includes_orders = ifelse(total_forecast_next_12_months == 0, 0, 
-                                                                         opv + aa)) %>% 
+                                                        opv + aa)) %>% 
   dplyr::mutate(target_inv_dos_includes_orders = round(target_inv_dos_includes_orders, 1)) %>% 
   dplyr::select(-aa) -> IQR_FG_sample
 
@@ -1226,26 +1226,26 @@ IQR_FG_sample %>%
 # calculate - on hand Inv after CustOrd <= AF max
 IQR_FG_sample %>% 
   dplyr::mutate(on_hand_inv_after_cust_ord_af_max_2 = ifelse(on_hand_usable_soft_hold - (ifelse(opv == 0 | opv >= 20, cust_ord_in_next_28_days,
-                                                                                                               ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days,
-                                                                                                                      ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))))
-                                                                        <= max_inventory_target , 1, 0)) -> IQR_FG_sample
+                                                                                                ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days,
+                                                                                                       ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))))
+                                                             <= max_inventory_target , 1, 0)) -> IQR_FG_sample
 
 
 # calculate - on hand Inv after CustOrd > AF target
 IQR_FG_sample %>% 
   dplyr::mutate(on_hand_inv_after_cust_ord_af_target = ifelse(on_hand_usable_soft_hold - (ifelse(opv == 0 | opv >= 20, cust_ord_in_next_28_days,
-                                                                                                            ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days,
-                                                                                                                   ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))))
-                                                                     > max_inventory_target, 1, 0)) -> IQR_FG_sample
+                                                                                                 ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days,
+                                                                                                        ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))))
+                                                              > max_inventory_target, 1, 0)) -> IQR_FG_sample
 
 
 
 # calculate - on hand Inv after CustOrd <= AF target
 IQR_FG_sample %>% 
   dplyr::mutate(on_hand_inv_after_cust_ord_af_target_2 = ifelse(on_hand_usable_soft_hold - (ifelse(opv == 0 | opv >= 20, cust_ord_in_next_28_days,
-                                                                                                                  ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days,
-                                                                                                                         ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))))
-                                                                           <= max_inventory_target, 1, 0)) -> IQR_FG_sample
+                                                                                                   ifelse(opv < 20 & opv >= 12, cust_ord_in_next_21_days,
+                                                                                                          ifelse(opv < 12 & opv >= 8, cust_ord_in_next_14_days, cust_ord_in_next_7_days))))
+                                                                <= max_inventory_target, 1, 0)) -> IQR_FG_sample
 
 
 # calculate - on hand inv after 28 days CustOrd > 0
@@ -1278,8 +1278,8 @@ IQR_FG_sample %>%
 # calculate - On Hand - Mfg Adjusted Forward Max in $$
 IQR_FG_sample %>% 
   dplyr::mutate(on_hand_mfg_adjusted_forward_max = ifelse((on_hand_usable_soft_hold - mfg_adjusted_forward_inv_max) * 
-                                                                    unit_cost < 0, 0, (on_hand_usable_soft_hold - 
-                                                                                         mfg_adjusted_forward_inv_max) * unit_cost) )  -> IQR_FG_sample
+                                                            unit_cost < 0, 0, (on_hand_usable_soft_hold - 
+                                                                                 mfg_adjusted_forward_inv_max) * unit_cost) )  -> IQR_FG_sample
 
 
 
@@ -1325,11 +1325,11 @@ IQR_FG_sample %>%
 # test
 IQR_FG_sample %>% 
   dplyr::mutate(mfg_dos = on_hand_usable_soft_hold / pmax((ifelse(opv == 0 | opv >= 20, 
-                                                                      mfg_cust_ord_in_next_28_days, 
-                                                                      ifelse(opv < 20  & opv >= 12, mfg_cust_ord_in_next_21_days,
-                                                                             ifelse(opv < 12  & opv >= 8, mfg_cust_ord_in_next_14_days, 
-                                                                                    mfg_cust_ord_in_next_7_days))) / opv), 
-                                                              (pmax(mfg_current_month_fcst, mfg_next_month_fcst) / 20.83) ),
+                                                                  mfg_cust_ord_in_next_28_days, 
+                                                                  ifelse(opv < 20  & opv >= 12, mfg_cust_ord_in_next_21_days,
+                                                                         ifelse(opv < 12  & opv >= 8, mfg_cust_ord_in_next_14_days, 
+                                                                                mfg_cust_ord_in_next_7_days))) / opv), 
+                                                          (pmax(mfg_current_month_fcst, mfg_next_month_fcst) / 20.83) ),
                 dos_mfg_na = !is.na(mfg_dos),
                 mfg_dos = ifelse(dos_mfg_na == TRUE, mfg_dos, 0),
                 mfg_dos = round(mfg_dos, 1),
@@ -1340,9 +1340,9 @@ IQR_FG_sample %>%
 # calculate - Mfg dos after CustOrd 
 IQR_FG_sample %>% 
   dplyr::mutate(mfg_dos_after_cust_ord = (on_hand_usable_soft_hold - ifelse(opv == 0 | opv >= 20, mfg_cust_ord_in_next_28_days, 
-                                                                               ifelse(opv < 20 & opv >= 12, mfg_cust_ord_in_next_21_days, 
-                                                                                      ifelse(opv < 12 & opv >= 8, mfg_cust_ord_in_next_14_days, 
-                                                                                             mfg_cust_ord_in_next_7_days))))/
+                                                                            ifelse(opv < 20 & opv >= 12, mfg_cust_ord_in_next_21_days, 
+                                                                                   ifelse(opv < 12 & opv >= 8, mfg_cust_ord_in_next_14_days, 
+                                                                                          mfg_cust_ord_in_next_7_days))))/
                   pmax((ifelse(opv == 0 | opv >= 20, mfg_cust_ord_in_next_28_days, 
                                ifelse(opv < 20 & opv >= 12, mfg_cust_ord_in_next_21_days,
                                       ifelse(opv < 12 & opv >= 8, mfg_cust_ord_in_next_14_days, mfg_cust_ord_in_next_7_days)))/opv),
@@ -1404,10 +1404,10 @@ IQR_FG_sample %>%
 # on hand Inv after CustOrd > mfg AF max
 IQR_FG_sample %>% 
   dplyr::mutate(on_hand_inv_after_cust_ord_mfg_af_max =  ifelse(on_hand_usable_soft_hold-
-                                                                         (ifelse(opv == 0 | opv >= 20, mfg_cust_ord_in_next_28_days,
-                                                                                 ifelse(opv < 20 & opv >= 12, mfg_cust_ord_in_next_21_days,
-                                                                                        ifelse(opv < 12 & opv >= 8, mfg_cust_ord_in_next_14_days, mfg_cust_ord_in_next_7_days))))
-                                                                       > mfg_adjusted_forward_inv_max, 1, 0)) -> IQR_FG_sample
+                                                                  (ifelse(opv == 0 | opv >= 20, mfg_cust_ord_in_next_28_days,
+                                                                          ifelse(opv < 20 & opv >= 12, mfg_cust_ord_in_next_21_days,
+                                                                                 ifelse(opv < 12 & opv >= 8, mfg_cust_ord_in_next_14_days, mfg_cust_ord_in_next_7_days))))
+                                                                > mfg_adjusted_forward_inv_max, 1, 0)) -> IQR_FG_sample
 
 
 # calculate - Mfg Inv Health
@@ -1443,13 +1443,13 @@ IQR_FG_sample %>%
 # calculate - on hand Inv > mfg Adjusted Forward looking target
 IQR_FG_sample %>% 
   dplyr::mutate(on_hand_inv_mfg_adjusted_forward_looking_target = ifelse(on_hand_usable_soft_hold > 
-                                                                                   mfg_adjusted_forward_inv_target, 1, 0)) -> IQR_FG_sample
+                                                                           mfg_adjusted_forward_inv_target, 1, 0)) -> IQR_FG_sample
 
 
 # calculate - on hand Inv <= mfg AF target
 IQR_FG_sample %>% 
   dplyr::mutate(on_hand_inv_mfg_af_target = ifelse(on_hand_usable_soft_hold <= 
-                                                                   mfg_adjusted_forward_inv_target, 1, 0)) -> IQR_FG_sample
+                                                     mfg_adjusted_forward_inv_target, 1, 0)) -> IQR_FG_sample
 
 
 
@@ -1457,8 +1457,8 @@ IQR_FG_sample %>%
 IQR_FG_sample %>% 
   dplyr::mutate(on_hand_inv_after_cust_ord_mfg_af_max_2 =  
                   ifelse(on_hand_usable_soft_hold - (ifelse(opv == 0 | opv >= 20, mfg_cust_ord_in_next_28_days,
-                                                                ifelse(opv < 20 & opv >= 12, mfg_cust_ord_in_next_21_days,
-                                                                       ifelse(opv < 12 & opv >= 8, mfg_cust_ord_in_next_14_days, mfg_cust_ord_in_next_7_days))))
+                                                            ifelse(opv < 20 & opv >= 12, mfg_cust_ord_in_next_21_days,
+                                                                   ifelse(opv < 12 & opv >= 8, mfg_cust_ord_in_next_14_days, mfg_cust_ord_in_next_7_days))))
                          <= mfg_adjusted_forward_inv_max, 1,0)) -> IQR_FG_sample
 
 
@@ -1749,7 +1749,8 @@ IQR_FG_sample %>%
 
 
 # (Path Revision Needed)
-writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/9.12.2023/IQR_FG_Report_091223.xlsx")
+writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/9.14.2023 - temp for training/IQR_FG_Report_091423.xlsx")
+
 
 
 
