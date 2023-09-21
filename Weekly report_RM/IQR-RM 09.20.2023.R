@@ -950,3 +950,8 @@ rm_data %>%
 
 writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/9.20.23/IQR_RM_Report_092023.xlsx")
 
+
+
+# for exposure analysis tab
+# https://venturafoods.sharepoint.com/sites/ExpiredProductReporting/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FExpiredProductReporting%2FShared%20Documents%2FExpiration%20Risk%20Management%2FRaw%20Material%20Risk%2FRM%20%2D%20Raw%20Data%20Weekly%20Risk%20Original%20Files%2D%20For%20Downloading%20Only&p=true&ga=1
+
