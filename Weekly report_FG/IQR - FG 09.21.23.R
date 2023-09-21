@@ -1685,14 +1685,15 @@ custord %>%
 custord_open_order %>% 
   dplyr::mutate(ref = gsub("-", "_", ref)) %>% 
   dplyr::select(ref, Qty) %>% 
-  dplyr::rename(open_orders = Qty) -> custord_for_merge
+  dplyr::rename(open_orders_all = Qty) -> custord_for_merge
 
 custord_for_merge[!duplicated(custord_for_merge[,c("ref")]),] -> custord_for_merge
 
 IQR_FG_sample %>% 
   dplyr::left_join(custord_for_merge) %>% 
-  dplyr::mutate(open_orders = ifelse(is.na(open_orders), 0, open_orders)) -> IQR_FG_sample
+  dplyr::mutate(open_orders_all = ifelse(is.na(open_orders_all), 0, open_orders_all)) -> IQR_FG_sample
 
+########################################################################################################
 
 # Arrange ----
 fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/9.21.2023/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 09.21.23.xlsx",
@@ -1759,7 +1760,7 @@ IQR_FG_sample %>%
                   on_hand_inv_after_28_days_cust_ord_0, has_mfg_adjusted_forward_looking_max, on_hand_inv_mfg_af_max, on_hand_inv_mfg_af_max_2,
                   on_hand_inv_mfg_adjusted_forward_looking_target, on_hand_inv_mfg_af_target, on_hand_inv_after_cust_ord_mfg_af_max, 
                   on_hand_inv_after_cust_ord_mfg_af_max_2, on_hand_inv_after_cust_ord_mfg_af_target, on_hand_inv_after_cust_ord_mfg_af_target_2,
-                  on_hand_inv_after_mfg_28_days_cust_ord_0, current_month_fcst_2, next_month_fcst_2, open_orders) -> IQR_FG_sample
+                  on_hand_inv_after_mfg_28_days_cust_ord_0, current_month_fcst_2, next_month_fcst_2, open_orders_all) -> IQR_FG_sample
 
 
 
