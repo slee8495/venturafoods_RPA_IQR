@@ -300,13 +300,15 @@ ss_opt_loc_sku %>%
 ss_optimization[!duplicated(ss_optimization[,c("loc_sku")]),] -> ss_optimization
 
 # Custord PO ----
-po <- read.csv("Z:/IMPORT_JDE_OPENPO.csv",
+po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2023/9.22/po.csv",
                header = FALSE)
 
 
 
 po %>% 
-  dplyr::rename(aa = V1) %>% 
+  dplyr::select(-1) %>% 
+  dplyr::slice(-1) %>% 
+  dplyr::rename(aa = V2) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
   dplyr::rename(a = "1") %>% 
   tidyr::separate(a, c("global", "rp", "Item")) %>% 
@@ -340,12 +342,14 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # Custord Receipt ----
-receipt <- read.csv("Z:/IMPORT_RECEIPTS.csv",
-                    header = FALSE)
+receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2023/9.22/receipt.csv",
+               header = FALSE)
 
 
 # Base receipt variable
 receipt %>% 
+  dplyr::select(-1) %>% 
+  dplyr::slice(-1) %>% 
   dplyr::rename(aa = V1) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
   dplyr::rename(a = "1") %>% 

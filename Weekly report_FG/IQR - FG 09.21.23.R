@@ -172,11 +172,13 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 
 # (Path Revision Needed) Custord PO ----
-po <- read.csv("Z:/IMPORT_JDE_OPENPO.csv",
+po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2023/9.22/po.csv",
                header = FALSE)
 
 po %>% 
-  dplyr::rename(aa = V1) %>% 
+  dplyr::select(-1) %>% 
+  dplyr::slice(-1) %>% 
+  dplyr::rename(aa = V2) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
   dplyr::rename(a = "1") %>% 
   tidyr::separate(a, c("global", "rp", "Item")) %>% 
@@ -208,13 +210,15 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # (Path Revision Needed) Custord Receipt ----
-receipt <- read.csv("Z:/IMPORT_RECEIPTS.csv",
+receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2023/9.22/receipt.csv",
                     header = FALSE)
 
 
 # Base receipt variable
 receipt %>% 
-  dplyr::rename(aa = V1) %>% 
+  dplyr::select(-1) %>% 
+  dplyr::slice(-1) %>% 
+  dplyr::rename(aa = V2) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
   dplyr::rename(a = "1") %>% 
   tidyr::separate(a, c("global", "rp", "Item")) %>% 
@@ -244,12 +248,14 @@ reshape2::dcast(receipt, ref ~ next_28_days, value.var = "qty", sum) -> Receipt_
 
 
 # (Path Revision Needed) Custord wo ----
-wo <- read.csv("Z:/IMPORT_JDE_OPENWO.csv",
-               header = FALSE)
+wo <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2023/9.22/wo.csv",
+                    header = FALSE)
 
 
 wo %>% 
-  dplyr::rename(aa = V1) %>% 
+  dplyr::select(-1) %>% 
+  dplyr::slice(-1) %>% 
+  dplyr::rename(aa = V2) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
   dplyr::select(-"3") %>% 
   dplyr::rename(aa = "1") %>%  
@@ -276,13 +282,15 @@ wo %>%
 
 # (Path Revision Needed) custord custord ----
 # Open Customer Order File pulling ----  Change Directory ----
-custord <- read.csv("Z:/IMPORT_CUSTORDS.csv",
-                    header = FALSE)
+custord <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2023/9.22/open_cust_ord.csv",
+               header = FALSE)
 
 
 
 custord %>% 
-  dplyr::rename(aa = V1) %>% 
+  dplyr::select(-1) %>% 
+  dplyr::slice(-1) %>% 
+  dplyr::rename(aa = V2) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8", "9"), sep = "~") %>% 
   dplyr::select(-"3", -"6", -"7", -"8") -> custord
 
