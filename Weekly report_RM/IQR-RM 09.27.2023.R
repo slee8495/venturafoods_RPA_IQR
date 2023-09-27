@@ -350,7 +350,7 @@ receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Pro
 receipt %>% 
   dplyr::select(-1) %>% 
   dplyr::slice(-1) %>% 
-  dplyr::rename(aa = V1) %>% 
+  dplyr::rename(aa = V2) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
   dplyr::rename(a = "1") %>% 
   tidyr::separate(a, c("global", "rp", "Item")) %>% 
