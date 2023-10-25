@@ -908,6 +908,12 @@ rm_data %>%
                 healthy_cycle_stock_cost = round(healthy_cycle_stock_cost, 0)) -> rm_data
 
 
+################################ Code revise 10/25/2023 ##################################
+rm_data %>% 
+  dplyr::mutate(moq_in_days = replace(moq_in_days, is.infinite(moq_in_days), 0),
+                moq_in_days = replace(moq_in_days, "DNRR", 0)) -> rm_data
+
+
 ###########################################################################
 
 # Arrange ----
