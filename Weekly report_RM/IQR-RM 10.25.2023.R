@@ -910,8 +910,8 @@ rm_data %>%
 
 ################################ Code revise 10/25/2023 ##################################
 rm_data %>% 
-  dplyr::mutate(moq_in_days = replace(moq_in_days, is.infinite(moq_in_days), 0),
-                moq_in_days = replace(moq_in_days, "DNRR", 0)) -> rm_data
+  dplyr::mutate(moq_in_days = ifelse(moq_in_days == "DNRR", 0, moq_in_days),
+                moq_in_days = ifelse(moq_in_days == "Inf", 0, moq_in_days)) -> rm_data
 
 
 ###########################################################################
