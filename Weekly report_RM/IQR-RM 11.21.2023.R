@@ -156,36 +156,95 @@ rm_data %>%
 
 # Inventory Analysis Read RM ----
 
-inventory_analysis_rm <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2023/11.14.23/Inventory Report for all locations (RM).xlsx")
+# inventory_analysis_rm <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2023/11.14.23/Inventory Report for all locations (RM).xlsx")
+# 
+# 
+# 
+# inventory_analysis_rm[-1,] -> inventory_analysis_rm
+# colnames(inventory_analysis_rm) <- inventory_analysis_rm[1, ]
+# inventory_analysis_rm[-1, ] -> inventory_analysis_rm
+# 
+# inventory_analysis_rm %>% 
+#   janitor::clean_names() %>% 
+#   readr::type_convert() -> inventory_analysis_rm
+# 
+# colnames(inventory_analysis_rm)[2] <- "location_name"
+# colnames(inventory_analysis_rm)[5] <- "description"
+# colnames(inventory_analysis_rm)[7] <- "inventory_hold_status"
+# colnames(inventory_analysis_rm)[8] <- "inventory_qty_cases"
+# 
+# 
+# inventory_analysis <- inventory_analysis_rm
+# readr::type_convert(inventory_analysis) -> inventory_analysis
+# 
+# 
+# inventory_analysis %>%  
+#   dplyr::mutate(item = sub("^0+", "", item)) %>% 
+#   dplyr::mutate(campus_ref = paste0(campus, "_", item), campus_ref = gsub("-", "", campus_ref)) %>% 
+#   dplyr::mutate(ref = paste0(location, "_", item), ref = gsub("-", "", ref)) %>% 
+#   dplyr::relocate(ref, campus_ref, campus) -> inventory_analysis
+# 
+# inventory_analysis %>% 
+#   dplyr::mutate(inventory_qty_cases = ifelse(is.na(inventory_qty_cases), 0, inventory_qty_cases)) -> inventory_analysis
 
-
-
-inventory_analysis_rm[-1,] -> inventory_analysis_rm
-colnames(inventory_analysis_rm) <- inventory_analysis_rm[1, ]
-inventory_analysis_rm[-1, ] -> inventory_analysis_rm
-
-inventory_analysis_rm %>% 
+inv_bal <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2023/11.21.23/inv_bal.xlsx")
+inv_bal %>% 
   janitor::clean_names() %>% 
-  readr::type_convert() -> inventory_analysis_rm
+  dplyr::slice(-1:-2) -> inv_bal
 
-colnames(inventory_analysis_rm)[2] <- "location_name"
-colnames(inventory_analysis_rm)[5] <- "description"
-colnames(inventory_analysis_rm)[7] <- "inventory_hold_status"
-colnames(inventory_analysis_rm)[8] <- "inventory_qty_cases"
+colnames(inv_bal) <- inv_bal[1, ]
+
+inv_bal %>% 
+  janitor::clean_names() %>% 
+  dplyr::slice(-1) %>% 
+  dplyr::mutate(bp = as.double(bp)) %>% 
+  dplyr::filter(bp != 86 & bp != 226) %>% 
+  dplyr::mutate(item = as.double(item)) %>% 
+  dplyr::filter(!is.na(item)) %>% 
+  dplyr::select(bp, item, description, usable, soft_hold, hard_hold) %>% 
+  dplyr::left_join(campus_ref %>% select(b_p, campus) %>% rename(bp = b_p)) %>% 
+  dplyr::mutate(ref = paste0(bp, "_", item),
+                campus_ref = paste0(campus, "_", item)) %>% 
+  dplyr::rename(location = bp,
+                campus = campus,
+                Useable = usable,
+                "Soft Hold" = soft_hold,
+                "Hard Hold" = hard_hold) %>% 
+  tidyr::pivot_longer(cols = c("Useable", "Soft Hold", "Hard Hold"),
+                      names_to = "inventory_hold_status",
+                      values_to = "inventory_qty_cases") %>% 
+  dplyr::mutate(inventory_qty_cases = as.double(inventory_qty_cases),
+                inventory_qty_cases = ifelse(is.na(inventory_qty_cases), 0, inventory_qty_cases)) %>% 
+  dplyr::mutate(ref = paste0(location, "_", item),
+                campus_ref = paste0(campus, "_", item)) %>% 
+  dplyr::relocate(ref, campus_ref, campus, location, item, description, inventory_status_code, inventory_qty_cases)
 
 
-inventory_analysis <- inventory_analysis_rm
-readr::type_convert(inventory_analysis) -> inventory_analysis
+# for 86 & 226
+
+RM <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2023/11.21.23/Inventory Report for all locations (RM).xlsx",
+                 col_names = FALSE)
 
 
-inventory_analysis %>%  
-  dplyr::mutate(item = sub("^0+", "", item)) %>% 
-  dplyr::mutate(campus_ref = paste0(campus, "_", item), campus_ref = gsub("-", "", campus_ref)) %>% 
-  dplyr::mutate(ref = paste0(location, "_", item), ref = gsub("-", "", ref)) %>% 
-  dplyr::relocate(ref, campus_ref, campus) -> inventory_analysis
+RM[-1:-2, ] -> RM
+colnames(RM) <- RM[1, ]
+RM[-1, ] -> RM
 
-inventory_analysis %>% 
-  dplyr::mutate(inventory_qty_cases = ifelse(is.na(inventory_qty_cases), 0, inventory_qty_cases)) -> inventory_analysis
+RM %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate(item = as.double(item)) %>% 
+  dplyr::rename(description = na_2,
+                inventory_hold_status = hold_status,
+                inventory_qty_cases = current_inventory_balance,
+                location_name = na) %>% 
+  dplyr::mutate(ref = paste0(location, "_", item),
+                campus_ref = paste0(campus, "_", item)) %>% 
+  dplyr::relocate(ref, campus_ref, campus, location, location_name, item, description, inventory_status_code, inventory_hold_status, inventory_qty_cases) %>% 
+  dplyr::filter(location == 86 | location == 226) %>% 
+  dplyr::select(-location_name, -inventory_status_code) -> RM
+
+
+rbind(inventory_analysis, RM) -> inventory_analysis
 
 
 # Inventory_analysis_pivot_ref
@@ -193,9 +252,11 @@ inventory_analysis %>%
 reshape2::dcast(inventory_analysis, ref ~ inventory_hold_status, value.var = "inventory_qty_cases", sum) -> pivot_ref_inventory_analysis
 reshape2::dcast(inventory_analysis, campus_ref ~ inventory_hold_status, value.var = "inventory_qty_cases", sum) -> pivot_campus_ref_inventory_analysis
 
-pivot_campus_ref_inventory_analysis %>% 
-  dplyr::rename(usable = Useable, loc_sku = campus_ref, hard_hold = "Hard Hold", soft_hold = "Soft Hold") -> pivot_campus_ref_inventory_analysis
 
+
+
+
+  
 # BoM_dep_demand ----
 bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/11.14.2023/Bill of Material_111423.xlsx",
                              sheet = "Sheet1")
