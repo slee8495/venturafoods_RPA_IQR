@@ -186,7 +186,7 @@ inv_bal %>%
                 inventory_qty_cases = ifelse(is.na(inventory_qty_cases), 0, inventory_qty_cases)) %>% 
   dplyr::mutate(ref = paste0(location, "_", item),
                 campus_ref = paste0(campus, "_", item)) %>% 
-  dplyr::relocate(ref, campus_ref, campus, location, item, description, inventory_status_code, inventory_qty_cases)
+  dplyr::relocate(ref, campus_ref, campus, location, item, description, inventory_qty_cases) -> inventory_analysis
 
 
 # for 86 & 226
@@ -215,14 +215,17 @@ RM %>%
 
 rbind(inventory_analysis, RM) -> inventory_analysis
 
+inventory_analysis %>% 
+  readr::type_convert() -> inventory_analysis
 
 # Inventory_analysis_pivot_ref
 
 reshape2::dcast(inventory_analysis, ref ~ inventory_hold_status, value.var = "inventory_qty_cases", sum) -> pivot_ref_inventory_analysis
-reshape2::dcast(inventory_analysis, campus_ref ~ inventory_hold_status, value.var = "inventory_qty_cases", sum) -> pivot_campus_ref_inventory_analysis
-
-
-
+reshape2::dcast(inventory_analysis, campus_ref ~ inventory_hold_status, value.var = "inventory_qty_cases", sum) %>% 
+  dplyr::rename(usable = Useable, 
+                loc_sku = campus_ref, 
+                hard_hold = "Hard Hold", 
+                soft_hold = "Soft Hold") -> pivot_campus_ref_inventory_analysis
 
 
   
