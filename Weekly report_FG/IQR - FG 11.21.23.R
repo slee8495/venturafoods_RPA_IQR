@@ -108,11 +108,11 @@ colnames(exception_report)[31] <- "Costing Formula"
 names(exception_report) <- str_replace_all(names(exception_report), c(" " = "_"))
 
 
-exception_report %<>% 
+exception_report %>% 
   dplyr::mutate(ref = paste0(B_P, "_", ItemNo)) %>% 
-  dplyr::relocate(ref) 
+  dplyr::relocate(ref) ->  exception_report
 
-
+exception_report[!duplicated(exception_report[,c("ref")]),] -> exception_report
 
 # (Path Revision Needed) Campus_ref pulling ----
 # S drive: "S:/Supply Chain Projects/RStudio/BoM/Master formats/RM_on_Hand/Campus_ref.xlsx"
@@ -484,17 +484,7 @@ colnames(DSX_Forecast_Backup_pre)[22] <- "Stat_Forecast_Cases"
 colnames(DSX_Forecast_Backup_pre)[23] <- "Cust_Ref_Forecast_Pounds_lbs"
 colnames(DSX_Forecast_Backup_pre)[24] <- "Cust_Ref_Forecast_Cases"
 
-# DSX_Forecast_Backup_pre$Forecast_Month_Year_Code_Segment_ID <- as.double(DSX_Forecast_Backup_pre$Forecast_Month_Year_Code_Segment_ID)
-# DSX_Forecast_Backup_pre$Product_Manufacturing_Location_Code <- as.double(DSX_Forecast_Backup_pre$Product_Manufacturing_Location_Code)
-# DSX_Forecast_Backup_pre$Location_No <- as.double(DSX_Forecast_Backup_pre$Location_No)
-# DSX_Forecast_Backup_pre$Product_Manufacturing_Line_Area_No_Code <- as.double(DSX_Forecast_Backup_pre$Product_Manufacturing_Line_Area_No_Code)
-# DSX_Forecast_Backup_pre$Safety_Stock_ID <- as.double(DSX_Forecast_Backup_pre$Safety_Stock_ID)
-# DSX_Forecast_Backup_pre$Adjusted_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Adjusted_Forecast_Pounds_lbs)
-# DSX_Forecast_Backup_pre$Adjusted_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Adjusted_Forecast_Cases)
-# DSX_Forecast_Backup_pre$Stat_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Stat_Forecast_Pounds_lbs)
-# DSX_Forecast_Backup_pre$Stat_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Stat_Forecast_Cases)
-# DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Pounds_lbs <- as.double(DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Pounds_lbs)
-# DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Cases <- as.double(DSX_Forecast_Backup_pre$Cust_Ref_Forecast_Cases)
+
 
 
 readr::type_convert(DSX_Forecast_Backup_pre) -> DSX_Forecast_Backup_pre
@@ -834,24 +824,7 @@ sdcv %>%
 ##################################################  ETL  #################################################
 ##########################################################################################################
 
-# ## mfg_loc & Mfg_Ref
-# merge(IQR_FG_sample, FG_ref_to_mfg_ref[, c("ref", "mfg_loc")], by = "ref", all.x = TRUE) %>%
-#   dplyr::relocate(mfg_loc.y, .after = mfg_loc.x) %>%
-#   dplyr::select(-mfg_loc.x) %>%
-#   dplyr::rename(mfg_loc = mfg_loc.y) -> IQR_FG_sample
-# 
-# 
-# ## Mfg Ref
-# IQR_FG_sample %<>%
-#   dplyr::mutate(mfg_ref = paste0(mfg_loc, "_", Item_2)) %>%
-#   dplyr::select(-Mfg_Ref)
-
-
 readr::type_convert(IQR_FG_sample) -> IQR_FG_sample
-
-
-
-
 
 
 ##################################### vlookups #########################################
@@ -884,6 +857,7 @@ merge(IQR_FG_sample, exception_report[, c("ref", "Planner")], by = "ref", all.x 
   dplyr::mutate(planner = replace(planner, is.na(planner), "DNRR")) -> IQR_FG_sample
 
 
+
 # vlookup - Planner Name 
 Planner_address %>% 
   dplyr::rename(planner = Planner) -> Planner_address
@@ -911,11 +885,13 @@ merge(IQR_FG_sample, exception_report[, c("ref", "Safety_Stock")], by = "ref", a
   dplyr::select(-safety_stock_na, -Safety_Stock) -> IQR_FG_sample
 
 
+
 # vlookup - Useable
 merge(IQR_FG_sample, pivot_ref_Inventory_analysis[, c("ref", "Useable")], by = "ref", all.x = TRUE) %>%
   dplyr::mutate(useable_na = !is.na(Useable)) %>% 
   dplyr::mutate(usable = ifelse(useable_na == TRUE, Useable, 0)) %>%
   dplyr::select(-useable_na, -Useable)  -> IQR_FG_sample
+
 
 
 # vlookup - Quality hold
@@ -925,11 +901,13 @@ merge(IQR_FG_sample, pivot_ref_Inventory_analysis[, c("ref", "Hard_Hold")], by =
   dplyr::select(-hard_hold_na, -Hard_Hold) -> IQR_FG_sample
 
 
+
 # vlookup - Soft Hold
 merge(IQR_FG_sample, pivot_ref_Inventory_analysis[, c("ref", "Soft_Hold")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(soft_hold_na = !is.na(Soft_Hold)) %>% 
   dplyr::mutate(soft_hold = ifelse(soft_hold_na == TRUE, Soft_Hold, 0)) %>% 
   dplyr::select(-soft_hold_na, -Soft_Hold) -> IQR_FG_sample
+
 
 
 # vlookup - opv
@@ -939,11 +917,13 @@ merge(IQR_FG_sample, exception_report[, c("ref", "Order_Policy_Value")], by = "r
   dplyr::select(-opv_na, -Order_Policy_Value) -> IQR_FG_sample
 
 
+
 # vlookup - CustOrd in next 7 days
 merge(IQR_FG_sample, custord_pivot_1[, c("ref", "Y")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(y_na = !is.na(Y)) %>% 
   dplyr::mutate(cust_ord_in_next_7_days = ifelse(y_na == TRUE, Y, 0)) %>% 
   dplyr::select(-Y, -y_na) -> IQR_FG_sample
+
 
 
 # vlookup - CustOrd in next 14 days
@@ -953,11 +933,13 @@ merge(IQR_FG_sample, custord_pivot_2[, c("ref", "Y")], by = "ref", all.x = TRUE)
   dplyr::select(-Y, -y_na) -> IQR_FG_sample
 
 
+
 # vlookup - CustOrd in next 21 days
 merge(IQR_FG_sample, custord_pivot_3[, c("ref", "Y")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(y_na = !is.na(Y)) %>% 
   dplyr::mutate(cust_ord_in_next_21_days = ifelse(y_na == TRUE, Y, 0)) %>% 
   dplyr::select(-Y, -y_na) -> IQR_FG_sample
+
 
 
 # vlookup - CustOrd in next 28 days
@@ -967,11 +949,13 @@ merge(IQR_FG_sample, custord_pivot_4[, c("ref", "Y")], by = "ref", all.x = TRUE)
   dplyr::select(-Y, -y_na) -> IQR_FG_sample
 
 
+
 # vlookup - Firm WO in next 28 days
 merge(IQR_FG_sample, wo_pivot[, c("ref", "Y")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(y_na = !is.na(Y)) %>% 
   dplyr::mutate(firm_wo_in_next_28_days = ifelse(y_na == TRUE, Y, 0)) %>% 
   dplyr::select(-Y, -y_na) -> IQR_FG_sample
+
 
 
 # vlookup - Receipt in the next 28 days
@@ -989,12 +973,14 @@ merge(IQR_FG_sample, DSX_pivot_1_pre[, c("ref", "Mon_b_fcst")], by = "ref", all.
   dplyr::mutate(lag_1_current_month_fcst = round(lag_1_current_month_fcst , 0)) -> IQR_FG_sample
 
 
+
 # vlookup - Current Month Fcst
 merge(IQR_FG_sample, DSX_pivot_1[, c("ref", "Mon_a_fcst")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(mon_a_na = !is.na(Mon_a_fcst)) %>% 
   dplyr::mutate(current_month_fcst = ifelse(mon_a_na == TRUE, Mon_a_fcst, 0)) %>% 
   dplyr::select(-Mon_a_fcst, - mon_a_na) %>% 
   dplyr::mutate(current_month_fcst = round(current_month_fcst , 0)) -> IQR_FG_sample
+
 
 
 # vlookup - Next Month Fcst
@@ -1005,16 +991,19 @@ merge(IQR_FG_sample, DSX_pivot_1[, c("ref", "Mon_b_fcst")], by = "ref", all.x = 
   dplyr::mutate(next_month_fcst  = round(next_month_fcst, 0)) -> IQR_FG_sample
 
 
+
 # vlookup - Total Last 6 mos Sales
 merge(IQR_FG_sample, sdcv[, c("ref", "last_6_month_sales")], by = "ref", all.x = TRUE) %>% 
   dplyr::select(-total_last_6_mos_sales) %>% 
   dplyr::rename(total_last_6_mos_sales = last_6_month_sales) -> IQR_FG_sample
 
 
+
 # vlookup - Total Last 12 mos Sales 
 merge(IQR_FG_sample, sdcv[, c("ref", "last_12_month_sales")], by = "ref", all.x = TRUE) %>% 
   dplyr::select(-total_last_12_mos_sales) %>% 
   dplyr::rename(total_last_12_mos_sales = last_12_month_sales) -> IQR_FG_sample
+
 
 
 # vlookup - Total Forecast Next 12 Months
