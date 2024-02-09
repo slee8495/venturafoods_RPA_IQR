@@ -394,16 +394,7 @@ loc_39_bt_2 %>%
   dplyr::rename(Qty = bt_sum) %>% 
   dplyr::relocate(ref, Item, Location, Qty, date) -> loc_39_bt_2
 
-rbind(custord, loc_39_bt_2) %>% 
-  dplyr::group_by(ref) %>% 
-  dplyr::summarise(Item = first(Item),
-                   Location = first(Location),
-                   Qty = sum(Qty),
-                   date = first(date),
-                   in_next_7_days = first(in_next_7_days),
-                   in_next_14_days = first(in_next_14_days),
-                   in_next_21_days = first(in_next_21_days),
-                   in_next_28_days = first(in_next_28_days)) -> custord
+rbind(custord, loc_39_bt_2) -> custord
 
 
 
