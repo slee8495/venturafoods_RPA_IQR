@@ -14,12 +14,12 @@ library(janitor)
 ##################################################################################################################################################################
 ##################################################################################################################################################################
 
-# specific_date <- as.Date("2024-01-02")
+specific_date <- as.Date("2024-01-02")
 
 
 # (Path Revision Needed) Planner Address Book (If updated, correct this link) ----
 # sdrive: S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 04.26.22.xlsx
-Planner_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 2024.02.01.xlsx", 
+Planner_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 2024.01.02.xlsx", 
                               sheet = "employee", col_types = c("text", 
                                                                 "text", "text", "text", "text"))
 
@@ -32,7 +32,7 @@ Planner_address %>%
 
 
 # macro_platform ----
-macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/02.06.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 02.06.2024.xlsx",
+macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/01.02.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.02.2024.xlsx",
                              sheet = "Macro-Platform",
                              col_names = FALSE)
 
@@ -60,7 +60,7 @@ FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_r
 
 # (Path Revision Needed) Exception Report ----
 
-exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/02.06.2024/exception report.xlsx", 
+exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/01.02.2024/exception report.xlsx", 
                                sheet = "Sheet1",
                                col_types = c("text", "text", "text", 
                                              "text", "numeric", "text", "text", "text", 
@@ -172,7 +172,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 
 # (Path Revision Needed) Custord PO ----
-po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/02.06/po.csv",
+po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/01.02/po.csv",
                header = FALSE)
 
 po %>% 
@@ -202,7 +202,7 @@ po %>%
 
 # PO_Pivot 
 po %>% 
-  dplyr::mutate(next_28_days = ifelse(date >= Sys.Date() & date <= Sys.Date() + 28, "Y", "N")) -> po
+  dplyr::mutate(next_28_days = ifelse(date >= specific_date & date <= specific_date + 28, "Y", "N")) -> po
 
 
 reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>% 
@@ -210,7 +210,7 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # (Path Revision Needed) Custord Receipt ----
-receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/02.06/receipt.csv",
+receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/01.02/receipt.csv",
                     header = FALSE)
 
 
@@ -237,7 +237,7 @@ receipt %>%
   dplyr::mutate(loc = as.numeric(str_replace_all(loc, "[A-Za-z]", ""))) %>% 
   
   dplyr::mutate(ref = paste0(loc, "_", Item),
-                next_28_days = ifelse(date >= Sys.Date() & date <= Sys.Date() + 28, "Y", "N")) %>% 
+                next_28_days = ifelse(date >= specific_date & date <= specific_date + 28, "Y", "N")) %>% 
   dplyr::relocate(ref) %>% 
   dplyr::rename(item = Item) -> receipt
 
@@ -251,7 +251,7 @@ reshape2::dcast(receipt, ref ~ next_28_days, value.var = "qty", sum) -> Receipt_
 
 
 # (Path Revision Needed) Custord wo ----
-wo <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/02.06/wo.csv",
+wo <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/01.02/wo.csv",
                header = FALSE)
 
 
@@ -273,7 +273,7 @@ wo %>%
   dplyr::mutate(Location = sub("^0+", "", Location)) %>% 
   dplyr::mutate(ref = paste0(Location, "_", Item)) %>% 
   dplyr::relocate(ref, Item, Location) %>% 
-  dplyr::mutate(in_next_7_days = ifelse(date >= Sys.Date() & date < Sys.Date()+7, "Y", "N") )-> wo
+  dplyr::mutate(in_next_7_days = ifelse(date >= specific_date & date < specific_date+7, "Y", "N") )-> wo
 
 # wo pivot
 wo %>% 
@@ -285,7 +285,7 @@ wo %>%
 
 # (Path Revision Needed) custord custord ----
 # Open Customer Order File pulling ----  Change Directory ----
-custord <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/02.06/open_cust_ord.csv",
+custord <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/01.02/open_cust_ord.csv",
                     header = FALSE)
 
 
@@ -319,15 +319,15 @@ custord %>%
   dplyr::mutate(Location = as.numeric(str_replace_all(Location, "[A-Za-z]", ""))) %>% 
   
   dplyr::mutate(ref = paste0(Location, "_", Item),
-                in_next_7_days = ifelse(date < Sys.Date() + 7, "Y", "N"),
-                in_next_14_days = ifelse(date < Sys.Date() + 14, "Y", "N"),
-                in_next_21_days = ifelse(date < Sys.Date() + 21, "Y", "N"),
-                in_next_28_days = ifelse(date < Sys.Date() + 28, "Y", "N")) %>% 
+                in_next_7_days = ifelse(date < specific_date + 7, "Y", "N"),
+                in_next_14_days = ifelse(date < specific_date + 14, "Y", "N"),
+                in_next_21_days = ifelse(date < specific_date + 21, "Y", "N"),
+                in_next_28_days = ifelse(date < specific_date + 28, "Y", "N")) %>% 
   dplyr::relocate(ref, Item, Location) -> custord
 
 
 # (Path Revision Needed) Loc 624 for custord ----
-loc_624_custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/02.06.2024/Canada Open Orders.xlsx", 
+loc_624_custord <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/01.02.2024/Canada Open Orders.xlsx", 
                               col_names = FALSE)
 
 loc_624_custord[-1:-2, ] -> loc_624_custord
@@ -350,10 +350,10 @@ loc_624_custord %>%
   dplyr::mutate(date = as.integer(date),
                 date = as.Date(date, origin = "1899-12-30"),
                 Qty = as.double(Qty)) %>% 
-  dplyr::mutate(in_next_7_days = ifelse(date < Sys.Date() + 7, "Y", "N"),
-                in_next_14_days = ifelse(date < Sys.Date() + 14, "Y", "N"),
-                in_next_21_days = ifelse(date < Sys.Date() + 21, "Y", "N"),
-                in_next_28_days = ifelse(date < Sys.Date() + 28, "Y", "N")) %>% 
+  dplyr::mutate(in_next_7_days = ifelse(date < specific_date + 7, "Y", "N"),
+                in_next_14_days = ifelse(date < specific_date + 14, "Y", "N"),
+                in_next_21_days = ifelse(date < specific_date + 21, "Y", "N"),
+                in_next_28_days = ifelse(date < specific_date + 28, "Y", "N")) %>% 
   dplyr::mutate(Qty = replace(Qty, is.na(Qty), 0)) -> loc_624_custord
 
 
@@ -364,7 +364,7 @@ rbind(custord, loc_624_custord) -> custord
 
 
 ###################################### Location 39 custord  ######################################
-loc_39_bt <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/02.06.2024/BT open order and qty.xlsx")
+loc_39_bt <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/01.02.2024/BT open order and qty.xlsx")
 
 loc_39_bt[-1, ] -> loc_39_bt
 colnames(loc_39_bt) <- loc_39_bt[1, ]
@@ -385,10 +385,10 @@ loc_39_bt %>%
                    date = first(date)) %>% 
   dplyr::ungroup() %>% 
   
-  dplyr::mutate(in_next_7_days = ifelse(date < Sys.Date() + 7, "Y", "N"),
-                in_next_14_days = ifelse(date < Sys.Date() + 14, "Y", "N"),
-                in_next_21_days = ifelse(date < Sys.Date() + 21, "Y", "N"),
-                in_next_28_days = ifelse(date < Sys.Date() + 28, "Y", "N")) -> loc_39_bt_2
+  dplyr::mutate(in_next_7_days = ifelse(date < specific_date + 7, "Y", "N"),
+                in_next_14_days = ifelse(date < specific_date + 14, "Y", "N"),
+                in_next_21_days = ifelse(date < specific_date + 21, "Y", "N"),
+                in_next_28_days = ifelse(date < specific_date + 28, "Y", "N")) -> loc_39_bt_2
 
 
 loc_39_bt_2 %>% 
@@ -446,7 +446,7 @@ reshape2::dcast(custord_mfg, mfg_ref ~ in_next_28_days, value.var = "Qty", sum) 
 # (Path Revision Needed) Lag 1 DSX Forecast pulling (Previous month file)---- Change Directory ----
 
 DSX_Forecast_Backup_pre <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.01.02.xlsx")
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2023/DSX Forecast Backup - 2023.12.04.xlsx")
 
 DSX_Forecast_Backup_pre[-1,] -> DSX_Forecast_Backup_pre
 colnames(DSX_Forecast_Backup_pre) <- DSX_Forecast_Backup_pre[1, ]
@@ -553,7 +553,7 @@ colnames(DSX_pivot_1_pre)[9]  <- "Mon_g_fcst"
 
 
 DSX_Forecast_Backup <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.02.06.xlsx") ### Match with BoM date! ####
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.01.02.xlsx") ### Match with BoM date! ####
 
 DSX_Forecast_Backup[-1,] -> DSX_Forecast_Backup
 colnames(DSX_Forecast_Backup) <- DSX_Forecast_Backup[1, ]
@@ -690,7 +690,7 @@ DSX_mfg_pivot_1 %>%
 
 # (Path Revision Needed) Inventory ----
 
-inv_bal <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/02.06.2024/inv_bal.xlsx")
+inv_bal <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/01.02.2024/inv_bal.xlsx")
 inv_bal %>% 
   janitor::clean_names() %>% 
   dplyr::slice(-1:-2) -> inv_bal
@@ -729,7 +729,7 @@ inv_bal %>%
 
 
 # For Location 226
-FG <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/02.06.2024/Inventory Report for all locations (FG).xlsx")
+FG <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/01.02.2024/Inventory Report for all locations (FG).xlsx")
 
 
 FG[-1,] -> FG
@@ -766,7 +766,7 @@ names(pivot_campus_ref_Inventory_analysis) <- str_replace_all(names(pivot_campus
 
 # (Path Revision Needed) Main Dataset Board ----  
 
-IQR_FG_sample <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/02.06.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 02.06.2024.xlsx",
+IQR_FG_sample <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/01.02.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.02.2024.xlsx",
                             sheet = "Location FG")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
@@ -786,7 +786,7 @@ IQR_FG_sample %>%
 
 
 # (Path Revision Needed) read SD & CV file ----
-sdcv <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Standard Deviation & CV/Standard Deviation, CV,  February 2024.xlsx")
+sdcv <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Standard Deviation & CV/2023/Standard Deviation, CV,  December 2023.xlsx")
 
 sdcv[-1:-3,] -> sdcv
 colnames(sdcv) <- sdcv[1,]
@@ -1570,7 +1570,7 @@ IQR_FG_sample %>%
 
 ######## added 7/5/2023 #########
 # wo_2
-wo_2 <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/02.06/wo.csv",
+wo_2 <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/01.02/wo.csv",
                  header = FALSE)
 
 
@@ -1595,12 +1595,12 @@ wo_2 %>%
   dplyr::mutate(Location = sub("^0+", "", Location)) %>% 
   
   dplyr::relocate(ref, Item, Location, Workorder) %>% 
-  dplyr::mutate(in_next_7_days = ifelse(date >= Sys.Date() & date < Sys.Date()+7, "Y", "N") ) %>% 
+  dplyr::mutate(in_next_7_days = ifelse(date >= specific_date & date < specific_date+7, "Y", "N") ) %>% 
   dplyr::mutate(ref = gsub("_", "-", ref)) -> wo_2
 
 
 # receipt_2
-receipt_2 <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/02.06/receipt.csv",
+receipt_2 <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/01.02/receipt.csv",
                       header = FALSE)
 
 
@@ -1624,7 +1624,7 @@ receipt_2 %>%
   dplyr::mutate(date = as.Date(date)) %>% 
   readr::type_convert() %>% 
   dplyr::mutate(ref = paste0(Location, "-", Item),
-                next_7_days = ifelse(date >= Sys.Date() & date <= Sys.Date() + 7, "Y", "N")) %>% 
+                next_7_days = ifelse(date >= specific_date & date <= specific_date + 7, "Y", "N")) %>% 
   dplyr::rename(item = Item) %>% 
   dplyr::left_join(Campus_ref %>% mutate(Campus = as.character(Campus),
                                          B_P = as.character(B_P)) %>% select(B_P, Campus) %>% rename(Location = B_P)) %>% 
@@ -1639,7 +1639,7 @@ IQR_FG_sample %>%
 
 
 # pre_data
-pre_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/01.30.2024/iqr_fg_rstudio_01302024.xlsx")
+pre_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/01.02.2024/iqr_fg_rstudio_01022024.xlsx")
 
 pre_data %>% 
   janitor::clean_names() %>% 
@@ -1660,7 +1660,7 @@ IQR_FG_sample %>%
 
 
 # Category & Platform
-completed_sku_list <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/02.06.2024/Completed SKU list - Linda.xlsx")
+completed_sku_list <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/01.02.2024/Completed SKU list - Linda.xlsx")
 completed_sku_list[-1:-2, ]  %>% 
   janitor::clean_names() %>% 
   dplyr::select(x6, x7, x9, x11) %>% 
@@ -1800,7 +1800,7 @@ IQR_FG_sample %>%
 ########################################################################################################
 
 # Arrange ----
-fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/02.06.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 02.06.2024.xlsx",
+fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/01.02.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.02.2024.xlsx",
                                   sheet = "Location FG")
 
 fg_data_for_arrange[-1:-2, ] -> fg_data_for_arrange
@@ -1869,8 +1869,8 @@ IQR_FG_sample %>%
 
 
 # (Path Revision Needed)
-writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/02.06.2024/iqr_fg_rstudio_02062024.xlsx")
-writexl::write_xlsx(custord_open_order, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/02.06.2024/Open Order.xlsx")
+writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/01.02.2024/iqr_fg_rstudio_01022024_2.xlsx")
+writexl::write_xlsx(custord_open_order, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/01.02.2024/Open Order_2.xlsx")
 
 
 # for exposure analysis tab
