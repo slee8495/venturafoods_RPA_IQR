@@ -86,7 +86,7 @@ exception_report[!duplicated(exception_report[,c("ref")]),] -> exception_report
 
 # Campus_ref pulling ----
 
-campus_ref <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Campus reference.xlsx") %>% 
+campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx") %>% 
   readr::type_convert()
 
 campus_ref %>% 
