@@ -120,7 +120,7 @@ exception_report[!duplicated(exception_report[,c("ref")]),] -> exception_report
 # (Path Revision Needed) Campus_ref pulling ----
 # S drive: "S:/Supply Chain Projects/RStudio/BoM/Master formats/RM_on_Hand/Campus_ref.xlsx"
 
-Campus_ref <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Campus reference.xlsx")
+Campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx")
 
 Campus_ref %>% 
   janitor::clean_names() %>% 
