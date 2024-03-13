@@ -1039,7 +1039,7 @@ writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SC
 ########################################## Do this once a month to get a pre month consumption for the Tracker ##########################################
 # https://edgeanalytics.venturafoods.com/MicroStrategyLibrary/app/DF007F1C11E9B3099BB30080EF7513D2/0D478CF14B44D57335A7ABBFAC02BFA7/K53--K46
 
-monthly_consumption <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/02.06.2024/Raw Material Monthly Consumption.xlsx")
+monthly_consumption <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.05.2024/Raw Material Monthly Consumption.xlsx")
 monthly_consumption[c(-1, -3, -4), ] -> monthly_consumption
 
 colnames(monthly_consumption) <- monthly_consumption[1, ]
