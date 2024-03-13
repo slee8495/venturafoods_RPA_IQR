@@ -688,8 +688,6 @@ DSX_mfg_pivot_1 %>%
 
 
 # (Path Revision Needed) Inventory ----
-
-
 inventory <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/03.05.2024/Inventory with Lot Report v.2.xlsx")
 
 inventory[-1, ] -> inventory
@@ -724,6 +722,8 @@ inventory %>%
   dplyr::relocate(ref, Hard_Hold, Soft_Hold, Useable) -> pivot_ref_Inventory_analysis
 
 
+
+
 ### campus inventory
 
 inventory %>% 
@@ -749,6 +749,7 @@ inventory %>%
                 Soft_Hold = soft_hold,
                 Loc_SKU = loc_sku) %>%
   dplyr::relocate(Loc_SKU, Hard_Hold, Soft_Hold, Usable) -> pivot_campus_ref_Inventory_analysis
+
 
 
 
