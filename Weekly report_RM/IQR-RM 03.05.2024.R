@@ -186,6 +186,47 @@ rm_data %>%
 
 
 
+################## Inv_bal
+
+inv_bal <- read_csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/03.05.2024/inv_bal.csv")
+
+inv_bal[-1:-2, ] -> inv_bal
+colnames(inv_bal) <- inv_bal[1, ]
+inv_bal[-1, ] -> inv_bal
+
+inv_bal %>% 
+  janitor::clean_names() %>% 
+  dplyr::rename(b_p = bp,
+                usable = na,
+                hard_hold = na_2) %>% 
+  tidyr::separate(b_p, c("a", "b", "c", "d", "e")) %>% 
+  dplyr::select(b, item, usable, hard_hold, soft_hold) %>% 
+  dplyr::rename(b_p = b) %>% 
+  dplyr::mutate(b_p = as.double(b_p),
+                soft_hold = as.double(soft_hold),
+                hard_hold = as.double(hard_hold),
+                usable = as.double(usable),
+                usable = replace(usable, is.na(usable), 0),
+                hard_hold = replace(hard_hold, is.na(hard_hold), 0),
+                soft_hold = replace(soft_hold, is.na(soft_hold), 0)) %>% 
+  dplyr::left_join(campus_ref %>% mutate(b_p = as.numeric(b_p),
+                                         location = as.numeric(location))) %>% 
+  dplyr::mutate(loc_sku = paste0(campus, "_", item)) %>% 
+  dplyr::select(loc_sku, hard_hold, soft_hold, usable, b_p, item) %>% 
+  dplyr::mutate(item = as.double(item)) %>% 
+  dplyr::filter(!is.na(item)) %>% 
+  dplyr::filter(b_p %in% c(25, 55)) %>% 
+  dplyr::left_join(exception_report %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(item_number, mpf_or_line) %>% 
+                     dplyr::rename(item = item_number,
+                                   label = mpf_or_line) %>% 
+                     dplyr::mutate(item = as.double(item)) %>% 
+                     dplyr::filter(label == "LBL") %>% 
+                     dplyr::distinct(item, label), by = "item") %>% 
+  dplyr::filter(!is.na(label)) %>% 
+  dplyr::select(-label, -item, -b_p) -> inv_bal_25_55_label
+
 
 
 
@@ -216,6 +257,10 @@ inventory %>%
                 useable = replace(useable, is.na(useable), 0)) %>% 
   dplyr::rename(usable = useable) %>% 
   dplyr::relocate(loc_sku, hard_hold, soft_hold, usable) -> pivot_campus_ref_inventory_analysis
+
+
+rbind(pivot_campus_ref_inventory_analysis, inv_bal_25_55_label) -> pivot_campus_ref_inventory_analysis
+
 
 
 # BoM_dep_demand ----
@@ -739,11 +784,6 @@ rm_data %>%
   dplyr::mutate(moq  = ifelse(is.na(moq), 0, moq)) -> rm_data
 
 # Usable, hold, label work ----
-inv_bal <- read_csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/03.05.2024/inv_bal.csv")
-
-inv_bal[-1:-2, ] -> inv_bal
-colnames(inv_bal) <- inv_bal[1, ]
-inv_bal[-1, ] -> inv_bal
 
 inv_bal %>% 
   janitor::clean_names() %>% 
