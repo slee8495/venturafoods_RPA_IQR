@@ -12,7 +12,7 @@ library(skimr)
 library(janitor)
 library(rio)
 
-specific_date <- as.Date("2024-03-05")
+specific_date <- as.Date("2024-03-12")
 
 
 
@@ -63,7 +63,7 @@ colnames(planner_adress)[1] <- "planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/03.05.2024/exception report.xlsx")
+exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/03.12.2024/exception report.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -166,7 +166,7 @@ reshape2::dcast(exception_report, loc_sku ~ ., value.var = "safety_stock", sum) 
 
 # Read IQR Report ----
 
-rm_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.05.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 03.05.2024.xlsx", 
+rm_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.12.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 03.12.2024.xlsx", 
                       sheet = "RM data", col_names = FALSE)
 
 rm_data[-1:-3,] -> rm_data
@@ -200,13 +200,13 @@ inventory %>%
   filter(!str_starts(description, "PWS ") & 
            !str_starts(description, "SUB ") & 
            !str_starts(description, "THW ") & 
-           !str_starts(description, "PALEET")) %>% 
-  dplyr::mutate(loc_sku = paste0(location, "_", item)) %>% 
+           !str_starts(description, "PALLET")) %>% 
+  dplyr::mutate(loc_sku = paste0(campus_no, "_", item)) %>% 
   dplyr::select(loc_sku, inventory_hold_status, current_inventory_balance) %>% 
   dplyr::mutate(current_inventory_balance = as.numeric(current_inventory_balance)) %>% 
   tidyr::pivot_wider(names_from = inventory_hold_status, 
-              values_from = current_inventory_balance, 
-              values_fn = list(current_inventory_balance = sum)) %>% 
+                     values_from = current_inventory_balance, 
+                     values_fn = list(current_inventory_balance = sum)) %>% 
   janitor::clean_names() %>% 
   dplyr::mutate(soft_hold = replace(soft_hold, is.na(soft_hold), 0),
                 hard_hold = replace(hard_hold, is.na(hard_hold), 0),
@@ -269,7 +269,7 @@ jde_inv_for_25_55_label %>%
   dplyr::select(loc_sku, hard_hold, soft_hold, useable) %>% 
   dplyr::rename(usable = useable) -> inv_bal_25_55_label
 
-  
+
 
 
 
@@ -282,7 +282,7 @@ rbind(pivot_campus_ref_inventory_analysis, inv_bal_25_55_label) %>%
 
 
 # BoM_dep_demand ----
-bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/03.05.2024/Bill of Material_030524.xlsx",
+bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/03.12.2024/Bill of Material_031224.xlsx",
                              sheet = "Sheet1")
 
 bom_dep_demand %>% 
@@ -342,7 +342,7 @@ ss_opt_loc_sku %>%
 ss_optimization[!duplicated(ss_optimization[,c("loc_sku")]),] -> ss_optimization
 
 # Custord PO ----
-po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/03.05/po.csv",
+po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/03.12/po.csv",
                header = FALSE)
 
 
@@ -384,7 +384,7 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # Custord Receipt ----
-receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/03.05/receipt.csv",
+receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/03.12/receipt.csv",
                     header = FALSE)
 
 
@@ -801,44 +801,6 @@ rm_data %>%
 rm_data %>% 
   dplyr::mutate(moq  = ifelse(is.na(moq), 0, moq)) -> rm_data
 
-# Usable, hold, label work ----
-
-inv_bal %>% 
-  janitor::clean_names() %>% 
-  dplyr::rename(b_p = bp,
-                usable = na,
-                hard_hold = na_2) %>% 
-  tidyr::separate(b_p, c("a", "b", "c", "d", "e")) %>% 
-  dplyr::select(b, item, usable, hard_hold, soft_hold) %>% 
-  dplyr::rename(b_p = b) %>% 
-  dplyr::mutate(b_p = as.double(b_p),
-                soft_hold = as.double(soft_hold),
-                hard_hold = as.double(hard_hold),
-                usable = as.double(usable),
-                usable = replace(usable, is.na(usable), 0),
-                hard_hold = replace(hard_hold, is.na(hard_hold), 0),
-                soft_hold = replace(soft_hold, is.na(soft_hold), 0)) %>% 
-  dplyr::left_join(campus_ref %>% mutate(b_p = as.numeric(b_p),
-                                         location = as.numeric(location))) %>% 
-  dplyr::mutate(loc_sku = paste0(campus, "_", item)) %>% 
-  dplyr::rename(usable_2 = usable,
-                quality_hold_2 = hard_hold,
-                soft_hold_2 = soft_hold) %>% 
-  dplyr::select(loc_sku, usable_2, quality_hold_2, soft_hold_2) -> inv_bal
-
-inv_bal[!duplicated(inv_bal[,c("loc_sku")]),] -> inv_bal
-
-
-rm_data %>% 
-  dplyr::mutate(label_ref = paste0(mfg_loc, "_", item_type)) %>% 
-  dplyr::left_join(inv_bal) %>% 
-  dplyr::mutate(usable = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", usable_2, usable),
-                quality_hold = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", quality_hold_2, quality_hold),
-                soft_hold = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", soft_hold_2, soft_hold)) %>% 
-  dplyr::select(-usable_2, -quality_hold_2, -soft_hold_2, -label_ref) %>% 
-  dplyr::mutate(usable = replace(usable, is.na(usable), 0),
-                hard_hold = replace(quality_hold, is.na(quality_hold), 0),
-                soft_hold = replace(soft_hold, is.na(soft_hold), 0)) -> rm_data
 
 
 # Quality/soft Hold blank to 0
@@ -892,7 +854,7 @@ rm_data %>%
 
 
 # Lot At Risk $
-rm_at_risk_file <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.05.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 03.05.2024.xlsx",
+rm_at_risk_file <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.12.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 03.12.2024.xlsx",
                               sheet = "RM At Risk File")
 
 colnames(rm_at_risk_file) <- rm_at_risk_file[1, ]
@@ -952,7 +914,7 @@ rm_data %>%
                 moq_in_days = ifelse(moq_in_days == "Inf", 0, moq_in_days)) -> rm_data
 
 ################################ Code revise 12/20/2023 ##################################
-bom <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/03.05.2024/JDE BoM 03.05.2024.xlsx",
+bom <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/03.12.2024/JDE BoM 03.12.2024.xlsx",
                   sheet = "BoM")
 
 bom[-1, ] -> bom
@@ -987,10 +949,13 @@ rm_data %>%
 
 
 
+
+
+
 ###########################################################################
 
 # Arrange ----
-rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.05.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 03.05.2024.xlsx",
+rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.12.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 03.12.2024.xlsx",
                                   sheet = "RM data")
 
 rm_data_for_arrange[-1:-2, ] -> rm_data_for_arrange
@@ -1032,7 +997,7 @@ rm_data %>%
                 next_month_dep_demand_in_cost) -> rm_data
 
 
-writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.05.2024/iqr_rm_rstudio_030524.xlsx")
+writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.12.2024/iqr_rm_rstudio_031224.xlsx")
 
 
 
@@ -1042,7 +1007,20 @@ bom %>%
   dplyr::slice(-1) %>% 
   janitor::clean_names() -> bom
 
-writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.05.2024/bom.xlsx")
+writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.12.2024/bom.xlsx")
+
+
+#### DOS File Moving from pre week FG. 
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/03.05.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.12.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
+          overwrite = TRUE)
+
+
+#### IQR main file Moving to S Drive. 
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/03.12.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 03.12.2024.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 03.12.2024.xlsx",
+          overwrite = TRUE)
+
 
 
 
