@@ -704,7 +704,7 @@ inventory %>%
   filter(!str_starts(description, "PWS ") & 
            !str_starts(description, "SUB ") & 
            !str_starts(description, "THW ") & 
-           !str_starts(description, "PALEET")) %>% 
+           !str_starts(description, "PALLET")) %>% 
   dplyr::mutate(Loc_SKU = paste0(location, "_", item)) %>% 
   dplyr::select(Loc_SKU, inventory_hold_status, current_inventory_balance) %>% 
   dplyr::mutate(current_inventory_balance = as.numeric(current_inventory_balance)) %>% 
@@ -732,7 +732,7 @@ inventory %>%
   filter(!str_starts(description, "PWS ") & 
            !str_starts(description, "SUB ") & 
            !str_starts(description, "THW ") & 
-           !str_starts(description, "PALEET")) %>% 
+           !str_starts(description, "PALLET")) %>% 
   dplyr::mutate(Loc_SKU = paste0(campus_no, "_", item)) %>% 
   dplyr::select(Loc_SKU, inventory_hold_status, current_inventory_balance) %>% 
   dplyr::mutate(current_inventory_balance = as.numeric(current_inventory_balance)) %>% 
