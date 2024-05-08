@@ -16,10 +16,10 @@ library(janitor)
 
 
 
-dir.create("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024")
+dir.create("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024")
 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.23.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.23.2024.xlsx",
-          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
           overwrite = TRUE)
 
 
@@ -30,11 +30,11 @@ file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23
 
 ##################################################################################################################################################################
 
-specific_date <- as.Date("2024-04-30")
+specific_date <- as.Date("2024-05-07")
 
 # (Path Revision Needed) Planner Address Book (If updated, correct this link) ----
 # sdrive: S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 04.26.22.xlsx
-Planner_address <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2024.04.01.xlsx", 
+Planner_address <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2024.05.02.xlsx", 
                               sheet = "employee", col_types = c("text", 
                                                                 "text", "text", "text", "text"))
 
@@ -47,7 +47,7 @@ Planner_address %>%
 
 
 # macro_platform ----
-macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
+macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
                              sheet = "Macro-Platform",
                              col_names = FALSE)
 
@@ -75,7 +75,7 @@ FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_r
 
 # (Path Revision Needed) Exception Report ----
 
-exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/04.30.2024/exception report.xlsx", 
+exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/05.07.2024/exception report.xlsx", 
                                sheet = "Sheet1",
                                col_types = c("text", "text", "text", 
                                              "text", "numeric", "text", "text", "text", 
@@ -186,7 +186,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 
 # (Path Revision Needed) Custord PO ----
-po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/04.30/po.csv",
+po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/05.07/po.csv",
                header = FALSE)
 
 po %>% 
@@ -224,7 +224,7 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # (Path Revision Needed) Custord Receipt ----
-receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/04.30/receipt.csv",
+receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/05.07/receipt.csv",
                     header = FALSE)
 
 
@@ -265,41 +265,24 @@ reshape2::dcast(receipt, ref ~ next_28_days, value.var = "qty", sum) -> Receipt_
 
 
 # (Path Revision Needed) Custord wo ----
-wo <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/04.30/wo.csv",
-               header = FALSE)
+wo <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/05.07.2024/Wo.xlsx")
 
 
 wo %>% 
-  dplyr::select(-1) %>% 
-  dplyr::slice(-1) %>% 
-  dplyr::rename(aa = V2) %>% 
-  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
-  dplyr::select(-"3") %>% 
-  dplyr::rename(aa = "1") %>%  
-  tidyr::separate(aa, c("global", "rp", "Item")) %>% 
-  dplyr::select(-global, -rp, -"4", -"8") %>% 
-  dplyr::rename(Location = "2",
-                Qty = "5",
-                wo_no = "6",
-                date = "7") %>% 
-  dplyr::mutate(Qty = as.double(Qty),
-                date = as.Date(date)) %>% 
-  dplyr::mutate(Location = sub("^0+", "", Location)) %>% 
-  dplyr::mutate(ref = paste0(Location, "_", Item)) %>% 
-  dplyr::relocate(ref, Item, Location) %>% 
-  dplyr::mutate(in_next_7_days = ifelse(date >= specific_date & date < specific_date+7, "Y", "N") )-> wo
-
-# wo pivot
-wo %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate(ref = paste0(location, "_", item)) %>% 
+  dplyr::mutate(in_next_7_days = ifelse(date >= specific_date & date < specific_date+7, "Y", "N")) %>% 
+  dplyr::rename(Item = item,
+                Location = location,
+                Qty = production_scheduled_cases) %>% 
   reshape2::dcast(ref ~ in_next_7_days, value.var = "Qty", sum) %>% 
   dplyr::mutate(N = as.integer(N)) -> wo_pivot
 
 
 
-
 # (Path Revision Needed) custord custord ----
 # Open Customer Order File pulling ----  Change Directory ----
-custord <- read.xlsx("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/04.30.2024/US and CAN OO BT where status _ J.xlsx",
+custord <- read.xlsx("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/05.07.2024/US and CAN OO BT where status _ J.xlsx",
                      colNames = FALSE)
 
 custord %>% 
@@ -381,7 +364,7 @@ reshape2::dcast(custord_mfg, mfg_ref ~ in_next_28_days, value.var = "Qty", sum) 
 # (Path Revision Needed) Lag 1 DSX Forecast pulling (Previous month file)---- Change Directory ----
 
 DSX_Forecast_Backup_pre <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.03.01.xlsx")
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.04.01.xlsx")
 
 DSX_Forecast_Backup_pre[-1,] -> DSX_Forecast_Backup_pre
 colnames(DSX_Forecast_Backup_pre) <- DSX_Forecast_Backup_pre[1, ]
@@ -488,7 +471,7 @@ colnames(DSX_pivot_1_pre)[9]  <- "Mon_g_fcst"
 
 
 DSX_Forecast_Backup <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.04.30.xlsx") ### Match with BoM date! ####
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.05.03.xlsx") ### Match with BoM date! ####
 
 DSX_Forecast_Backup[-1,] -> DSX_Forecast_Backup
 colnames(DSX_Forecast_Backup) <- DSX_Forecast_Backup[1, ]
@@ -624,7 +607,7 @@ DSX_mfg_pivot_1 %>%
 
 
 # (Path Revision Needed) Inventory ----
-inventory <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/04.30.2024/Inventory.xlsx",
+inventory <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/05.07.2024/Inventory.xlsx",
                         sheet = "FG")
 
 inventory[-1, ] -> inventory
@@ -692,7 +675,7 @@ inventory %>%
 
 # (Path Revision Needed) Main Dataset Board ----  
 
-IQR_FG_sample <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
+IQR_FG_sample <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
                             sheet = "Location FG")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
@@ -1494,78 +1477,13 @@ IQR_FG_sample %>%
 
 
 
-######## added 7/5/2023 #########
-# wo_2
-wo_2 <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/04.30/wo.csv",
-                 header = FALSE)
-
-
-wo_2 %>% 
-  dplyr::select(-1) %>% 
-  dplyr::slice(-1) %>% 
-  dplyr::rename(aa = V2) %>% 
-  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
-  dplyr::select(-"3") %>% 
-  dplyr::rename(aa = "1") %>%  
-  tidyr::separate(aa, c("global", "rp", "Item")) %>% 
-  dplyr::select(-global, -rp) %>% 
-  dplyr::rename(Location = "2",
-                Workorder = "4",
-                qty = "5",
-                wo_no = "6",
-                date = "7",
-                wo_no_2 = "8") %>% 
-  dplyr::mutate(ref = paste0(Location, "_", Item)) %>% 
-  dplyr::mutate(qty = as.double(qty),
-                date = as.Date(date)) %>% 
-  dplyr::mutate(Location = sub("^0+", "", Location)) %>% 
-  
-  dplyr::relocate(ref, Item, Location, Workorder) %>% 
-  dplyr::mutate(in_next_7_days = ifelse(date >= specific_date & date < specific_date+7, "Y", "N") ) %>% 
-  dplyr::mutate(ref = gsub("_", "-", ref)) -> wo_2
-
-
-# receipt_2
-receipt_2 <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/04.30/receipt.csv",
-                      header = FALSE)
-
-
-# Base receipt variable
-receipt_2 %>%   
-  dplyr::select(-1) %>% 
-  dplyr::slice(-1) %>% 
-  dplyr::rename(aa = V2) %>% 
-  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
-  dplyr::rename(a = "1") %>% 
-  tidyr::separate(a, c("global", "rp", "Item")) %>% 
-  dplyr::rename(Location = "2",
-                scheduled = "4",
-                qty = "5",
-                receipt_no = "6",
-                date = "7",
-                receipt_no_2 = "8") %>% 
-  dplyr::select(-global, -rp, -"3") %>% 
-  dplyr::mutate(Item = gsub("^0+", "", Item),
-                Location = gsub("^0+", "", Location)) %>% 
-  dplyr::mutate(date = as.Date(date)) %>% 
-  readr::type_convert() %>% 
-  dplyr::mutate(ref = paste0(Location, "-", Item),
-                next_7_days = ifelse(date >= specific_date & date <= specific_date + 7, "Y", "N")) %>% 
-  dplyr::rename(item = Item) %>% 
-  dplyr::left_join(Campus_ref %>% mutate(Campus = as.character(Campus),
-                                         B_P = as.character(B_P)) %>% select(B_P, Campus) %>% rename(Location = B_P)) %>% 
-  dplyr::mutate(campus_ref = paste0(Campus, "-", item)) %>% 
-  dplyr::relocate(ref, campus_ref, Campus, item, Location, scheduled, qty, receipt_no, date, receipt_no_2, next_7_days) -> receipt_2
-
-
-
 # Planner Name N/A
 IQR_FG_sample %>% 
   dplyr::mutate(planner_name = ifelse(is.na(planner_name) & planner == 0, 0, planner_name)) -> IQR_FG_sample
 
 
 # pre_data
-pre_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.23.2024/iqr_fg_rstudio_04232024.xlsx")
+pre_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/iqr_fg_rstudio_04302024.xlsx")
 
 pre_data %>% 
   janitor::clean_names() %>% 
@@ -1586,7 +1504,7 @@ IQR_FG_sample %>%
 
 
 # Category & Platform
-completed_sku_list <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/04.30.2024/Completed SKU list - Linda.xlsx")
+completed_sku_list <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/05.07.2024/Completed SKU list - Linda.xlsx")
 completed_sku_list[-1:-2, ]  %>% 
   janitor::clean_names() %>% 
   dplyr::select(x6, x7, x9, x11) %>% 
@@ -1726,7 +1644,7 @@ IQR_FG_sample %>%
 ########################################################################################################
 
 # Arrange ----
-fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
+fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
                                   sheet = "Location FG")
 
 fg_data_for_arrange[-1:-2, ] -> fg_data_for_arrange
@@ -1795,8 +1713,8 @@ IQR_FG_sample %>%
 
 
 # (Path Revision Needed)
-writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/iqr_fg_rstudio_04302024.xlsx")
-writexl::write_xlsx(custord_open_order, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Open Order.xlsx")
+writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/iqr_fg_rstudio_05072024.xlsx")
+writexl::write_xlsx(custord_open_order, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Open Order.xlsx")
 
 
 
@@ -1805,26 +1723,26 @@ writexl::write_xlsx(custord_open_order, "C:/Users/slee/OneDrive - Ventura Foods/
 ######################################################################################################################################################
 
 #### DOS File Moving from RM. 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/04.30.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
-          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Inventory Health (IQR) Tracker - DOS.xlsx")
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.07.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Inventory Health (IQR) Tracker - DOS.xlsx")
 
 
 
 #### IQR main file Moving to S Drive. 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
           overwrite = TRUE)
 
 
 
 ### DOS Tracker moving to S Drive
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.30.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
           "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Inventory Health (IQR) Tracker - DOS.xlsx",
           overwrite = TRUE)
 
 ### IQR pre week moving in S Drive
-file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.23.2024.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/FG/2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.23.2024.xlsx",
+file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/FG/2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 04.30.2024.xlsx",
           overwrite = TRUE)
 
 
@@ -1832,7 +1750,7 @@ file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventor
 # https://edgeanalytics.venturafoods.com/MicroStrategyLibrary/app/DF007F1C11E9B3099BB30080EF7513D2/F9E860846E4878AEF29B5E949CF675DC/K53--K46
 # Make sure to have only one Month (Last Month) from the Dossier
 
-pre_month_actual <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/04.02.2024/Actual Shipped.xlsx")
+pre_month_actual <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Actual Shipped.xlsx")
 
 pre_month_actual %>% 
   janitor::clean_names() -> pre_month_actual
@@ -1853,3 +1771,4 @@ pre_month_actual %>%
                 total_qty = ifelse(is.na(total_qty), 0, total_qty)) -> pre_month_actual
 
 pre_month_actual$total_qty %>% sum()
+
