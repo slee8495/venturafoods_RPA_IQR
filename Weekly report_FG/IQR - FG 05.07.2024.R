@@ -1640,6 +1640,13 @@ IQR_FG_sample %>%
   dplyr::relocate(focus_label, .after = cvm) -> IQR_FG_sample
 
 
+############################################ Added 05/09/23 #############################################
+IQR_FG_sample %>% 
+  dplyr::mutate(category = ifelse(is.na(category), "NA", category),
+                platform= ifelse(is.na(platform), "NA", platform),
+                macro_platform = ifelse(is.na(macro_platform), "NA", macro_platform)) -> IQR_FG_sample
+
+
 
 ########################################################################################################
 
