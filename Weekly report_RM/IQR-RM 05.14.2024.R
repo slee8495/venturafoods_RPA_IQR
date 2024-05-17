@@ -12,6 +12,49 @@ library(skimr)
 library(janitor)
 library(rio)
 
+######################################################################################################################################################
+
+dir.create("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024")
+
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.07.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.14.2024.xlsx",
+          overwrite = TRUE)
+
+# For Exposure file
+# https://venturafoods.sharepoint.com/sites/ExpiredProductReporting/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FExpiredProductReporting%2FShared%20Documents%2FExpiration%20Risk%20Management%2FRaw%20Material%20Risk%2FRM%20%2D%20Raw%20Data%20Weekly%20Risk%20Original%20Files%2D%20For%20Downloading%20Only&p=true&ga=1
+
+
+
+######################################################################################################################################################
+
+specific_date <- as.Date("2024-05-14")
+
+# Consumption data component # Updated once a month ---- (You might want to double check if ref col is already created: This is the version with ref already created)
+consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Raw Material Monthly Consumption - 2024.05.10.xlsx")
+consumption_data[-1:-3, ] -> consumption_data
+colnames(consumption_data) <- consumption_data[1, ]
+consumption_data[-1, ] -> consumption_data
+
+
+
+consumption_data %>% 
+  janitor::clean_names() %>% 
+  readr::type_convert() %>% 
+  dplyr::select(-na_6) %>% 
+  # dplyr::mutate(na_4 = as.numeric(na_4)) %>% 
+  dplyr::rename(item = na_2,
+                loc_sku = na) %>% 
+  dplyr::mutate(sum_12mos = monthly_usage_2 + monthly_usage_3 + monthly_usage_4 + monthly_usage_5 + monthly_usage_6 + monthly_usage_7 +
+                  monthly_usage_8 + monthly_usage_9 + monthly_usage_10 + monthly_usage_11 + monthly_usage_12 + monthly_usage_13) %>% 
+  dplyr::mutate(sum_6mos = monthly_usage_8 + monthly_usage_9 + monthly_usage_10 + monthly_usage_11 + monthly_usage_12 + monthly_usage_13) %>% 
+  dplyr::relocate(sum_6mos, .before = sum_12mos) %>% 
+  dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) -> consumption_data
+
+
+consumption_data[is.na(consumption_data)] <- 0
+
+
+
 
 ##################################################################################################################################################################
 ##################################################################################################################################################################
@@ -19,11 +62,12 @@ library(rio)
 
 # Planner Address Book (If updated, correct this link) ----
 
-supplier_address <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book Supplier - 08.01.23.xlsx")
+supplier_address <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2024.05.02.xlsx",
+                               sheet = "supplier")
 
-planner_adress <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 08.01.23.xlsx", 
-                             sheet = "Sheet1", col_types = c("text", 
-                                                             "text", "text", "text", "text"))
+planner_adress <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2024.05.02.xlsx", 
+                             sheet = "employee", col_types = c("text", 
+                                                               "text", "text", "text", "text"))
 
 planner_adress %>% 
   janitor::clean_names() -> planner_adress
@@ -33,7 +77,7 @@ colnames(planner_adress)[1] <- "planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/8.29.2023/exception report.xlsx")
+exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/05.14.2024/exception report.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -52,11 +96,12 @@ exception_report %>%
 
 readr::type_convert(exception_report) -> exception_report
 
+exception_report[!duplicated(exception_report[,c("ref")]),] -> exception_report
+
 # Campus_ref pulling ----
 
-campus_ref <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/campus reference.xlsx", 
-                         col_types = c("numeric", "text", "text", 
-                                       "numeric"))
+campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx") %>% 
+  readr::type_convert()
 
 campus_ref %>% 
   janitor::clean_names() -> campus_ref
@@ -135,7 +180,7 @@ reshape2::dcast(exception_report, loc_sku ~ ., value.var = "safety_stock", sum) 
 
 # Read IQR Report ----
 
-rm_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/8.30.23/Raw Material Inventory Health (IQR) - 08.30.23.xlsx", 
+rm_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.14.2024.xlsx", 
                       sheet = "RM data", col_names = FALSE)
 
 rm_data[-1:-3,] -> rm_data
@@ -146,26 +191,6 @@ rm_data %>%
   janitor::clean_names() %>% 
   readr::type_convert()-> rm_data
 
-str(rm_data)
-
-colnames(rm_data)[8]  <- "class"
-colnames(rm_data)[24] <- "quality_hold_in_cost"
-colnames(rm_data)[25] <- "on_hand_in_cost"
-colnames(rm_data)[29] <- "target_inv_in_cost"
-colnames(rm_data)[31] <- "max_inv_cost"
-colnames(rm_data)[36] <- "at_risk_in_cost"
-colnames(rm_data)[45] <- "on_hand_inv_greater_than_max"
-colnames(rm_data)[46] <- "on_hand_inv_less_or_equal_than_max"
-colnames(rm_data)[47] <- "on_hand_inv_greater_than_target"
-colnames(rm_data)[48] <- "on_hand_inv_less_or_equal_than_target"
-colnames(rm_data)[49] <- "iqr_cost"
-colnames(rm_data)[50] <- "upi_cost"
-colnames(rm_data)[51] <- "iqr_cost_plus_hold_cost"
-colnames(rm_data)[52] <- "upi_cost_plus_hold_cost"
-colnames(rm_data)[55] <- "current_month_dep_demand_in_cost"
-colnames(rm_data)[56] <- "next_month_dep_demand_in_cost"
-
-
 
 rm_data %>% 
   dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) %>% 
@@ -173,52 +198,106 @@ rm_data %>%
 
 
 
-# Inventory Analysis Read RM ----
-
-inventory_analysis_rm <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/8.29.2023/Inventory Report for all locations (60).xlsx")
 
 
+############ Inventory
+inventory <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2024.05.14.xlsx",
+                        sheet = "RM")
 
-inventory_analysis_rm[-1,] -> inventory_analysis_rm
-colnames(inventory_analysis_rm) <- inventory_analysis_rm[1, ]
-inventory_analysis_rm[-1, ] -> inventory_analysis_rm
+inventory[-1, ] -> inventory
+colnames(inventory) <- inventory[1, ]
+inventory[-1, ] -> inventory
 
-inventory_analysis_rm %>% 
+inventory %>% 
   janitor::clean_names() %>% 
-  readr::type_convert() -> inventory_analysis_rm
-
-colnames(inventory_analysis_rm)[2] <- "location_name"
-colnames(inventory_analysis_rm)[5] <- "description"
-colnames(inventory_analysis_rm)[7] <- "inventory_hold_status"
-colnames(inventory_analysis_rm)[8] <- "inventory_qty_cases"
-
-
-inventory_analysis <- inventory_analysis_rm
-readr::type_convert(inventory_analysis) -> inventory_analysis
-
-# Vlookup - campus
-# merge(Inventory_analysis, Campus_ref[, c("Location", "Campus")], by = "Location", all.x = TRUE) -> Inventory_analysis
-
-inventory_analysis %>%  
-  dplyr::mutate(item = sub("^0+", "", item)) %>% 
-  dplyr::mutate(campus_ref = paste0(campus, "_", item), campus_ref = gsub("-", "", campus_ref)) %>% 
-  dplyr::mutate(ref = paste0(location, "_", item), ref = gsub("-", "", ref)) %>% 
-  dplyr::relocate(ref, campus_ref, campus) -> inventory_analysis
-
-inventory_analysis %>% 
-  dplyr::mutate(inventory_qty_cases = ifelse(is.na(inventory_qty_cases), 0, inventory_qty_cases)) -> inventory_analysis
+  dplyr::mutate(item = as.numeric(item)) %>%
+  filter(!str_starts(description, "PWS ") & 
+           !str_starts(description, "SUB ") & 
+           !str_starts(description, "THW ") & 
+           !str_starts(description, "PALLET")) %>% 
+  dplyr::mutate(loc_sku = paste0(campus_no, "_", item)) %>% 
+  dplyr::select(loc_sku, inventory_hold_status, current_inventory_balance) %>% 
+  dplyr::mutate(current_inventory_balance = as.numeric(current_inventory_balance)) %>% 
+  tidyr::pivot_wider(names_from = inventory_hold_status, 
+                     values_from = current_inventory_balance, 
+                     values_fn = list(current_inventory_balance = sum)) %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate(soft_hold = replace(soft_hold, is.na(soft_hold), 0),
+                hard_hold = replace(hard_hold, is.na(hard_hold), 0),
+                useable = replace(useable, is.na(useable), 0)) %>% 
+  dplyr::rename(usable = useable) %>% 
+  dplyr::relocate(loc_sku, hard_hold, soft_hold, usable) -> pivot_campus_ref_inventory_analysis
 
 
-# Inventory_analysis_pivot_ref
 
-reshape2::dcast(inventory_analysis, ref ~ inventory_hold_status, value.var = "inventory_qty_cases", sum) -> pivot_ref_inventory_analysis
-reshape2::dcast(inventory_analysis, campus_ref ~ inventory_hold_status, value.var = "inventory_qty_cases", sum) -> pivot_campus_ref_inventory_analysis
 
-pivot_campus_ref_inventory_analysis %>% 
-  dplyr::rename(usable = Useable, loc_sku = campus_ref, hard_hold = "Hard Hold", soft_hold = "Soft Hold") -> pivot_campus_ref_inventory_analysis
+
+
+
+
+
+################## jde_inv_for_25_55_label
+
+lot_status_code <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Lot Status Code.xlsx")
+
+lot_status_code %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(lot_status, hard_soft_hold) %>% 
+  dplyr::mutate(lot_status = ifelse(is.na(lot_status), "Useable", lot_status),
+                hard_soft_hold = ifelse(is.na(hard_soft_hold), "Useable", hard_soft_hold)) %>% 
+  dplyr::rename(status = lot_status) -> lot_status_code
+
+
+
+jde_inv_for_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2024.05.14.xlsx")
+
+jde_inv_for_25_55_label[-1:-5, ] -> jde_inv_for_25_55_label
+colnames(jde_inv_for_25_55_label) <- jde_inv_for_25_55_label[1, ]
+jde_inv_for_25_55_label[-1, ] -> jde_inv_for_25_55_label
+
+jde_inv_for_25_55_label %>% 
+  janitor::clean_names() %>%
+  dplyr::select(bp, item_number, on_hand, status) %>% 
+  dplyr::rename(b_p = bp,
+                item = item_number) %>% 
+  dplyr::mutate(status = ifelse(is.na(status), "Useable", status)) %>% 
+  dplyr::mutate(item = as.numeric(item),
+                on_hand = as.numeric(on_hand),
+                b_p = as.numeric(b_p)) %>% 
+  dplyr::filter(!is.na(item)) %>% 
+  dplyr::left_join(lot_status_code, by = "status") %>% 
+  dplyr::select(-status) %>% 
+  pivot_wider(names_from = hard_soft_hold, values_from = on_hand, values_fn = list(on_hand = sum)) %>% 
+  janitor::clean_names() %>% 
+  replace_na(list(useable = 0, soft_hold = 0, hard_hold = 0)) %>% 
+  dplyr::left_join(exception_report %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(item_number, mpf_or_line) %>% 
+                     dplyr::rename(item = item_number,
+                                   label = mpf_or_line) %>% 
+                     dplyr::mutate(item = as.double(item)) %>% 
+                     dplyr::filter(label == "LBL") %>% 
+                     dplyr::distinct(item, label)) %>% 
+  dplyr::filter(!is.na(label)) %>% 
+  dplyr::select(-label) %>% 
+  dplyr::mutate(loc_sku = paste0(b_p, "_", item)) %>% 
+  dplyr::select(loc_sku, hard_hold, soft_hold, useable) %>% 
+  dplyr::rename(usable = useable) -> inv_bal_25_55_label
+
+
+
+
+
+rbind(pivot_campus_ref_inventory_analysis, inv_bal_25_55_label) %>% 
+  dplyr::group_by(loc_sku) %>% 
+  dplyr::summarise(hard_hold = sum(hard_hold),
+                   soft_hold = sum(soft_hold),
+                   usable = sum(usable)) ->  pivot_campus_ref_inventory_analysis
+
+
 
 # BoM_dep_demand ----
-bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/8.29.2023/Bill of Material_082923.xlsx",
+bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/05.14.2024/Bill of Material_051424.xlsx",
                              sheet = "Sheet1")
 
 bom_dep_demand %>% 
@@ -243,55 +322,13 @@ bom_dep_demand %>%
 
 
 
-# Consumption data component # Updated once a month ----
-# consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/consumption data component - 05.04.23.xlsx")
-# 
-# consumption_data[-1:-2,] -> consumption_data
-# colnames(consumption_data) <- consumption_data[1, ]
-# consumption_data[-1, ] -> consumption_data
-# 
-# 
-# colnames(consumption_data)[1] <- "loc_sku"
-# colnames(consumption_data)[ncol(consumption_data)-1] <- "sum_12mos"
-# colnames(consumption_data)[ncol(consumption_data)] <- "sum_6mos"
-# 
-# consumption_data %>% 
-#   dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) -> consumption_data
-# 
-# consumption_data %>% 
-#   data.frame() %>% 
-#   readr::type_convert() -> consumption_data
-# 
-# consumption_data[is.na(consumption_data)] <- 0
 
 
-
-# Consumption data component # Updated once a month ----
-consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Raw Material Monthly Consumption - 08.14.23.xlsx")
-consumption_data[-1:-3, ] -> consumption_data
-colnames(consumption_data) <- consumption_data[1, ]
-consumption_data[-1, ] -> consumption_data
-
-consumption_data -> consumption_data
-
-consumption_data %>% 
-  janitor::clean_names() %>% 
-  data.frame() %>%
-  readr::type_convert() %>% 
-  dplyr::select(-na_6) %>% 
-  dplyr::rename(loc_sku = ref,
-                sum_12mos = na_7) %>% 
-  dplyr::mutate(sum_6mos = monthly_usage_8 + monthly_usage_9 + monthly_usage_10 + monthly_usage_11 + monthly_usage_12 + monthly_usage_13) %>% 
-  dplyr::relocate(sum_6mos, .before = sum_12mos) %>% 
-  dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) -> consumption_data
-
-
-consumption_data[is.na(consumption_data)] <- 0
 
 
 
 # SS Optimization RM for EOQ ----
-ss_optimization <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Raw Material August 2023.xlsx",
+ss_optimization <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Raw Material LIVE.xlsx",
                               sheet = "Sheet1")
 
 ss_optimization[-1:-5,] -> ss_optimization
@@ -320,13 +357,15 @@ ss_opt_loc_sku %>%
 ss_optimization[!duplicated(ss_optimization[,c("loc_sku")]),] -> ss_optimization
 
 # Custord PO ----
-po <- read.csv("Z:/IMPORT_JDE_OPENPO.csv",
+po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/05.14/po.csv",
                header = FALSE)
 
 
 
 po %>% 
-  dplyr::rename(aa = V1) %>% 
+  dplyr::select(-1) %>% 
+  dplyr::slice(-1) %>% 
+  dplyr::rename(aa = V2) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
   dplyr::rename(a = "1") %>% 
   tidyr::separate(a, c("global", "rp", "Item")) %>% 
@@ -351,7 +390,7 @@ po %>%
 
 # PO_Pivot 
 po %>% 
-  dplyr::mutate(next_28_days = ifelse(date >= Sys.Date() & date <= Sys.Date() + 28, "Y", "N")) -> po
+  dplyr::mutate(next_28_days = ifelse(date >= specific_date & date <= specific_date + 28, "Y", "N")) -> po
 
 
 reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>% 
@@ -360,13 +399,15 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # Custord Receipt ----
-receipt <- read.csv("Z:/IMPORT_RECEIPTS.csv",
+receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/05.14/receipt.csv",
                     header = FALSE)
 
 
 # Base receipt variable
 receipt %>% 
-  dplyr::rename(aa = V1) %>% 
+  dplyr::select(-1) %>% 
+  dplyr::slice(-1) %>% 
+  dplyr::rename(aa = V2) %>% 
   tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
   dplyr::rename(a = "1") %>% 
   tidyr::separate(a, c("global", "rp", "Item")) %>% 
@@ -382,7 +423,7 @@ receipt %>%
                 day = day(date)) %>% 
   readr::type_convert() %>% 
   dplyr::mutate(ref = paste0(loc, "_", Item),
-                next_28_days = ifelse(date >= Sys.Date() & date <= Sys.Date() + 28, "Y", "N")) %>% 
+                next_28_days = ifelse(date >= specific_date & date <= specific_date + 28, "Y", "N")) %>% 
   dplyr::relocate(ref) %>% 
   dplyr::rename(item = Item) -> receipt
 
@@ -501,9 +542,10 @@ rm_data %>%
 
 # vlookup - Soft Hold
 merge(rm_data, pivot_campus_ref_inventory_analysis[, c("loc_sku", "soft_hold")], by = "loc_sku", all.x = TRUE) %>%
+  dplyr::select(-soft_hold.x) %>%
+  dplyr::rename(soft_hold = soft_hold.y) %>% 
   dplyr::mutate(soft_hold = round(soft_hold, 2)) %>% 
-  dplyr::mutate(soft_hold = replace(soft_hold, is.na(soft_hold), 0)) %>% 
-  dplyr::relocate(loc_sku, .after = item) -> rm_data
+  dplyr::mutate(soft_hold = replace(soft_hold, is.na(soft_hold), 0)) -> rm_data
 
 # Calculation - On Hand (usable + soft hold)
 rm_data %>% 
@@ -704,7 +746,7 @@ rm_data %>%
 
 
 rm_data %>% 
-  dplyr::mutate(today = Sys.Date(),
+  dplyr::mutate(today = specific_date,
                 today = as.Date(today, format = "%Y-%m-%d"),
                 birthday = as.Date(birthday, origin = "1899-12-30"),
                 diff_days = today - birthday,
@@ -774,48 +816,6 @@ rm_data %>%
 rm_data %>% 
   dplyr::mutate(moq  = ifelse(is.na(moq), 0, moq)) -> rm_data
 
-# Usable, hold, label work ----
-inv_bal <- read_csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/8.30.23/ATT72199.csv")
-
-inv_bal[-1:-2, ] -> inv_bal
-colnames(inv_bal) <- inv_bal[1, ]
-inv_bal[-1, ] -> inv_bal
-
-inv_bal %>% 
-  janitor::clean_names() %>% 
-  dplyr::rename(b_p = bp,
-                usable = na,
-                hard_hold = na_2) %>% 
-  tidyr::separate(b_p, c("a", "b", "c", "d", "e")) %>% 
-  dplyr::select(b, item, usable, hard_hold, soft_hold) %>% 
-  dplyr::rename(b_p = b) %>% 
-  dplyr::mutate(b_p = as.double(b_p),
-                soft_hold = as.double(soft_hold),
-                hard_hold = as.double(hard_hold),
-                usable = as.double(usable),
-                usable = replace(usable, is.na(usable), 0),
-                hard_hold = replace(hard_hold, is.na(hard_hold), 0),
-                soft_hold = replace(soft_hold, is.na(soft_hold), 0)) %>% 
-  dplyr::left_join(campus_ref) %>% 
-  dplyr::mutate(loc_sku = paste0(campus, "_", item)) %>% 
-  dplyr::rename(usable_2 = usable,
-                quality_hold_2 = hard_hold,
-                soft_hold_2 = soft_hold) %>% 
-  dplyr::select(loc_sku, usable_2, quality_hold_2, soft_hold_2) -> inv_bal
-
-inv_bal[!duplicated(inv_bal[,c("loc_sku")]),] -> inv_bal
-
-
-rm_data %>% 
-  dplyr::mutate(label_ref = paste0(mfg_loc, "_", item_type)) %>% 
-  dplyr::left_join(inv_bal) %>% 
-  dplyr::mutate(usable = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", usable_2, usable),
-                quality_hold = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", quality_hold_2, quality_hold),
-                soft_hold = ifelse(label_ref == "25_Label" | label_ref == "55_Label" | label_ref == "86_Label", soft_hold_2, soft_hold)) %>% 
-  dplyr::select(-usable_2, -quality_hold_2, -soft_hold_2, -label_ref) %>% 
-  dplyr::mutate(usable = replace(usable, is.na(usable), 0),
-                hard_hold = replace(quality_hold, is.na(quality_hold), 0),
-                soft_hold = replace(soft_hold, is.na(soft_hold), 0)) -> rm_data
 
 
 # Quality/soft Hold blank to 0
@@ -853,10 +853,10 @@ rm_data %>%
 rm_data %>% 
   dplyr::mutate(total_inventory_cost = on_hand_in_cost + quality_hold_in_cost,
                 total_inventory_cost = round(total_inventory_cost, 0)) -> rm_data
-  
+
 
 # Dead $
-today <- Sys.Date()
+today <- specific_date
 
 rm_data %>% 
   dplyr::mutate(dead_cost = ifelse((on_hand_usable_soft_hold > 0 & uom == "DNRR") | 
@@ -864,8 +864,9 @@ rm_data %>%
                                    on_hand_in_cost, 0)) -> rm_data
 
 
+############################################################ MAKE SURE TO CHANGE THE DATA #################################################################
 # Lot At Risk $
-rm_at_risk_file <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/8.30.23/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.30.23.xlsx",
+rm_at_risk_file <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.14.2024.xlsx",
                               sheet = "RM At Risk File")
 
 colnames(rm_at_risk_file) <- rm_at_risk_file[1, ]
@@ -917,12 +918,57 @@ rm_data %>%
 rm_data %>% 
   dplyr::mutate(healthy_cycle_stock_cost = ifelse(on_hand_in_cost - upi_cost - ss_oh_cost < 0, 0, on_hand_in_cost - upi_cost - ss_oh_cost),
                 healthy_cycle_stock_cost = round(healthy_cycle_stock_cost, 0)) -> rm_data
-  
-  
+
+
+################################ Code revise 10/25/2023 ##################################
+rm_data %>% 
+  dplyr::mutate(moq_in_days = ifelse(moq_in_days == "DNRR", 0, moq_in_days),
+                moq_in_days = ifelse(moq_in_days == "Inf", 0, moq_in_days)) -> rm_data
+
+################################ Code revise 12/20/2023 ##################################
+bom <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/05.14.2024/JDE BoM 05.14.2024.xlsx",
+                  sheet = "BoM")
+
+bom[-1, ] -> bom
+colnames(bom) <- bom[1, ]
+
+
+rm_data %>% 
+  dplyr::select(-description) %>% 
+  dplyr::left_join(exception_report %>% select(item_number, description)  %>% distinct(item_number, description) %>% rename(item = item_number), by = "item") -> rm_data
+
+rm_data %>% 
+  dplyr::left_join(bom %>% 
+                     janitor::clean_names() %>%
+                     select(component, component_description) %>% 
+                     rename(item = component,
+                            description = component_description) %>% 
+                     distinct(item, description), by = "item") -> rm_data
+
+rm_data %>% 
+  dplyr::mutate(description = coalesce(description.y, description.x)) %>% 
+  dplyr::mutate(description = ifelse(is.na(description), "NA", description)) %>% 
+  dplyr::select(-description.x, -description.y) -> rm_data
+
+
+
+
+
+############################## Added 2/21/2024 #################################
+rm_data %>% 
+  dplyr::select(-description) %>% 
+  dplyr::left_join(consumption_data %>% select(item, na_3) %>% rename(description = na_3) %>% distinct(item, description) %>% 
+                     mutate(item = as.character(item)), by = "item") -> rm_data
+
+
+
+
+
+
 ###########################################################################
 
 # Arrange ----
-rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/8.30.23/Raw Material Inventory Health (IQR) - 08.30.23.xlsx",
+rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.14.2024.xlsx",
                                   sheet = "RM data")
 
 rm_data_for_arrange[-1:-2, ] -> rm_data_for_arrange
@@ -943,12 +989,9 @@ rm_data %>%
 
 
 
-
-
 #####################################################################################################################
 ########################################## Change Col names to original #############################################
 #####################################################################################################################
-rm_data %>% select(next_month_dep_demand_in_cost)
 
 ########### Don't forget to rearrange and bring cols only what you need! #################
 rm_data %>% 
@@ -967,13 +1010,83 @@ rm_data %>%
                 next_month_dep_demand_in_cost) -> rm_data
 
 
-writexl::write_xlsx(rm_data, "IQR_RM_Report_083023.xlsx")
-
-
-file.rename(from="C:/Users/slee/OneDrive - Ventura Foods/Stan/R Codes/Projects/IQR/venturafoods_RPA_IQR/IQR_RM_Report_083023.xlsx",
-            to="C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/8.30.23/IQR_RM_Report_083023.xlsx")
+writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024/iqr_rm_rstudio_051424.xlsx")
 
 
 
+# BoM
+
+bom %>% 
+  dplyr::slice(-1) %>% 
+  janitor::clean_names() -> bom
+
+writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024/bom.xlsx")
+
+
+#### DOS File Moving from pre week FG. 
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/05.07.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
+          overwrite = TRUE)
+
+
+#### IQR main file Moving to S Drive. 
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.14.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.14.2024.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.14.2024.xlsx",
+          overwrite = TRUE)
+
+#### IQR main pre-week file Moving in S Drive. 
+file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/RM/Raw Material Inventory Health (IQR) NEW TEMPLATE - 05.07.2024.xlsx",
+          overwrite = TRUE)
+
+
+
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+#########################################################################################################################################################
+
+########################################## Do this once a month to get a pre month consumption for the Tracker ##########################################
+# https://edgeanalytics.venturafoods.com/MicroStrategyLibrary/app/DF007F1C11E9B3099BB30080EF7513D2/0D478CF14B44D57335A7ABBFAC02BFA7/K53--K46
+
+monthly_consumption <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/05.07.2024/Raw Material Monthly Consumption.xlsx")
+monthly_consumption[c(-1, -3, -4), ] -> monthly_consumption
+
+colnames(monthly_consumption) <- monthly_consumption[1, ]
+
+monthly_consumption %>% 
+  dplyr::slice(-1) %>% 
+  janitor::clean_names() %>% 
+  dplyr::select(1, 4, (ncol(monthly_consumption) - 2)) %>% 
+  readr::type_convert() %>% 
+  dplyr::mutate(base_product_cd = as.numeric(base_product_cd),
+                location_number = as.numeric(location_number)) %>% 
+  dplyr::rename(location = location_number) %>% 
+  dplyr::left_join(campus_ref %>% select(campus, location) %>% mutate(campus = as.numeric(campus),
+                                                                      location = as.numeric(location))) %>% 
+  dplyr::mutate(loc_sku = paste0(campus, "_", base_product_cd)) %>% 
+  dplyr::select(3, 5) -> monthly_consumption_cleaned
+
+
+rm_data %>% 
+  dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) %>% 
+  dplyr::select(loc_sku, standard_cost) %>% 
+  dplyr::mutate(standard_cost = round(standard_cost, 2)) -> rm_data_standard_cost
+
+monthly_consumption_cleaned %>% 
+  dplyr::left_join(rm_data_standard_cost) %>% 
+  dplyr::mutate(across(everything(), ~replace(., is.na(.), 0))) -> monthly_consumption_all
+
+colnames(monthly_consumption_all)[1] <- "monthly_consumption"
+
+sum(monthly_consumption_all$monthly_consumption * monthly_consumption_all$standard_cost) # All (US & Canada)
+
+
+monthly_consumption_all %>%
+  filter(!str_detect(loc_sku, "^622|^624")) -> monthly_consumption_all_2
+
+sum(monthly_consumption_all_2$monthly_consumption * monthly_consumption_all_2$standard_cost) # US Only
 
 
