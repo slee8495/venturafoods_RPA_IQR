@@ -186,32 +186,24 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 
 # (Path Revision Needed) Custord PO ----
-po <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/05.14/po.csv",
-               header = FALSE)
+po <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/05.21.2024/Copy of PO Reporting Tool - 05.21.24.xlsx",
+                 sheet = "Daily Open PO")
+
 
 po %>% 
-  dplyr::select(-1) %>% 
-  dplyr::slice(-1) %>% 
-  dplyr::rename(aa = V2) %>% 
-  tidyr::separate(aa, c("1", "2", "3", "4", "5", "6", "7", "8"), sep = "~") %>% 
-  dplyr::rename(a = "1") %>% 
-  tidyr::separate(a, c("global", "rp", "Item")) %>% 
-  dplyr::rename(loc = "2",
-                qty = "5",
-                po_number = "6",
-                date = "7") %>% 
-  dplyr::select(-global, -rp, -"3", -"4", -"8") %>% 
-  dplyr::mutate(date = as.Date(date)) %>% 
-  dplyr::mutate(year = year(date),
+  janitor::clean_names() %>% 
+  dplyr::mutate(loc_item = gsub("-", "_", loc_item)) %>% 
+  dplyr::select(loc_item, x2nd_item_number, location, quantity_to_receive, promised_delivery_date) %>% 
+  dplyr::rename(ref = loc_item,
+                item = x2nd_item_number,
+                loc = location,
+                qty = quantity_to_receive,
+                date = promised_delivery_date) %>% 
+  dplyr::mutate(date = as.Date(date),
+                year = year(date),
                 month = month(date),
-                day = day(date))%>% 
-  readr::type_convert() %>% 
-  dplyr::mutate(month_year = paste0(month, "_", year)) %>% 
-  dplyr::mutate(loc = sub("^0+", "", loc),
-                Item = sub("^0+", "", Item)) %>% 
-  dplyr::mutate(ref = paste0(loc, "_", Item)) %>% 
-  dplyr::rename(item = Item) %>% 
-  dplyr::relocate(ref) -> po
+                day = day(date),
+                month_year = paste0(month, "_", year)) -> po
 
 
 # PO_Pivot 
