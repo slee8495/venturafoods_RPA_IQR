@@ -30,6 +30,8 @@ file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23
 specific_date <- as.Date("2024-06-04")
 
 # Consumption data component # Updated once a month ---- (You might want to double check if ref col is already created: This is the version with ref already created)
+# This affects to the 6 months and 12 months sales plesae double check. 
+
 consumption_data <- read_excel("S:/Supply Chain Projects/Linda Liang/reference files/Raw Material Monthly Consumption - 2024.05.10.xlsx")
 consumption_data[-1:-3, ] -> consumption_data
 colnames(consumption_data) <- consumption_data[1, ]
@@ -43,7 +45,7 @@ consumption_data %>%
   dplyr::select(-na_6) %>% 
   # dplyr::mutate(na_4 = as.numeric(na_4)) %>% 
   dplyr::rename(item = na_2,
-                loc_sku = na) %>% 
+                loc_sku = ref) %>% 
   dplyr::mutate(sum_12mos = monthly_usage_2 + monthly_usage_3 + monthly_usage_4 + monthly_usage_5 + monthly_usage_6 + monthly_usage_7 +
                   monthly_usage_8 + monthly_usage_9 + monthly_usage_10 + monthly_usage_11 + monthly_usage_12 + monthly_usage_13) %>% 
   dplyr::mutate(sum_6mos = monthly_usage_8 + monthly_usage_9 + monthly_usage_10 + monthly_usage_11 + monthly_usage_12 + monthly_usage_13) %>% 
@@ -1000,7 +1002,7 @@ rm_data %>%
                 next_month_dep_demand_in_cost) -> rm_data
 
 
-writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/06.04.2024/iqr_rm_rstudio_060424.xlsx")
+writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/06.04.2024/iqr_rm_rstudio_060424_2.xlsx")
 
 
 
@@ -1010,7 +1012,7 @@ bom %>%
   dplyr::slice(-1) %>% 
   janitor::clean_names() -> bom
 
-writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/06.04.2024/bom.xlsx")
+writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/06.04.2024/bom_2.xlsx")
 
 
 #### DOS File Moving from pre week FG. 
