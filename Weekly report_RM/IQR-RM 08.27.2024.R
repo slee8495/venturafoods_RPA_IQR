@@ -16,8 +16,8 @@ library(rio)
 
 # dir.create("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/06.18.2024")
 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.13.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.13.2024.xlsx",
-          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx",
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.27.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.27.2024.xlsx",
           overwrite = TRUE)
 
 # For Exposure file
@@ -27,7 +27,7 @@ file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23
 
 ######################################################################################################################################################
 
-specific_date <- as.Date("2024-08-20")
+specific_date <- as.Date("2024-08-27")
 
 # Consumption data component # Updated once a month ---- (You might want to double check if ref col is already created: This is the version with ref already created)
 # This affects to the 6 months and 12 months sales plesae double check. 
@@ -79,7 +79,7 @@ colnames(planner_adress)[1] <- "planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/08.20.2024/exception report.xlsx")
+exception_report <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/08.27.2024/exception report.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -182,7 +182,7 @@ reshape2::dcast(exception_report, loc_sku ~ ., value.var = "safety_stock", sum) 
 
 # Read IQR Report ----
 
-rm_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx", 
+rm_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.27.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.27.2024.xlsx", 
                       sheet = "RM data", col_names = FALSE)
 
 rm_data[-1:-3,] -> rm_data
@@ -203,7 +203,7 @@ rm_data %>%
 
 
 ############ Inventory
-inventory <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2024.08.20.xlsx",
+inventory <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2024.08.27.xlsx",
                         sheet = "RM")
 
 inventory[-1, ] -> inventory
@@ -251,7 +251,7 @@ lot_status_code %>%
 
 
 
-jde_inv_for_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2024.08.20.xlsx")
+jde_inv_for_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2024.08.27.xlsx")
 
 jde_inv_for_25_55_label[-1:-5, ] -> jde_inv_for_25_55_label
 colnames(jde_inv_for_25_55_label) <- jde_inv_for_25_55_label[1, ]
@@ -299,7 +299,7 @@ rbind(pivot_campus_ref_inventory_analysis, inv_bal_25_55_label) %>%
 
 
 # BoM_dep_demand ----
-bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/08.20.2024/Bill of Material_082024.xlsx",
+bom_dep_demand <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/08.27.2024/Bill of Material_082724.xlsx",
                              sheet = "Sheet1")
 
 bom_dep_demand %>% 
@@ -359,7 +359,7 @@ ss_opt_loc_sku %>%
 ss_optimization[!duplicated(ss_optimization[,c("loc_sku")]),] -> ss_optimization
 
 # Custord PO ----
-po <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/08.20.2024/Copy of PO Reporting Tool - 08.20.24.xlsx",
+po <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/Safety Stock Compliance/Weekly Run Files/2024/08.27.2024/Copy of PO Reporting Tool - 08.27.24.xlsx",
                  sheet = "Daily Open PO")
 
 
@@ -391,7 +391,7 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # Custord Receipt ----
-receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/08.20/receipt.csv",
+receipt <- read.csv("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/DSXIE/2024/08.27/receipt.csv",
                     header = FALSE)
 
 
@@ -858,7 +858,7 @@ rm_data %>%
 
 ############################################################ MAKE SURE TO CHANGE THE DATA #################################################################
 # Lot At Risk $
-rm_at_risk_file <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx",
+rm_at_risk_file <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.27.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.27.2024.xlsx",
                               sheet = "RM At Risk File")
 
 colnames(rm_at_risk_file) <- rm_at_risk_file[1, ]
@@ -918,7 +918,7 @@ rm_data %>%
                 moq_in_days = ifelse(moq_in_days == "Inf", 0, moq_in_days)) -> rm_data
 
 ################################ Code revise 12/20/2023 ##################################
-bom <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/08.20.2024/JDE BoM 08.20.2024.xlsx",
+bom <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/BoM version 2/Weekly Run/2024/08.27.2024/JDE BoM 08.27.2024.xlsx",
                   sheet = "BoM")
 
 bom[-1, ] -> bom
@@ -954,32 +954,7 @@ rm_data %>%
 
 
 
-
-
-
-###########################################################################
-
-# Arrange ----
-rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx",
-                                  sheet = "RM data")
-
-rm_data_for_arrange[-1:-2, ] -> rm_data_for_arrange
-colnames(rm_data_for_arrange) <- rm_data_for_arrange[1, ]
-rm_data_for_arrange[-1, ] -> rm_data_for_arrange
-
-rm_data_for_arrange %>% 
-  janitor::clean_names() %>% 
-  data.frame() %>% 
-  dplyr::select(loc_sku) %>% 
-  dplyr::mutate(arrange = row_number(),
-                loc_sku = gsub("-", "_", loc_sku)) -> rm_data_for_arrange
-
-rm_data %>% 
-  dplyr::left_join(rm_data_for_arrange) %>% 
-  dplyr::arrange(arrange) %>% 
-  dplyr::select(-arrange)-> rm_data
-
-
+############################## Added 8/27/2024 #################################
 # Supplier Name from BoM
 
 bom %>% 
@@ -998,7 +973,34 @@ bom %>%
 
 rm_data %>% 
   dplyr::select(-supplier_number, -supplier_name) %>% 
-  dplyr::left_join(bom_supplier, by = "loc_sku") -> rm_data
+  dplyr::left_join(bom_supplier, by = "loc_sku") %>% 
+  dplyr::mutate(supplier_number = ifelse(is.na(supplier_number), "NA", supplier_number),
+                supplier_name = ifelse(is.na(supplier_name), "NA", supplier_name)) -> rm_data
+
+
+
+###########################################################################
+
+# Arrange ----
+rm_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.27.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.27.2024.xlsx",
+                                  sheet = "RM data")
+
+rm_data_for_arrange[-1:-2, ] -> rm_data_for_arrange
+colnames(rm_data_for_arrange) <- rm_data_for_arrange[1, ]
+rm_data_for_arrange[-1, ] -> rm_data_for_arrange
+
+rm_data_for_arrange %>% 
+  janitor::clean_names() %>% 
+  data.frame() %>% 
+  dplyr::select(loc_sku) %>% 
+  dplyr::mutate(arrange = row_number(),
+                loc_sku = gsub("-", "_", loc_sku)) -> rm_data_for_arrange
+
+rm_data %>% 
+  dplyr::left_join(rm_data_for_arrange) %>% 
+  dplyr::arrange(arrange) %>% 
+  dplyr::select(-arrange)-> rm_data
+
 
 
 #####################################################################################################################
@@ -1022,13 +1024,13 @@ rm_data %>%
                 next_month_dep_demand_in_cost) -> rm_data
 
 
-writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/iqr_rm_rstudio_082024.xlsx")
+writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.27.2024/iqr_rm_rstudio_082724.xlsx")
 
 
 
 
 
-writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/bom.xlsx")
+writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.27.2024/bom.xlsx")
 
 
 
@@ -1036,19 +1038,19 @@ writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SC
 ##################################################################################################################################################################################
 
 #### DOS File Moving from pre week FG. 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/08.13.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
-          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/08.20.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.27.2024/Inventory Health (IQR) Tracker - DOS.xlsx",
           overwrite = TRUE)
 
 
 #### IQR main file Moving to S Drive. 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.20.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx",
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/08.27.2024/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.27.2024.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.27.2024.xlsx",
           overwrite = TRUE)
 
 #### IQR main pre-week file Moving in S Drive. 
-file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.13.2024.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/RM/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.13.2024.xlsx",
+file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/RM/Raw Material Inventory Health (IQR) NEW TEMPLATE - 08.20.2024.xlsx",
           overwrite = TRUE)
 
 

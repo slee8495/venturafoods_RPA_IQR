@@ -47,7 +47,7 @@ Planner_address %>%
 
 
 # macro_platform ----
-macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/08.20.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 08.27.2024.xlsx",
+macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/08.27.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 08.27.2024.xlsx",
                              sheet = "Macro-Platform",
                              col_names = FALSE)
 
