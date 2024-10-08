@@ -1497,6 +1497,8 @@ IQR_FG_sample %>%
 
 # Category & Platform
 completed_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10012024/Complete SKU list - Linda.xlsx")
+completed_sku_list_2 <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10012024/Complete SKU list - Linda.xlsx")
+
 completed_sku_list[-1:-2, ]  %>% 
   janitor::clean_names() %>% 
   dplyr::select(x6, x7, x9, x11) %>% 
@@ -1724,8 +1726,8 @@ IQR_FG_sample %>%
   dplyr::rename(campus_ref = loc_sku) %>% 
   dplyr::relocate(loc, mfg_loc, campus, item_2, category, platform, macro_platform, sub_type, cvm, focus_label, ref, 
                   mfg_ref, campus_ref, base, label, description, mto_mts, mpf, planner, planner_name, qty_per_pallet, storage_condition, pack_size, formula, 
-                  net_wt_lbs, unit_cost, jde_moq,
-                  shippable_shelf_life, hold_days, current_ss, current_ss_2, current_ss_plt, max_cycle_stock_lag_1, max_cycle_stock, 
+                  net_wt_lbs, unit_cost, jde_moq, shelf_life, shippable_shelf_life_percent, shippable_shelf_life,
+                  hold_days, current_ss, current_ss_2, current_ss_plt, max_cycle_stock_lag_1, max_cycle_stock, 
                   max_cycle_stock_mfg_adjusted_forward, 
                   max_cycle_stock_2, max_cycle_stock_plt, avg_cycle_stock_plt,
                   usable, quality_hold, quality_hold_2, quality_hold_plt, soft_hold, 

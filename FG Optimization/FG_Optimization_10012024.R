@@ -306,3 +306,216 @@ final_data_fg %>%
 # Unit Cost
 
 
+
+
+# JDE MOQ
+final_data_fg %>% 
+  dplyr::mutate(jde_moq = "IQR Report") -> final_data_fg
+
+
+
+
+# Shelf life, Ship Shelf Life %, Shippable Shelf Life
+final_data_fg %>% 
+  dplyr::left_join(complete_sku_list %>% 
+                     janitor::clean_names() %>% 
+                     data.frame() %>% 
+                     dplyr::mutate(product_label_sku = gsub("-", "", product_label_sku)) %>% 
+                     dplyr::mutate(ref = paste0(item_location_no_v2, "_", product_label_sku)) %>% 
+                     dplyr::select(ref, product_ship_shelf_life_percent, product_shelf_life_days) %>% 
+                     dplyr::rename(shelf_life = product_shelf_life_days,
+                                   shippable_shelf_life_percent = product_ship_shelf_life_percent) %>% 
+                     dplyr::mutate(shippable_shelf_life_percent = as.numeric(shippable_shelf_life_percent),
+                                   shelf_life = as.numeric(shelf_life),
+                                   shippable_shelf_life = shelf_life * shippable_shelf_life_percent / 100, 
+                                   shippable_shelf_life = round(shippable_shelf_life, 0))) %>% 
+  dplyr::select(-shelf_life, -shippable_shelf_life_percent) -> final_data_fg
+
+
+# Hold Days
+final_data_fg %>% 
+  dplyr::left_join(complete_sku_list %>% 
+                     janitor::clean_names() %>% 
+                     data.frame() %>% 
+                     dplyr::mutate(product_label_sku = gsub("-", "", product_label_sku)) %>% 
+                     dplyr::mutate(ref = paste0(item_location_no_v2, "_", product_label_sku)) %>% 
+                     dplyr::select(ref, qc_hold_days) %>% 
+                     dplyr::rename(hold_days = qc_hold_days), by = "ref") -> final_data_fg
+
+
+
+# Current SS
+final_data_fg %>% 
+  dplyr::mutate(current_ss = "IQR Report") -> final_data_fg
+
+
+
+# current_ss_plt, max_cycle_stock_lag1, max_cycle_stock, Max Cycle Stock Mfg Adjusted Forward, Max Cycle Stock $, 
+# Max Cycle Stock (plt), Avg Cycle Stock (plt) 
+final_data_fg %>% 
+  dplyr::mutate(current_ss_plt = "Formula",
+                max_cycle_stock_lag1 = "Formula",
+                max_cycle_stock = "Formula",
+                max_cycle_stock_mfg_adjusted_forward = "Formula",
+                max_cycle_stock_dollars = "Formula",
+                max_cycle_stock_plt = "Formula",
+                avg_cycle_stock_plt = "Formula") -> final_data_fg
+
+# Usable, Quality Hold
+final_data_fg %>% 
+  dplyr::mutate(usable = "IQR Report",
+                quality_hold = "IQR Report") -> final_data_fg
+
+# Quality hold $, Quality hold (plt)
+final_data_fg %>% 
+  dplyr::mutate(quality_hold_dollars = "Formula",
+                quality_hold_plt = "Formula") -> final_data_fg
+
+# Soft Hold
+final_data_fg %>% 
+  dplyr::mutate(soft_hold = "IQR Report") -> final_data_fg
+
+
+# On Hand (usable + soft hold), On Hand in pounds,	On Hand $,	On Hand (plt),	Total Inventory (plt),	
+# On Hand - Max $,	On Hand - Mfg Adjusted Forward Max $,	Inventory Target,	Inventory Target (lbs.),	Inventory Target $
+# Inventory Target (plt),	Max Inventory Target,	Max Inventory Target (lbs.),	Max Inventory Target $,	Max Inventory Target (plt)
+# Mfg Adjusted Forward Inv Target,	Mfg Adjusted Forward Inv Target (lbs.),	Mfg Adjusted Forward Inv Target $
+# Mfg Adjusted Forward Inv Max,	Mfg Adjusted Forward Inv Max (lbs.),	Mfg Adjusted Forward Inv Max $,	
+# Forward Inv Target lag 1 Current Month Fcst, Forward Inv Target lag 1 Current Month Fcst (lbs.)	
+# Forward Inv Target lag 1 Current Month Fcst $
+
+final_data_fg %>% 
+  dplyr::mutate(on_hand = "Formula",
+                on_hand_lbs = "Formula",
+                on_hand_dollars = "Formula",
+                on_hand_plt = "Formula",
+                total_inventory_plt = "Formula",
+                on_hand_max_dollars = "Formula",
+                on_hand_mfg_adjusted_forward_max_dollars = "Formula",
+                inventory_target = "Formula",
+                inventory_target_lbs = "Formula",
+                inventory_target_dollars = "Formula",
+                inventory_target_plt = "Formula",
+                max_inventory_target = "Formula",
+                max_inventory_target_lbs = "Formula",
+                max_inventory_target_dollars = "Formula",
+                max_inventory_target_plt = "Formula",
+                mfg_adjusted_forward_inv_target = "Formula",
+                mfg_adjusted_forward_inv_target_lbs = "Formula",
+                mfg_adjusted_forward_inv_target_dollars = "Formula",
+                mfg_adjusted_forward_inv_max = "Formula",
+                mfg_adjusted_forward_inv_max_lbs = "Formula",
+                mfg_adjusted_forward_inv_max_dollars = "Formula",
+                forward_inv_target_lag1_current_month_fcst = "Formula",
+                forward_inv_target_lag1_current_month_fcst_lbs = "Formula",
+                forward_inv_target_lag1_current_month_fcst_dollars = "Formula") -> final_data_fg
+
+# OPV,	CustOrd in next 7 days,	CustOrd in next 14 days,	CustOrd in next 21 days,	CustOrd in next 28 days
+final_data_fg %>% 
+  dplyr::mutate(opv = "IQR Report",
+                custord_in_next_7_days = "IQR Report",
+                custord_in_next_14_days = "IQR Report",
+                custord_in_next_21_days = "IQR Report",
+                custord_in_next_28_days = "IQR Report") -> final_data_fg
+
+# CustOrd in next 28 days $
+final_data_fg %>% 
+  dplyr::mutate(custord_in_next_28_days_dollars = "Formula") -> final_data_fg
+
+
+# Mfg CustOrd in next 7 days,	Mfg CustOrd in next 14 days,	Mfg CustOrd in next 21 days,	Mfg CustOrd in next 28 days
+
+final_data_fg %>% 
+  dplyr::mutate(mfg_custord_in_next_7_days = "IQR Report",
+                mfg_custord_in_next_14_days = "IQR Report",
+                mfg_custord_in_next_21_days = "IQR Report",
+                mfg_custord_in_next_28_days = "IQR Report") -> final_data_fg
+
+# Mfg CustOrd in next 28 days $,	Current XS Pallets
+final_data_fg %>% 
+  dplyr::mutate(mfg_custord_in_next_28_days_dollars = "Formula",
+                current_xs_pallets = "IQR Report") -> final_data_fg
+
+# Firm WO in next 28 days,	Receipt in the next 28 days
+final_data_fg %>% 
+  dplyr::mutate(firm_wo_in_next_28_days = "IQR Report",
+                receipt_in_next_28_days = "IQR Report") -> final_data_fg
+
+
+# DOS,	DOS after CustOrd,	Max Inv DOS,	Target Inv DOS (includes Orders),	
+# Mfg DOS,	Mfg DOS after CustOrd,	Mfg Adjusted Forward Max Inv DOS,	Mfg Forward Target Inv DOS (fcst only),	
+# Mfg Adjusted Forward Target Inv DOS (includes Orders),	Inv Health,	Mfg Inv Health
+
+final_data_fg %>% 
+  dplyr::mutate(dos = "Formula",
+                dos_after_custord = "Formula",
+                max_inv_dos = "Formula",
+                target_inv_dos = "Formula",
+                mfg_dos = "Formula",
+                mfg_dos_after_custord = "Formula",
+                mfg_adjusted_forward_max_inv_dos = "Formula",
+                mfg_forward_target_inv_dos = "Formula",
+                mfg_adjusted_forward_target_inv_dos = "Formula",
+                inv_health = "Formula",
+                mfg_inv_health = "Formula") -> final_data_fg
+
+
+# Lag 1 Current Month Fcst,	Lag 1 Current Month Fcst $,	Current Month Fcst,	Next Month Fcst,	Mfg Current Month Fcst,
+# Mfg Next Month Fcst,	Total Last 6 mos Sales,	Total Last 12 mos Sales, Total Forecast Next 12 Months,	Total mfg Forecast Next 12 Months
+final_data_fg %>% 
+  dplyr::mutate(lag1_current_month_fcst = "IQR Report",
+                lag1_current_month_fcst_dollars = "Formula",
+                current_month_fcst = "IQR Report",
+                next_month_fcst = "IQR Report",
+                mfg_current_month_fcst = "IQR Report",
+                mfg_next_month_fcst = "IQR Report",
+                total_last_6_mos_sales = "IQR Report",
+                total_last_12_mos_sales = "IQR Report",
+                total_forecast_next_12_months = "IQR Report",
+                total_mfg_forecast_next_12_months = "IQR Report") -> final_data_fg
+
+# has adjusted forward looking Max?, on hand Inv > AF max,	on hand Inv <= AF max,
+# on hand Inv > Adjusted Forward looking target,	on hand Inv <= AF target,	on hand Inv after CustOrd > AF max,
+# on hand Inv after CustOrd <= AF max,	on hand Inv after CustOrd > AF target,	on hand Inv after CustOrd <= AF target,
+# on hand inv after 28 days CustOrd > 0,	has mfg adjusted forward looking Max?,	on hand Inv > mfg AF max,
+# on hand Inv <= mfg AF max,	on hand Inv > mfg Adjusted Forward looking target,	on hand Inv <= mfg AF target,
+# on hand Inv after CustOrd > mfg AF max,	on hand Inv after CustOrd <= mfg AF max,	on hand Inv after CustOrd > mfg AF target
+# on hand Inv after CustOrd <= mfg AF target,	on hand inv after mfg 28 days CustOrd > 0,	Current Month Fcst $,	Next Month Fcst $
+
+final_data_fg %>% 
+  dplyr::mutate(has_adjusted_forward_looking_max = "Formula",
+                on_hand_inv_gt_af_max = "Formula",
+                on_hand_inv_lte_af_max = "Formula",
+                on_hand_inv_gt_af_target = "Formula",
+                on_hand_inv_lte_af_target = "Formula",
+                on_hand_inv_after_custord_gt_af_max = "Formula",
+                on_hand_inv_after_custord_lte_af_max = "Formula",
+                on_hand_inv_after_custord_gt_af_target = "Formula",
+                on_hand_inv_after_custord_lte_af_target = "Formula",
+                on_hand_inv_after_28_days_custord_gt_0 = "Formula",
+                has_mfg_adjusted_forward_looking_max = "Formula",
+                on_hand_inv_gt_mfg_af_max = "Formula",
+                on_hand_inv_lte_mfg_af_max = "Formula",
+                on_hand_inv_gt_mfg_af_target = "Formula",
+                on_hand_inv_lte_mfg_af_target = "Formula",
+                on_hand_inv_after_custord_gt_mfg_af_max = "Formula",
+                on_hand_inv_after_custord_lte_mfg_af_max = "Formula",
+                on_hand_inv_after_custord_gt_mfg_af_target = "Formula",
+                on_hand_inv_after_custord_lte_mfg_af_target = "Formula",
+                on_hand_inv_after_mfg_28_days_custord_gt_0 = "Formula",
+                current_month_fcst_dollars = "Formula",
+                next_month_fcst_dollars = "Formula") -> final_data_fg
+
+
+# Open Orders (All)
+final_data_fg %>% 
+  dplyr::mutate(open_orders_all = "IQR Report") -> final_data_fg
+
+
+# On Hand - Open Order (All),	On Hand - Open Orders (all) $,	Campus weighted cost,	Campus OH - OO
+final_data_fg %>% 
+  dplyr::mutate(on_hand_open_order_all = "Formula",
+                on_hand_open_order_all_dollars = "Formula",
+                campus_weighted_cost = "IQR Report",
+                campus_oh_oo = "Formula") -> final_data_fg
+
