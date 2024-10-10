@@ -888,7 +888,6 @@ merge(IQR_FG_sample, DSX_pivot_1[, c("ref", "Mon_b_fcst")], by = "ref", all.x = 
 
 # vlookup - Total Last 6 mos Sales
 merge(IQR_FG_sample, sdcv[, c("ref", "last_6_month_sales")], by = "ref", all.x = TRUE) %>% 
-  dplyr::select(-total_last_6_mos_sales) %>% 
   dplyr::rename(total_last_6_mos_sales = last_6_month_sales) %>% 
   dplyr::mutate(total_last_6_mos_sales = ifelse(is.na(total_last_6_mos_sales), 0, total_last_6_mos_sales)) -> IQR_FG_sample
 
@@ -896,7 +895,6 @@ merge(IQR_FG_sample, sdcv[, c("ref", "last_6_month_sales")], by = "ref", all.x =
 
 # vlookup - Total Last 12 mos Sales 
 merge(IQR_FG_sample, sdcv[, c("ref", "last_12_month_sales")], by = "ref", all.x = TRUE) %>% 
-  dplyr::select(-total_last_12_mos_sales) %>% 
   dplyr::rename(total_last_12_mos_sales = last_12_month_sales) %>% 
   dplyr::mutate(total_last_12_mos_sales = ifelse(is.na(total_last_12_mos_sales), 0, total_last_12_mos_sales)) -> IQR_FG_sample
 
@@ -1701,7 +1699,9 @@ IQR_FG_sample %>%
                 inventory_target_with_upi_target_2 = "NA", 
                 inventory_target_with_upi_target_plt = "NA",
                 target_inv_doss_with_upi_target_percent = "NA",
-                current_xs_plt = "NA") -> IQR_FG_sample
+                current_xs_plt = "NA",
+                max_cycle_stock_2 = "NA",
+                on_hand_open_orders_all_dollar = "NA") -> IQR_FG_sample
 
 
 
@@ -1742,46 +1742,46 @@ IQR_FG_sample %>%
                 mfg_ref = gsub("_", "-", mfg_ref)) %>%
   dplyr::rename(campus_ref = loc_sku) %>% 
   dplyr::select(loc, mfg_loc, campus, item_2, category, platform, macro_platform, sub_type, cvm, focus_label, ref, 
-                  mfg_ref, campus_ref, base, label, description, mto_mts, mpf, planner, planner_name, qty_per_pallet, storage_condition, pack_size, formula, 
-                  net_wt_lbs, unit_cost, jde_moq, shippable_shelf_life,
-                  hold_days, current_ss, current_ss_2, 
-                  
-                  current_ss_plt,
-                  
-                  max_cycle_stock, max_cycle_stock_2, max_cycle_stock_plt, avg_cycle_stock_plt,
-                  
-                  max_mfg_cycle_stock, max_mfg_cycle_stock_dollar, max_mfg_cycle_stock_plt, avg_mfg_cycle_stock_plt,
-                  
-                  usable, quality_hold, quality_hold_2, quality_hold_plt, soft_hold, 
-                  on_hand_usable_soft_hold, on_hand_in_pounds, on_hand, on_hand_plt, total_inventory, total_inventory_lbs, total_inventory_dollar,
-                  total_inventory_plt,
-                  on_hand_max, inventory_target, 
-                  inventory_target_lbs, inventory_target_2, inventory_target_plt,
-                  
-                  inventory_target_with_upi_target, inventory_target_with_upi_target_lbs, inventory_target_with_upi_target_2, inventory_target_with_upi_target_plt,
-                  
-                  max_inventory_target, max_inventory_target_lbs, max_inventory_target_2, max_inventory_target_plt,
-                  
-                  opv, cust_ord_in_next_7_days, cust_ord_in_next_14_days, cust_ord_in_next_21_days, cust_ord_in_next_28_days,
-                  cust_ord_in_next_28_days_2, mfg_cust_ord_in_next_7_days, mfg_cust_ord_in_next_14_days,
-                  mfg_cust_ord_in_next_21_days, mfg_cust_ord_in_next_28_days, mfg_cust_ord_in_next_28_days_2,
-                  firm_wo_in_next_28_days, receipt_in_the_next_28_days, dos, 
-                  dos_after_cust_ord, 
+                mfg_ref, campus_ref, base, label, description, mto_mts, mpf, planner, planner_name, qty_per_pallet, storage_condition, pack_size, formula, 
+                net_wt_lbs, unit_cost, jde_moq, shippable_shelf_life,
+                hold_days, current_ss, current_ss_2, 
                 
-                  target_inv_doss_with_upi_target_percent,
+                current_ss_plt,
                 
-                  max_inv_dos,
-                  inv_health, current_xs_plt,
-                  lag_1_current_month_fcst, lag_1_current_month_fcst_2, current_month_fcst, next_month_fcst, mfg_current_month_fcst,
-                  mfg_next_month_fcst, total_forecast_next_12_months,
-                  total_mfg_forecast_next_12_months, total_last_6_mos_sales, total_last_12_mos_sales,
-                  has_adjusted_forward_looking_max, 
+                max_cycle_stock, max_cycle_stock_2, max_cycle_stock_plt, avg_cycle_stock_plt,
                 
-                  on_hand_inv_af_max, on_hand_inv_af_max_2, on_hand_inv_adjusted_forward_looking_target, on_hand_inv_af_target, on_hand_inv_after_cust_ord_af_max,
-                  on_hand_inv_after_cust_ord_af_max_2, on_hand_inv_after_cust_ord_af_target, on_hand_inv_after_cust_ord_af_target_2, 
-                  on_hand_inv_after_28_days_cust_ord_0, 
-                  on_hand_inv_after_mfg_28_days_cust_ord_0, current_month_fcst_2, next_month_fcst_2, open_orders_all,
-                  on_hand_open_order_all, on_hand_open_orders_all_dollar,	campus_weighted_cost, campus_oh_oo) -> IQR_FG_sample
+                max_mfg_cycle_stock, max_mfg_cycle_stock_dollar, max_mfg_cycle_stock_plt, avg_mfg_cycle_stock_plt,
+                
+                usable, quality_hold, quality_hold_2, quality_hold_plt, soft_hold, 
+                on_hand_usable_soft_hold, on_hand_in_pounds, on_hand, on_hand_plt, total_inventory, total_inventory_lbs, total_inventory_dollar,
+                total_inventory_plt,
+                on_hand_max, inventory_target, 
+                inventory_target_lbs, inventory_target_2, inventory_target_plt,
+                
+                inventory_target_with_upi_target, inventory_target_with_upi_target_lbs, inventory_target_with_upi_target_2, inventory_target_with_upi_target_plt,
+                
+                max_inventory_target, max_inventory_target_lbs, max_inventory_target_2, max_inventory_target_plt,
+                
+                opv, cust_ord_in_next_7_days, cust_ord_in_next_14_days, cust_ord_in_next_21_days, cust_ord_in_next_28_days,
+                cust_ord_in_next_28_days_2, mfg_cust_ord_in_next_7_days, mfg_cust_ord_in_next_14_days,
+                mfg_cust_ord_in_next_21_days, mfg_cust_ord_in_next_28_days, mfg_cust_ord_in_next_28_days_2,
+                firm_wo_in_next_28_days, receipt_in_the_next_28_days, dos, 
+                dos_after_cust_ord, 
+                
+                target_inv_doss_with_upi_target_percent,
+                
+                max_inv_dos,
+                inv_health, current_xs_plt,
+                lag_1_current_month_fcst, lag_1_current_month_fcst_2, current_month_fcst, next_month_fcst, mfg_current_month_fcst,
+                mfg_next_month_fcst, total_forecast_next_12_months,
+                total_mfg_forecast_next_12_months, total_last_6_mos_sales, total_last_12_mos_sales,
+                has_adjusted_forward_looking_max, 
+                
+                on_hand_inv_af_max, on_hand_inv_af_max_2, on_hand_inv_adjusted_forward_looking_target, on_hand_inv_af_target, on_hand_inv_after_cust_ord_af_max,
+                on_hand_inv_after_cust_ord_af_max_2, on_hand_inv_after_cust_ord_af_target, on_hand_inv_after_cust_ord_af_target_2, 
+                on_hand_inv_after_28_days_cust_ord_0, 
+                on_hand_inv_after_mfg_28_days_cust_ord_0, current_month_fcst_2, next_month_fcst_2, open_orders_all,
+                on_hand_open_order_all, on_hand_open_orders_all_dollar,	campus_weighted_cost, campus_oh_oo) -> IQR_FG_sample
 
 
 

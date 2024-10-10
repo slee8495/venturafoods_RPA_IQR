@@ -20,13 +20,13 @@ inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory
                            sheet = "FG")
 inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2024.10.08.xlsx",
                            sheet = "RM")
-oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10012024/US and CAN OO BT where status _ J.xlsx")
-dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.10.08.xlsx")
+oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10082024/US and CAN OO BT where status _ J.xlsx")
+dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.10.07.xlsx")
 jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2024.10.08.xlsx")
 lot_status_code <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Lot Status Code.xlsx")
-bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10012024/Bill of Material_100124.xlsx")
+bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10082024/Bill of Material_100824.xlsx")
 campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx")
-complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10012024/Complete SKU list - Linda.xlsx")
+complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10082024/Complete SKU list - Linda.xlsx")
 iom_live <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx")
 unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10082024/Unit_Cost.xlsx")
 
@@ -530,6 +530,10 @@ final_data_fg %>%
                 on_hand_open_order_all_dollars = "Formula",
                 campus_weighted_cost = "IQR Report",
                 campus_oh_oo = "Formula") -> final_data_fg
+
+# filter -1 on Item
+final_data_fg %>% 
+  dplyr::filter(item != "1") -> final_data_fg
 
 
 ###################################################################################################################################################
