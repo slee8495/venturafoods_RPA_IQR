@@ -942,7 +942,10 @@ merge(IQR_FG_sample, custord_mfg_pivot_4[, c("ref", "Y")], by = "ref", all.x = T
 
 
 # vlookup - Mfg Current Month Fcst
-merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("mfg_ref", "Mon_a_fcst")], by = "mfg_ref", all.x = TRUE) %>% 
+DSX_mfg_pivot_1 %>% 
+  dplyr::rename(ref = mfg_ref) -> DSX_mfg_pivot_1
+
+merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("ref", "Mon_a_fcst")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(mon_a_na = !is.na(Mon_a_fcst)) %>% 
   dplyr::mutate(mfg_current_month_fcst = ifelse(mon_a_na == TRUE, Mon_a_fcst, 0)) %>% 
   dplyr::select(-Mon_a_fcst, - mon_a_na) %>% 
@@ -950,7 +953,7 @@ merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("mfg_ref", "Mon_a_fcst")], by = "mfg_re
 
 
 # vlookup - Mfg Next Month Fcst
-merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("mfg_ref", "Mon_b_fcst")], by = "mfg_ref", all.x = TRUE) %>% 
+merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("ref", "Mon_b_fcst")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(mon_b_na = !is.na(Mon_b_fcst)) %>% 
   dplyr::mutate(mfg_next_month_fcst = ifelse(mon_b_na == TRUE, Mon_b_fcst, 0)) %>% 
   dplyr::select(-Mon_b_fcst, - mon_b_na) %>% 
@@ -959,7 +962,7 @@ merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("mfg_ref", "Mon_b_fcst")], by = "mfg_re
 
 
 # vlookup - Total Forecast Next 12 Months
-merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("mfg_ref", "total_12_month")], by = "mfg_ref", all.x = TRUE) %>% 
+merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("ref", "total_12_month")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(total_12_month = replace(total_12_month, is.na(total_12_month), 0)) %>% 
   dplyr::select(-total_mfg_forecast_next_12_months) %>% 
   dplyr::rename(total_mfg_forecast_next_12_months = total_12_month) -> IQR_FG_sample
