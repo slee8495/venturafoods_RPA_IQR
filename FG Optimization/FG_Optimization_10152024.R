@@ -322,7 +322,8 @@ final_data_fg %>%
                      dplyr::select(ship_ref, formula) %>% 
                      dplyr::rename(ref = ship_ref) %>% 
                      dplyr::mutate(ref = gsub("-", "_", ref)), by = "ref") %>% 
-  dplyr::mutate(formula = ifelse(is.na(formula), 0, formula)) -> final_data_fg
+  dplyr::mutate(formula = ifelse(is.na(formula), 0, formula),
+                formula = ifelse(formula == "N/A", 0, formula)) -> final_data_fg
 
 
 # Net Wt LBS
@@ -345,7 +346,16 @@ final_data_fg %>%
                      dplyr::mutate(ref = paste0(location, "_", item)) %>% 
                      dplyr::rename(unit_cost = simulated_cost) %>% 
                      dplyr::select(ref, unit_cost), by = "ref") %>% 
-  dplyr::mutate(unit_cost = ifelse(is.na(unit_cost), NA, round(as.numeric(unit_cost), 2))) -> final_data_fg
+  dplyr::mutate(unit_cost = ifelse(is.na(unit_cost), NA, round(as.numeric(unit_cost), 2))) %>% 
+  dplyr::left_join(iom_live_1st_sheet %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(ship_ref, unit_cost) %>% 
+                     dplyr::mutate(ship_ref = gsub("-", "_", ship_ref)) %>% 
+                     dplyr::mutate(unit_cost = as.double(unit_cost)) %>% 
+                     dplyr::rename(ref = ship_ref,
+                                   unit_cost_2 = unit_cost), by = "ref") %>% 
+  dplyr::mutate(unit_cost = ifelse(is.na(unit_cost), unit_cost_2, unit_cost)) %>% 
+  dplyr::select(-unit_cost_2) -> final_data_fg
 
 
 

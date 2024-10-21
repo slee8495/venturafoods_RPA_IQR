@@ -1713,6 +1713,23 @@ IQR_FG_sample %>%
 
 
 
+################################ Added on 10/21/2024 ##########################################
+
+
+IQR_FG_sample %>% 
+  dplyr::left_join(exception_report %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(ref, planner) %>% 
+                     dplyr::bind_rows(exception_report_dou) %>%
+                     dplyr::group_by(ref) %>%
+                     dplyr::arrange(planner != "DNRR", .by_group = TRUE) %>% 
+                     dplyr::distinct(ref, .keep_all = TRUE) %>%
+                     dplyr::ungroup()) %>% 
+  dplyr::left_join(Planner_address %>% 
+                     dplyr::rename(planner_name = Alpha_Name)) -> IQR_FG_sample
+
+
+
 
 
 ########################################################################################################
@@ -1794,7 +1811,7 @@ IQR_FG_sample %>%
 
 
 # (Path Revision Needed)
-writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.15.2024/iqr_fg_rstudio_10152024.xlsx")
+writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.15.2024/iqr_fg_rstudio_10152024_2.xlsx")
 writexl::write_xlsx(custord_open_order, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.15.2024/Open Order.xlsx")
 
 
