@@ -260,22 +260,19 @@ reshape2::dcast(receipt, ref ~ next_28_days, value.var = "qty", sum) -> Receipt_
 
 
 # (Path Revision Needed) Custord wo ----
-wo <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10222024/Open Work Order for 28 days.xlsx")
+wo <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/10152024/WO_MSTR.xlsx")
 
-wo[-1, ] -> wo
-colnames(wo) <- wo[1, ]
-wo[-1, ] -> wo
 
 wo %>% 
   janitor::clean_names() %>% 
-  dplyr::select(location, product_label_sku, , production_schedule_date, production_scheduled_cases) %>% 
-  dplyr::mutate(product_label_sku = gsub("-", "", product_label_sku),
-                production_schedule_date = as.double(production_schedule_date),
-                production_schedule_date = as.Date(as.numeric(production_schedule_date), origin = "1899-12-30"),
-                production_scheduled_cases = as.double(production_scheduled_cases),
-                ref = paste0(location, "_", product_label_sku)) %>% 
-  dplyr::rename(Y = production_scheduled_cases) %>% 
-  dplyr::select(ref, Y) -> wo_pivot
+  dplyr::mutate(ref = paste0(location, "_", item)) %>% 
+  dplyr::mutate(in_next_7_days = ifelse(date >= specific_date & date <= specific_date+7, "Y", "N")) %>% 
+  dplyr::rename(Item = item,
+                Location = location,
+                Qty = production_scheduled_cases) %>% 
+  reshape2::dcast(ref ~ in_next_7_days, value.var = "Qty", sum) %>% 
+  dplyr::mutate(N = as.integer(N)) -> wo_pivot
+
   
 
 
