@@ -47,7 +47,7 @@ Planner_address %>%
 
 
 # macro_platform ----
-macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - 2.xlsx",
+macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - opt.xlsx",
                              sheet = "Macro-Platform",
                              col_names = FALSE)
 
@@ -276,10 +276,10 @@ wo %>%
                 production_schedule_date = as.Date(production_schedule_date, origin = "1899-12-30"),
                 production_scheduled_cases = as.double(production_scheduled_cases)) %>% 
   dplyr::rename(date = production_schedule_date) %>% 
-  dplyr::mutate(in_next_7_days = ifelse(date >= specific_date & date < specific_date+7, "Y", "N")) %>% 
+  dplyr::mutate(in_next_28_days = ifelse(date >= specific_date & date < specific_date+28, "Y", "N")) %>% 
   data.frame() %>% 
   dplyr::rename(Qty = production_scheduled_cases) %>% 
-  reshape2::dcast(ref ~ in_next_7_days, value.var = "Qty", sum) %>% 
+  reshape2::dcast(ref ~ in_next_28_days, value.var = "Qty", sum) %>% 
   dplyr::mutate(N = as.integer(N)) -> wo_pivot
 
 
@@ -704,7 +704,7 @@ inventory %>%
 
 # (Path Revision Needed) Main Dataset Board ----  
 
-IQR_FG_sample <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - 2.xlsx",
+IQR_FG_sample <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - opt.xlsx",
                             sheet = "Location FG")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
@@ -1775,7 +1775,7 @@ IQR_FG_sample %>%
 ########################################################################################################
 
 # Arrange ----
-fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - 2.xlsx",
+fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - opt.xlsx",
                                   sheet = "Location FG")
 
 fg_data_for_arrange[-1:-2, ] -> fg_data_for_arrange
@@ -1867,8 +1867,8 @@ file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23
 
 
 #### IQR main file Moving to S Drive. 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - 2.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - 2.xlsx",
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - opt.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 10.29.2024 - opt.xlsx",
           overwrite = TRUE)
 
 

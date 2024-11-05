@@ -220,12 +220,30 @@ final_data_fg %>%
 
 
 # Category, Platform, Macro-Platform, Sub Type
+
 final_data_fg %>% 
-  dplyr::mutate(category = "IQR Report",
-                platform = "IQR Report",
-                macro_platform = "IQR Report",
+  
+  dplyr::left_join(complete_sku_list %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(product_label_sku, na_4) %>% 
+                     dplyr::mutate(product_label_sku = gsub("-", "", product_label_sku)) %>%
+                     dplyr::rename(item = product_label_sku,
+                                   category = na_4) %>%
+                     dplyr::distinct(item, .keep_all = TRUE), by = "item") %>%
+ 
+  dplyr::left_join(complete_sku_list %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(product_label_sku, na_5) %>% 
+                     dplyr::mutate(product_label_sku = gsub("-", "", product_label_sku)) %>% 
+                     dplyr::rename(item = product_label_sku,
+                                   platform = na_5) %>% 
+                     dplyr::distinct(item, .keep_all = TRUE), by = "item") %>% 
+  
+  dplyr::mutate(macro_platform = "IQR Report",
                 sub_type = "Formula") %>% 
   dplyr::relocate(category, platform, macro_platform, sub_type, .after = item) -> final_data_fg
+
+
 
 
 # CVM, Focus Label
@@ -337,7 +355,8 @@ final_data_fg %>%
                      dplyr::mutate(product_label_sku = gsub("-", "", product_label_sku)) %>% 
                      dplyr::mutate(ref = paste0(item_location_no_v2, "_", product_label_sku)) %>% 
                      dplyr::select(ref, fg_net_weight ) %>% 
-                     dplyr::rename(net_wt_lbs = fg_net_weight ), by = "ref") -> final_data_fg
+                     dplyr::rename(net_wt_lbs = fg_net_weight ), by = "ref") %>% 
+  dplyr::mutate(net_wt_lbs = ifelse(is.na(net_wt_lbs), 0, net_wt_lbs)) -> final_data_fg
 
 
 # Unit Cost
@@ -579,15 +598,6 @@ final_data_fg %>%
 
 # Remove "TANKER TRUCKS, RAILCARS" from platform
 final_data_fg %>% 
-  dplyr::select(-platform) %>% 
-  dplyr::left_join(complete_sku_list %>% 
-                     janitor::clean_names() %>% 
-                     dplyr::select(product_label_sku, na_5) %>% 
-                     dplyr::mutate(product_label_sku = gsub("-", "", product_label_sku)) %>% 
-                     dplyr::rename(item = product_label_sku,
-                                   platform = na_5) %>% 
-                     dplyr::distinct(item, .keep_all = TRUE), by = "item") %>%
-  dplyr::relocate(platform, .after = category) %>% 
   dplyr::filter(platform != "TANKER TRUCKS, RAILCARS") -> final_data_fg
 
 # Ref formatting
