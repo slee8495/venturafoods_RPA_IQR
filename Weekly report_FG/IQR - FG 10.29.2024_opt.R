@@ -34,7 +34,7 @@ specific_date <- as.Date("2024-10-29")
 
 # (Path Revision Needed) Planner Address Book (If updated, correct this link) ----
 # sdrive: S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 04.26.22.xlsx
-Planner_address <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2024.10.08.xlsx", 
+Planner_address <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2024.11.05.xlsx", 
                               sheet = "employee", col_types = c("text", 
                                                                 "text", "text", "text", "text"))
 
@@ -895,7 +895,7 @@ merge(IQR_FG_sample, DSX_pivot_1_pre[, c("ref", "Mon_a_fcst")], by = "ref", all.
   dplyr::mutate(mon_a_na = !is.na(Mon_a_fcst)) %>% 
   dplyr::mutate(lag_1_current_month_fcst = ifelse(mon_a_na == TRUE, Mon_a_fcst, 0)) %>% 
   dplyr::select(-Mon_a_fcst, -mon_a_na) %>% 
-  dplyr::mutate(lag_1_current_month_fcst = round(lag_1_current_month_fcst , 0)) -> IQR_FG_sample
+  dplyr::mutate(lag_1_current_month_fcst = ceiling(lag_1_current_month_fcst)) -> IQR_FG_sample
 
 
 
@@ -903,8 +903,10 @@ merge(IQR_FG_sample, DSX_pivot_1_pre[, c("ref", "Mon_a_fcst")], by = "ref", all.
 merge(IQR_FG_sample, DSX_pivot_1[, c("ref", "Mon_a_fcst")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(mon_a_na = !is.na(Mon_a_fcst)) %>% 
   dplyr::mutate(current_month_fcst = ifelse(mon_a_na == TRUE, Mon_a_fcst, 0)) %>% 
-  dplyr::select(-Mon_a_fcst, - mon_a_na) %>% 
-  dplyr::mutate(current_month_fcst = round(current_month_fcst , 0)) -> IQR_FG_sample
+  dplyr::select(-Mon_a_fcst, -mon_a_na) %>% 
+  dplyr::mutate(current_month_fcst = ceiling(current_month_fcst)) -> IQR_FG_sample
+
+
 
 
 
@@ -912,8 +914,10 @@ merge(IQR_FG_sample, DSX_pivot_1[, c("ref", "Mon_a_fcst")], by = "ref", all.x = 
 merge(IQR_FG_sample, DSX_pivot_1[, c("ref", "Mon_b_fcst")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(mon_b_na = !is.na(Mon_b_fcst)) %>% 
   dplyr::mutate(next_month_fcst = ifelse(mon_b_na == TRUE, Mon_b_fcst, 0)) %>% 
-  dplyr::select(-Mon_b_fcst, - mon_b_na) %>% 
-  dplyr::mutate(next_month_fcst  = round(next_month_fcst, 0)) -> IQR_FG_sample
+  dplyr::select(-Mon_b_fcst, -mon_b_na) %>% 
+  dplyr::mutate(next_month_fcst = ceiling(next_month_fcst)) -> IQR_FG_sample
+
+
 
 
 
@@ -934,6 +938,7 @@ merge(IQR_FG_sample, sdcv[, c("ref", "last_12_month_sales")], by = "ref", all.x 
 # vlookup - Total Forecast Next 12 Months
 merge(IQR_FG_sample, DSX_pivot_1[, c("ref", "total_12_month")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(total_12_month = replace(total_12_month, is.na(total_12_month), 0)) %>% 
+  dplyr::mutate(total_12_month = round(total_12_month)) %>% 
   dplyr::select(-total_forecast_next_12_months) %>% 
   dplyr::rename(total_forecast_next_12_months = total_12_month) -> IQR_FG_sample
 
@@ -975,22 +980,24 @@ DSX_mfg_pivot_1 %>%
 merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("ref", "Mon_a_fcst")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(mon_a_na = !is.na(Mon_a_fcst)) %>% 
   dplyr::mutate(mfg_current_month_fcst = ifelse(mon_a_na == TRUE, Mon_a_fcst, 0)) %>% 
-  dplyr::select(-Mon_a_fcst, - mon_a_na) %>% 
-  dplyr::mutate(mfg_current_month_fcst = round(mfg_current_month_fcst , 0)) -> IQR_FG_sample
+  dplyr::select(-Mon_a_fcst, -mon_a_na) %>% 
+  dplyr::mutate(mfg_current_month_fcst = ceiling(mfg_current_month_fcst)) -> IQR_FG_sample
+
 
 
 # vlookup - Mfg Next Month Fcst
 merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("ref", "Mon_b_fcst")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(mon_b_na = !is.na(Mon_b_fcst)) %>% 
   dplyr::mutate(mfg_next_month_fcst = ifelse(mon_b_na == TRUE, Mon_b_fcst, 0)) %>% 
-  dplyr::select(-Mon_b_fcst, - mon_b_na) %>% 
-  dplyr::mutate(mfg_next_month_fcst  = round(mfg_next_month_fcst, 0)) -> IQR_FG_sample
+  dplyr::select(-Mon_b_fcst, -mon_b_na) %>% 
+  dplyr::mutate(mfg_next_month_fcst = ceiling(mfg_next_month_fcst)) -> IQR_FG_sample
 
 
 
 # vlookup - Total Forecast Next 12 Months
 merge(IQR_FG_sample, DSX_mfg_pivot_1[, c("ref", "total_12_month")], by = "ref", all.x = TRUE) %>% 
   dplyr::mutate(total_12_month = replace(total_12_month, is.na(total_12_month), 0)) %>% 
+  dplyr::mutate(total_12_month = round(total_12_month)) %>% 
   dplyr::select(-total_mfg_forecast_next_12_months) %>% 
   dplyr::rename(total_mfg_forecast_next_12_months = total_12_month) -> IQR_FG_sample
 

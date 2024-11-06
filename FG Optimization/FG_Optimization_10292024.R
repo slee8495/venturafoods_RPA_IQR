@@ -359,6 +359,9 @@ final_data_fg %>%
   dplyr::mutate(net_wt_lbs = ifelse(is.na(net_wt_lbs), 0, net_wt_lbs)) -> final_data_fg
 
 
+
+
+
 # Unit Cost
 final_data_fg %>% 
   dplyr::left_join(unit_cost %>% 
@@ -367,7 +370,7 @@ final_data_fg %>%
                      dplyr::mutate(ref = paste0(location, "_", item)) %>% 
                      dplyr::rename(unit_cost = simulated_cost) %>% 
                      dplyr::select(ref, unit_cost), by = "ref") %>% 
-  dplyr::mutate(unit_cost = ifelse(is.na(unit_cost), NA, round(as.numeric(unit_cost), 2))) %>% 
+  dplyr::mutate(unit_cost = ifelse(is.na(unit_cost), NA, ceiling(as.numeric(unit_cost) * 100) / 100)) %>% 
   dplyr::left_join(iom_live_1st_sheet %>% 
                      janitor::clean_names() %>% 
                      dplyr::select(ship_ref, unit_cost) %>% 
@@ -387,6 +390,8 @@ final_data_fg %>%
 
 
 
+
+
 # Shippable Shelf Life
 final_data_fg %>% 
   dplyr::left_join(complete_sku_list %>% 
@@ -399,9 +404,9 @@ final_data_fg %>%
                                    shippable_shelf_life_percent = product_ship_shelf_life_percent) %>% 
                      dplyr::mutate(shippable_shelf_life_percent = as.numeric(shippable_shelf_life_percent),
                                    shelf_life = as.numeric(shelf_life),
-                                   shippable_shelf_life = shelf_life * shippable_shelf_life_percent / 100, 
-                                   shippable_shelf_life = round(shippable_shelf_life, 0))) %>% 
+                                   shippable_shelf_life = ceiling(shelf_life * shippable_shelf_life_percent / 100))) %>% 
   dplyr::select(-shelf_life, -shippable_shelf_life_percent) -> final_data_fg
+
 
 
 # Hold Days
@@ -606,11 +611,13 @@ final_data_fg %>%
 
 
 
+
+
 ###################################################################################################################################################
 
 writexl::write_xlsx(final_data_fg, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2024/10.29.2024/fg_optimization.xlsx")
 
-
+## Check Net Wt Column to see if there is any blank. 
 
 
 
