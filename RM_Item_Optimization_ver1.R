@@ -29,7 +29,7 @@ campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus refe
 iom_live <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx",
                        sheet = "CVM & Focus label & Contract")
 iom_live_1st_sheet <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx")
-
+iom_live_1st_sheet_rm <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Raw Material LIVE.xlsx")
 
 
 complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12032024/Complete SKU list - Linda.xlsx")
@@ -91,6 +91,12 @@ unit_cost[-1, ] -> unit_cost
 iom_live_1st_sheet[-1:-6, ] -> iom_live_1st_sheet
 colnames(iom_live_1st_sheet) <- iom_live_1st_sheet[1, ]
 iom_live_1st_sheet[-1, ] -> iom_live_1st_sheet
+
+###################################################################
+
+iom_live_1st_sheet_rm[-1:-5, ] -> iom_live_1st_sheet_rm
+colnames(iom_live_1st_sheet_rm) <- iom_live_1st_sheet_rm[1, ]
+iom_live_1st_sheet_rm[-1, ] -> iom_live_1st_sheet_rm
 
 ###################################################################
 
@@ -199,4 +205,198 @@ dplyr::bind_rows(has_on_hand_inventory_rm,
 final_data_rm %>% 
   dplyr::filter(!(location %in% c("16", "22", "502", "503", "690", "691", "214", "331", "601", "602", "608", "621", "636", "660", "675"))) %>% 
   dplyr::filter(!(ref %in% c("60_8883", "75_16975", "75_21645"))) -> final_data_rm
+
+
+
+
+##################################################################################################################################################################
+##################################################################################################################################################################
+##################################################################################################################################################################
+
+
+# mfg_loc
+final_data_rm %>% 
+  dplyr::left_join(campus_ref %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::rename(mfg_loc = campus), by = "location") %>% 
+  dplyr::select(-location, -ref) %>% 
+  dplyr::mutate(loc_sku = paste0(mfg_loc, "_", item)) %>% 
+  dplyr::relocate(mfg_loc, location_name, item, loc_sku) -> final_data_rm
+
+
+# Supplie#, Supplier Name
+final_data_rm %>% 
+  dplyr::mutate(supplier = "IQR Report",
+                supplier_name = "IQR Report") -> final_data_rm
+
+
+# Description
+final_data_rm %>% 
+  dplyr::left_join(rbind(exception_report, exception_report_dnrr) %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(item_number, description) %>% 
+                     dplyr::distinct(item_number, .keep_all = TRUE) %>% 
+                     dplyr::select(item_number, description) %>% 
+                     dplyr::rename(item = item_number), by = "item") -> final_data_rm
+
+
+
+
+# Class, Item Type, Shelf Life (day), Birthday
+final_data_rm %>% 
+  dplyr::left_join(iom_live_1st_sheet_rm %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(loc_sku, class, item_type, shelf_life_day, birthday) %>% 
+                     dplyr::mutate(birthday = as.double(birthday),
+                                   birthday = as.Date(birthday, origin = "1899-12-30")) %>% 
+                     dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)), by = "loc_sku") -> final_data_rm
+
+
+# UOM, Lead Time, Planner, Planner Name
+final_data_rm %>% 
+  dplyr::mutate(uom = "IQR Report",
+                lead_time = "IQR Report",
+                planner = "IQR Report",
+                planner_name = "IQR Report") -> final_data_rm
+
+
+# Standard Cost
+final_data_rm %>% 
+  dplyr::left_join(unit_cost %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::mutate(location = as.double(location)) %>% 
+                     dplyr::mutate(ref = paste0(location, "_", item)) %>% 
+                     dplyr::rename(unit_cost = simulated_cost,
+                                   loc_sku = ref) %>% 
+                     dplyr::select(loc_sku, unit_cost), by = "loc_sku") %>% 
+  dplyr::mutate(unit_cost = ifelse(is.na(unit_cost), NA, as.numeric(unit_cost))) %>% 
+  dplyr::left_join(iom_live_1st_sheet %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(ship_ref, unit_cost) %>% 
+                     dplyr::mutate(ship_ref = gsub("-", "_", ship_ref)) %>% 
+                     dplyr::mutate(unit_cost = as.double(unit_cost)) %>% 
+                     dplyr::rename(loc_sku = ship_ref,
+                                   unit_cost_2 = unit_cost), by = "loc_sku") %>% 
+  dplyr::mutate(unit_cost = ifelse(is.na(unit_cost), unit_cost_2, unit_cost),
+                unit_cost = ifelse(is.na(unit_cost), 0, unit_cost)) %>% 
+  dplyr::select(-unit_cost_2) %>% 
+  dplyr::rename(standard_cost = unit_cost) -> final_data_rm
+
+
+# MOQ, MOQ in days
+final_data_rm %>% 
+  dplyr::mutate(moq = "IQR Report",
+                moq_in_days = "IQR Report") -> final_data_rm
+
+
+# EOQ            ######################### Question ###################
+final_data_rm %>% 
+  dplyr::mutate(eoq = "Question") -> final_data_rm
+
+
+# Safety Stock
+final_data_rm %>% 
+  dplyr::mutate(safety_stock = "IQR Report") -> final_data_rm
+
+
+# Safety Stock $
+final_data_rm %>% 
+  dplyr::mutate(safety_stock_dollar = "Formula") -> final_data_rm
+
+# Max Cycle Stock
+final_data_rm %>% 
+  dplyr::mutate(max_cycle_stock = "Formula") -> final_data_rm
+
+
+# Useable, Quality Hold
+final_data_rm %>% 
+  dplyr::mutate(useable = "IQR Report",
+                quality_hold = "IQR Report") -> final_data_rm
+
+
+# Quality Hold $
+final_data_rm %>% 
+  dplyr::mutate(quality_hold_dollar = "Formula") -> final_data_rm
+
+
+# Soft Hold
+final_data_rm %>% 
+  dplyr::mutate(soft_hold = "IQR Report") -> final_data_rm
+
+# On Hand (usable + soft hold),	On Hand $,	Total Inventory $,	Target Inv,	Target Inv in $$,	Max inv,	Max inv $$
+final_data_rm %>% 
+  dplyr::mutate(on_hand = "Formula",
+                on_hand_dollar = "Formula",
+                total_inventory_dollar = "Formula",
+                target_inv = "Formula",
+                target_inv_dollar = "Formula",
+                max_inv = "Formula",
+                max_inv_dollar = "Formula") -> final_data_rm
+
+
+# OPV,	PO in next 30 days,	Receipt in the next 30 days
+final_data_rm %>% 
+  dplyr::mutate(opv = "IQR Report",
+                po_in_next_30_days = "IQR Report",
+                receipt_in_next_30_days = "IQR Report") -> final_data_rm
+
+
+# DOS,	Dead $,	Lot At Risk $,	Excess $,	Healthy Cycle Stock $,	SS OH $,	UPI $,	UPI $ (w/ Hold),	MOQ Flag,	Inv Health Flag
+final_data_rm %>% 
+  dplyr::mutate(dos = "Formula",
+                dead_dollar = "Formula",
+                lot_at_risk_dollar = "Formula",
+                excess_dollar = "Formula",
+                healthy_cycle_stock_dollar = "Formula",
+                ss_oh_dollar = "Formula",
+                upi_dollar = "Formula",
+                upi_dollar_w_hold = "Formula",
+                moq_flag = "Formula",
+                inv_health_flag = "Formula") -> final_data_rm
+
+
+# Current month dep demand,	Next month dep demand,	Total dep. demand Next 6 Months,	Total Last 6 mos Sales,	Total Last 12 mos Sales 
+final_data_rm %>% 
+  dplyr::mutate(current_month_dep_demand = "IQR Report",
+                next_month_dep_demand = "IQR Report",
+                total_dep_demand_next_6_months = "IQR Report",
+                total_last_6_mos_sales = "IQR Report",
+                total_last_12_mos_sales = "IQR Report") -> final_data_rm
+
+
+
+# has Max?,	on hand Inv >max,	on hand Inv <= max,	on hand Inv > target,	on hand Inv <= target,	current month dep demand in $$,	next month dep demand in $$,	OH - Max in $,	IQR$,	IQR + hold $
+final_data_rm %>% 
+  dplyr::mutate(has_max = "Formula",
+                on_hand_inv_gt_max = "Formula",
+                on_hand_inv_lte_max = "Formula",
+                on_hand_inv_gt_target = "Formula",
+                on_hand_inv_lte_target = "Formula",
+                current_month_dep_demand_in_dollar = "Formula",
+                next_month_dep_demand_in_dollar = "Formula",
+                oh_max_in_dollar = "Formula",
+                iqr = "Formula",
+                iqr_hold = "Formula") -> final_data_rm
+
+
+
+
+###################################################################################################################################################
+
+
+writexl::write_xlsx(final_data_rm, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/weekly Report run/2024/12.03.2024/rm_optimization.xlsx")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
