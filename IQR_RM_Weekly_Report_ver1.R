@@ -300,7 +300,7 @@ rbind(pivot_campus_ref_inventory_analysis, inv_bal_25_55_label) %>%
 
 
 # BoM_dep_demand ----
-bom_dep_demand <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12032024/Bill of Material_12032024.xlsx",
+bom_dep_demand <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12032024/Bill of Material_12032024_2.xlsx",
                              sheet = "Sheet1")
 
 bom_dep_demand %>% 
@@ -922,7 +922,7 @@ rm_data %>%
                 moq_in_days = ifelse(moq_in_days == "Inf", 0, moq_in_days)) -> rm_data
 
 ################################ Code revise 12/20/2023 ##################################
-bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE BoM/2024/JDE BoM 12.03.2024.xlsx",
+bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE BoM/2024/JDE BoM 12.03.2024_2.xlsx",
                   sheet = "BoM")
 
 bom[-1, ] -> bom
@@ -1028,13 +1028,13 @@ rm_data %>%
                 next_month_dep_demand_in_cost) -> rm_data
 
 
-writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/12.03.2024/iqr_rm_rstudio_12032024.xlsx")
+writexl::write_xlsx(rm_data, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/12.03.2024/iqr_rm_rstudio_12032024_2.xlsx")
 
 
 
 
 
-writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/12.03.2024/bom.xlsx")
+writexl::write_xlsx(bom, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/12.03.2024/bom_2.xlsx")
 
 
 
