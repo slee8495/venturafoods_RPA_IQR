@@ -14,17 +14,17 @@ library(janitor)
 ##################################################################################################################################################################
 ##################################################################################################################################################################
 
-exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2024/exception report 2024.12.03.xlsx")
-exception_report_dnrr <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2024/exception report DOU 2024.12.03.xlsx")
-inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2024.12.03.xlsx",
+exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2024/exception report 2024.12.26.xlsx")
+exception_report_dnrr <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2024/exception report DOU 2024.12.26.xlsx")
+inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2024.12.26.xlsx",
                            sheet = "FG")
-inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2024.12.03.xlsx",
+inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2024.12.26.xlsx",
                            sheet = "RM")
-oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12032024/US and CAN OO BT where status _ J.xlsx")
-dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.12.02.xlsx")
-jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2024.12.03.xlsx")
+oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12262024/US and CAN OO BT where status _ J.xlsx")
+dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2024/DSX Forecast Backup - 2024.12.26.xlsx")
+jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2024.12.26.xlsx")
 lot_status_code <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Lot Status Code.xlsx")
-bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12032024/Bill of Material_12032024.xlsx")
+bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12262024/Bill of Material_12262024.xlsx")
 campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx")
 iom_live <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx",
                        sheet = "CVM & Focus label & Contract")
@@ -32,8 +32,9 @@ iom_live_1st_sheet <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Sa
 iom_live_1st_sheet_rm <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Raw Material LIVE.xlsx")
 
 
-complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12032024/Complete SKU list - Linda.xlsx")
-unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12032024/Unit_Cost.xlsx")
+complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12262024/Complete SKU list - Linda.xlsx")
+unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/12262024/Unit_Cost.xlsx")
+class_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Class reference (JDE).xlsx")
 
 ###################################################################
 
@@ -204,7 +205,9 @@ dplyr::bind_rows(has_on_hand_inventory_rm,
 # Final touch
 final_data_rm %>% 
   dplyr::filter(!(location %in% c("16", "22", "502", "503", "690", "691", "214", "331", "601", "602", "608", "621", "636", "660", "675"))) %>% 
-  dplyr::filter(!(ref %in% c("60_8883", "75_16975", "75_21645"))) -> final_data_rm
+  dplyr::filter(!(ref %in% c("60_8883", "75_16975", "75_21645"))) %>% 
+  dplyr::filter(!(item == 1)) %>% 
+  dplyr::filter(!(stringr::str_detect(item, "^[0-9]{3}$"))) -> final_data_rm
 
 
 
@@ -221,6 +224,7 @@ final_data_rm %>%
                      dplyr::rename(mfg_loc = campus), by = "location") %>% 
   dplyr::select(-location, -ref) %>% 
   dplyr::mutate(loc_sku = paste0(mfg_loc, "_", item)) %>% 
+  dplyr::filter(mfg_loc %in% c(10, 25, 30, 33, 34, 36, 43, 55, 60, 75, 86, 622, 624)) %>% 
   dplyr::relocate(mfg_loc, location_name, item, loc_sku) -> final_data_rm
 
 
@@ -237,19 +241,45 @@ final_data_rm %>%
                      dplyr::select(item_number, description) %>% 
                      dplyr::distinct(item_number, .keep_all = TRUE) %>% 
                      dplyr::select(item_number, description) %>% 
-                     dplyr::rename(item = item_number), by = "item") -> final_data_rm
+                     dplyr::rename(item = item_number), by = "item") %>% 
+  dplyr::filter(!is.na(description) & description != "") -> final_data_rm
 
 
+# Class
+
+final_data_rm %>% 
+  dplyr::left_join(bom %>% janitor::clean_names() %>% 
+                     dplyr::rename(loc_sku = comp_ref) %>% 
+                     dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) %>% 
+                     dplyr::select(loc_sku, commodity_class) %>% 
+                     dplyr::distinct(loc_sku, .keep_all = TRUE), by = "loc_sku") %>% 
+  dplyr::mutate(commodity_class = as.character(commodity_class)) %>% 
+
+  dplyr::left_join(class_ref %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::rename(commodity_class = code, class = description) %>%
+                     dplyr::mutate(commodity_class = as.character(commodity_class)) %>% 
+                     dplyr::distinct(class, .keep_all = TRUE) %>% 
+                     dplyr::filter(!is.na(commodity_class)), by = "commodity_class") %>% 
+  
+  dplyr::left_join(iom_live_1st_sheet_rm %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(loc_sku, class) %>% 
+                     dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) %>% 
+                     dplyr::distinct(loc_sku, .keep_all = TRUE), by = "loc_sku") %>% 
+  dplyr::mutate(class = dplyr::coalesce(class.x, class.y)) %>% 
+  dplyr::select(-class.x, -class.y, -commodity_class) -> final_data_rm
 
 
-# Class, Item Type, Shelf Life (day), Birthday
+# Item Type, Shelf Life (day), Birthday
 final_data_rm %>% 
   dplyr::left_join(iom_live_1st_sheet_rm %>% 
                      janitor::clean_names() %>% 
-                     dplyr::select(loc_sku, class, item_type, shelf_life_day, birthday) %>% 
+                     dplyr::select(loc_sku, item_type, shelf_life_day, birthday) %>% 
                      dplyr::mutate(birthday = as.double(birthday),
                                    birthday = as.Date(birthday, origin = "1899-12-30")) %>% 
                      dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)), by = "loc_sku") -> final_data_rm
+
 
 
 # UOM, Lead Time, Planner, Planner Name
@@ -380,11 +410,14 @@ final_data_rm %>%
 
 
 
+### Final Touch ###
+
+
 
 ###################################################################################################################################################
 
 
-writexl::write_xlsx(final_data_rm, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/weekly Report run/2024/12.03.2024/rm_optimization.xlsx")
+writexl::write_xlsx(final_data_rm, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/weekly Report run/2024/12.26.2024/rm_optimization.xlsx")
 
 
 
