@@ -37,7 +37,6 @@ unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingre
 class_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Class reference (JDE).xlsx")
 iqr_rm <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.14.2025.xlsx",
                      sheet = "RM data")
-ssc <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01142025/SS Metrics 0114.xlsx")
 
 ###################################################################
 
@@ -213,8 +212,9 @@ dplyr::bind_rows(has_on_hand_inventory_rm,
 final_data_rm %>% 
   dplyr::filter(!(location %in% c("16", "22", "502", "503", "690", "691", "214", "331", "601", "602", "608", "621", "636", "660", "675"))) %>% 
   dplyr::filter(!(ref %in% c("60_8883", "75_16975", "75_21645"))) %>% 
-  dplyr::filter(!(item == 1)) %>% 
-  dplyr::filter(!(stringr::str_detect(item, "^[0-9]{3}$"))) -> final_data_rm
+  dplyr::filter(!(item %in% c("1", "34688"))) %>% 
+  dplyr::filter(!(stringr::str_detect(item, "^[0-9]{3}$"))) %>% 
+  dplyr::filter(!(location %in% c("622", "624") & stringr::str_detect(item, "^[0-9]{5}$"))) -> final_data_rm
 
 
 
@@ -249,7 +249,7 @@ final_data_rm %>%
                      dplyr::distinct(item_number, .keep_all = TRUE) %>% 
                      dplyr::select(item_number, description) %>% 
                      dplyr::rename(item = item_number), by = "item") %>% 
-  dplyr::filter(!is.na(description) & description != "") -> final_data_rm
+  dplyr::filter(!is.na(description) & description != "")
 
 
 # Class
@@ -301,14 +301,6 @@ final_data_rm %>%
   dplyr::left_join(iqr_rm %>% 
                      janitor::clean_names() %>% 
                      dplyr::select(item, item_type) %>% 
-                     dplyr::distinct(item, .keep_all = TRUE), by = "item") %>% 
-  dplyr::mutate(item_type = dplyr::coalesce(item_type.x, item_type.y)) %>% 
-  dplyr::select(-item_type.x, -item_type.y) %>% 
-  
-  dplyr::left_join(ssc %>% 
-                     janitor::clean_names() %>% 
-                     dplyr::select(stocking_type_description, item) %>% 
-                     dplyr::rename(item_type = stocking_type_description) %>% 
                      dplyr::distinct(item, .keep_all = TRUE), by = "item") %>% 
   dplyr::mutate(item_type = dplyr::coalesce(item_type.x, item_type.y)) %>% 
   dplyr::select(-item_type.x, -item_type.y) -> final_data_rm
@@ -460,7 +452,7 @@ final_data_rm %>%
 ###################################################################################################################################################
 
 
-writexl::write_xlsx(final_data_rm, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/weekly Report run/2025/01.14.2025/rm_optimization.xlsx")
+writexl::write_xlsx(final_data_rm, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/weekly Report run/2025/01.14.2025/rm_optimization_2.xlsx")
 
 
 
