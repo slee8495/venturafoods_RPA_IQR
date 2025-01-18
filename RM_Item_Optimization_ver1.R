@@ -108,11 +108,25 @@ colnames(iqr_rm) <- iqr_rm[1, ]
 iqr_rm[-1, ] -> iqr_rm
 
 ###################################################################
-# 1. Has inventory (useable, soft hold, hard hold all included)
+
 
 inventory_rm[-1, ] -> inventory_rm
 colnames(inventory_rm) <- inventory_rm[1, ]
 inventory_rm[-1, ] -> inventory_rm
+
+###################################################################
+
+
+jde_25_55_label[-1:-5, ] -> jde_25_55_label
+colnames(jde_25_55_label) <- jde_25_55_label[1, ]
+jde_25_55_label[-1, ] -> jde_25_55_label
+
+
+###################################################################
+
+
+# 1. Has inventory (useable, soft hold, hard hold all included)
+
 
 inventory_rm %>% 
   janitor::clean_names() %>% 
@@ -130,9 +144,6 @@ inventory_rm %>%
   dplyr::select(-inventory) -> has_on_hand_inventory_rm_1
 
 
-jde_25_55_label[-1:-5, ] -> jde_25_55_label
-colnames(jde_25_55_label) <- jde_25_55_label[1, ]
-jde_25_55_label[-1, ] -> jde_25_55_label
 
 jde_25_55_label %>% 
   janitor::clean_names() %>% 
@@ -249,7 +260,19 @@ final_data_rm %>%
                      dplyr::distinct(item_number, .keep_all = TRUE) %>% 
                      dplyr::select(item_number, description) %>% 
                      dplyr::rename(item = item_number), by = "item") %>% 
-  dplyr::filter(!is.na(description) & description != "")
+  dplyr::filter(!is.na(description) & description != "") %>% 
+  dplyr::filter(!stringr::str_detect(description, "(?i)Condensate|Water|TEMPERATURE RECORDERS|Pallet")) -> final_data_rm
+
+
+# Remove RPS from exception report
+final_data_rm %>% 
+  dplyr::left_join(exception_report %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::mutate(loc_sku = paste0(b_p, "_", item_number)) %>%
+                     dplyr::select(mpf_or_line, loc_sku) %>%
+                     dplyr::distinct(loc_sku, .keep_all = TRUE), by = "loc_sku") %>% 
+  dplyr::filter(mpf_or_line != "RPS") %>% 
+  dplyr::select(-mpf_or_line) -> final_data_rm
 
 
 # Class
@@ -275,35 +298,38 @@ final_data_rm %>%
                      dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)) %>% 
                      dplyr::distinct(loc_sku, .keep_all = TRUE), by = "loc_sku") %>% 
   dplyr::mutate(class = dplyr::coalesce(class.x, class.y)) %>% 
-  dplyr::select(-class.x, -class.y, -commodity_class) %>% 
+  dplyr::select(-class.x, -class.y) %>% 
   
   dplyr::left_join(iqr_rm %>% 
                      janitor::clean_names() %>% 
                      dplyr::select(item, class) %>% 
                      dplyr::distinct(item, .keep_all = TRUE), by = "item") %>% 
   dplyr::mutate(class = dplyr::coalesce(class.x, class.y)) %>% 
-  dplyr::select(-class.x, -class.y) -> final_data_rm
+  dplyr::select(-class.x, -class.y) %>% 
+  dplyr::filter(!stringr::str_detect(class, "(?i)REFINERY PROCESS SUPPLIES")) %>% 
+  dplyr::mutate(class = ifelse(is.na(class), 0, class)) -> final_data_rm
 
 
 # Item Type
 final_data_rm %>% 
-  dplyr::left_join(iom_live_1st_sheet_rm %>% 
+  dplyr::left_join(exception_report %>% 
                      janitor::clean_names() %>% 
-                     dplyr::select(class, item_type) %>% 
-                     dplyr::distinct(class, .keep_all = TRUE), by = "class") %>% 
-  dplyr::left_join(iom_live_1st_sheet_rm %>% 
-                     janitor::clean_names() %>% 
-                     dplyr::select(item, item_type) %>% 
+                     dplyr::select(item_number, mpf_or_line) %>% 
+                     dplyr::rename(item = item_number) %>% 
                      dplyr::distinct(item, .keep_all = TRUE), by = "item") %>% 
-  dplyr::mutate(item_type = dplyr::coalesce(item_type.x, item_type.y)) %>% 
-  dplyr::select(-item_type.x, -item_type.y) %>% 
-  
-  dplyr::left_join(iqr_rm %>% 
-                     janitor::clean_names() %>% 
-                     dplyr::select(item, item_type) %>% 
-                     dplyr::distinct(item, .keep_all = TRUE), by = "item") %>% 
-  dplyr::mutate(item_type = dplyr::coalesce(item_type.x, item_type.y)) %>% 
-  dplyr::select(-item_type.x, -item_type.y) -> final_data_rm
+  dplyr::mutate(item_type = dplyr::case_when(
+    mpf_or_line == "PKG" ~ "Packaging",
+    mpf_or_line == "LBL" ~ "Label",
+    mpf_or_line == "ING" ~ "Non-Commodity",
+    commodity_class < 500 ~ "Non-Commodity",
+    commodity_class == 570 ~ "Label",
+    commodity_class >= 500 & commodity_class < 900 & commodity_class != 570 ~ "Packaging",
+    commodity_class > 900 ~ "Commodity Oil",
+    item %in% c("BCH", "BLD", "FGT", "RPS", "SFM", "SSA", "WIP") ~ "WIP",
+    item == "OHD" ~ "Overhead",
+    TRUE ~ "Other" 
+  )) %>% 
+  dplyr::select(-mpf_or_line, -commodity_class)  -> final_data_rm
 
 
 
@@ -314,9 +340,18 @@ final_data_rm %>%
   dplyr::left_join(iom_live_1st_sheet_rm %>% 
                      janitor::clean_names() %>% 
                      dplyr::select(loc_sku, shelf_life_day, birthday) %>% 
-                     dplyr::mutate(birthday = as.double(birthday),
-                                   birthday = as.Date(birthday, origin = "1899-12-30")) %>% 
-                     dplyr::mutate(loc_sku = gsub("-", "_", loc_sku)), by = "loc_sku") -> final_data_rm
+                     dplyr::mutate(
+                       birthday = suppressWarnings(as.numeric(birthday)), 
+                       birthday = as.Date(birthday, origin = "1899-12-30"), 
+                       loc_sku = gsub("-", "_", loc_sku)
+                     ), 
+                   by = "loc_sku") %>% 
+  dplyr::mutate(
+    shelf_life_day = ifelse(is.na(shelf_life_day), 0, shelf_life_day)
+  ) -> final_data_rm
+
+
+
 
 
 
