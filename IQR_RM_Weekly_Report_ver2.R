@@ -18,7 +18,7 @@ library(rio)
 # dir.create("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/06.18.2024")
 
 file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2025/01.14.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.14.2025.xlsx",
-          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2025/01.14.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.14.2025.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2025/01.21.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
           overwrite = TRUE)
 
 # For Exposure file

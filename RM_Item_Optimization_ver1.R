@@ -14,17 +14,17 @@ library(janitor)
 ##################################################################################################################################################################
 ##################################################################################################################################################################
 
-exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.01.14.xlsx")
-exception_report_dnrr <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.01.14.xlsx")
-inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.01.14.xlsx",
+exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.01.21.xlsx")
+exception_report_dnrr <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.01.21.xlsx")
+inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.01.21.xlsx",
                            sheet = "FG")
-inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.01.14.xlsx",
+inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.01.21.xlsx",
                            sheet = "RM")
-oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01142025/US and CAN OO BT where status _ J.xlsx")
-dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.01.14.xlsx")
-jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2025.01.14.xlsx")
+oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/US and CAN OO BT where status _ J.xlsx")
+dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.01.16.xlsx")
+jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2025.01.21.xlsx")
 lot_status_code <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Lot Status Code.xlsx")
-bom <- read.xlsx("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01142025/Bill of Material_01142025.xlsx")
+bom <- read.xlsx("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/Bill of Material_01212025.xlsx")
 campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx")
 iom_live <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx",
                        sheet = "CVM & Focus label & Contract")
@@ -32,11 +32,11 @@ iom_live_1st_sheet <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Sa
 iom_live_1st_sheet_rm <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Raw Material LIVE.xlsx")
 
 
-complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01142025/Complete SKU list - Linda.xlsx")
-unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01142025/Unit_Cost.xlsx")
+complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/Complete SKU list - Linda.xlsx")
+unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/Unit_Cost.xlsx")
 class_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Class reference (JDE).xlsx")
 iqr_rm <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.14.2025.xlsx",
-                     sheet = "RM data")
+                     sheet = "RM data") ### Use Pre week ###
 
 ###################################################################
 
@@ -487,7 +487,7 @@ final_data_rm %>%
 ###################################################################################################################################################
 
 
-writexl::write_xlsx(final_data_rm, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/weekly Report run/2025/01.14.2025/rm_optimization_2.xlsx")
+writexl::write_xlsx(final_data_rm, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/weekly Report run/2025/01.21.2025/rm_optimization.xlsx")
 
 
 
