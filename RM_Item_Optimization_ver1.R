@@ -38,6 +38,9 @@ class_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Class refere
 iqr_rm <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.14.2025.xlsx",
                      sheet = "RM data") ### Use Pre week ###
 
+supplier_address_book <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2025.01.07.xlsx",
+                                    sheet = "supplier")
+
 ###################################################################
 
 exception_report[-1:-2, ] -> exception_report
@@ -222,7 +225,7 @@ dplyr::bind_rows(has_on_hand_inventory_rm,
 # Final touch
 final_data_rm %>% 
   dplyr::filter(!(location %in% c("16", "22", "502", "503", "690", "691", "214", "331", "601", "602", "608", "621", "636", "660", "675"))) %>% 
-  dplyr::filter(!(ref %in% c("60_8883", "75_16975", "75_21645"))) %>% 
+  dplyr::filter(!(ref %in% c("60_8883", "75_16795", "75_21645"))) %>% 
   dplyr::filter(!(item %in% c("1", "34688"))) %>% 
   dplyr::filter(!(stringr::str_detect(item, "^[0-9]{3}$"))) %>% 
   dplyr::filter(!(location %in% c("622", "624") & stringr::str_detect(item, "^[0-9]{5}$"))) -> final_data_rm
@@ -246,10 +249,31 @@ final_data_rm %>%
   dplyr::relocate(mfg_loc, location_name, item, loc_sku) -> final_data_rm
 
 
-# Supplie#, Supplier Name
+# Supplier#, Supplier Name
 final_data_rm %>% 
-  dplyr::mutate(supplier = "IQR Report",
-                supplier_name = "IQR Report") -> final_data_rm
+  dplyr::left_join(exception_report %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::mutate(loc_sku = paste0(b_p, "_", item_number)) %>% 
+                     dplyr::select(loc_sku, supplier), by = "loc_sku") %>%
+  
+  dplyr::left_join(exception_report_dnrr %>%
+                     janitor::clean_names() %>% 
+                     dplyr::mutate(loc_sku = paste0(b_p, "_", item_number)) %>%
+                     dplyr::select(loc_sku, supplier), by = "loc_sku") %>% 
+  
+  dplyr::mutate(supplier = dplyr::coalesce(supplier.x, supplier.y)) %>% 
+  dplyr::select(-supplier.x, -supplier.y) %>% 
+  
+  dplyr::mutate(supplier = ifelse(is.na(supplier), 0, supplier)) %>% 
+  
+  dplyr::left_join(supplier_address_book %>% 
+                     janitor::clean_names() %>% 
+                     dplyr::select(address_number, alpha_name) %>% 
+                     dplyr::rename(supplier = address_number,
+                                   supplier_name = alpha_name) %>% 
+                     dplyr::mutate(supplier = as.character(supplier)), by = "supplier") %>% 
+  dplyr::mutate(supplier_name = ifelse(is.na(supplier_name), 0, supplier_name)) -> final_data_rm
+  
 
 
 # Description
@@ -394,7 +418,7 @@ final_data_rm %>%
 
 # EOQ            ######################### Question ###################
 final_data_rm %>% 
-  dplyr::mutate(eoq = "Question") -> final_data_rm
+  dplyr::mutate(eoq = "IQR Report") -> final_data_rm
 
 
 # Safety Stock
