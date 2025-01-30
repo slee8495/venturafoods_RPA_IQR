@@ -18,8 +18,8 @@ library(janitor)
 
 # dir.create("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/06.18.2025")
 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
-          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
+file.copy("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.21.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
+          "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.28.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
           overwrite = TRUE)
 
 
@@ -30,7 +30,7 @@ file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23
 
 ##################################################################################################################################################################
 
-specific_date <- as.Date("2025-01-21")
+specific_date <- as.Date("2025-01-28")
 
 # (Path Revision Needed) Planner Address Book (If updated, correct this link) ----
 # sdrive: S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 04.26.22.xlsx
@@ -47,7 +47,7 @@ Planner_address %>%
 
 
 # macro_platform ----
-macro_platform <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
+macro_platform <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.28.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
                              sheet = "Macro-Platform",
                              col_names = FALSE)
 
@@ -59,7 +59,7 @@ macro_platform %>%
 
 ## FG_ref_to_mpg_ref 
 
-complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/Complete SKU list - Linda.xlsx")
+complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/Complete SKU list - Linda.xlsx")
 complete_sku_list[-1, ] -> complete_sku_list
 colnames(complete_sku_list) <- complete_sku_list[1, ]
 complete_sku_list[-1, ] -> complete_sku_list
@@ -83,7 +83,7 @@ FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_r
 
 # (Path Revision Needed) Exception Report ----
 
-exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.01.21.xlsx", 
+exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.01.28.xlsx", 
                                sheet = "Sheet1",
                                col_types = c("text", "text", "text", 
                                              "text", "numeric", "text", "text", "text", 
@@ -92,9 +92,9 @@ exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE E
                                              "numeric", "numeric", "numeric", 
                                              "numeric", "text", "text", "text", 
                                              "text", "text", "text", "text", "numeric", 
-                                             "text", "text", "text"))
+                                             "text", "text"))
 
-exception_report[-1:-2, -32] -> exception_report
+exception_report[-1:-2, -31] -> exception_report
 
 colnames(exception_report) <- exception_report[1, ]
 exception_report[-1, ] -> exception_report
@@ -197,7 +197,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 
 # (Path Revision Needed) Custord PO ----
-po <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/PO_JDE.xlsx",
+po <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/PO_JDE.xlsx",
                  sheet = "Daily Open PO")
 
 
@@ -227,7 +227,7 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # (Path Revision Needed) Custord Receipt ----
-receipt <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/PO1.xlsx")
+receipt <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/PO1.xlsx")
 
 
 receipt[-1, ] -> receipt
@@ -258,7 +258,7 @@ reshape2::dcast(receipt, ref ~ next_28_days, value.var = "qty", sum) -> Receipt_
 
 # (Path Revision Needed) Custord wo ----
 
-wo <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/Open Work Order for 28 days.xlsx")
+wo <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/Open Work Order for 28 days.xlsx")
 
 wo[-1, ] -> wo
 colnames(wo) <- wo[1, ]
@@ -285,7 +285,7 @@ wo %>%
 
 # (Path Revision Needed) custord custord ----
 # Open Customer Order File pulling ----  Change Directory ----
-custord <- read.xlsx("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/US and CAN OO BT where status _ J.xlsx",
+custord <- read.xlsx("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/US and CAN OO BT where status _ J.xlsx",
                      colNames = FALSE)
 
 custord %>% 
@@ -492,7 +492,7 @@ colnames(DSX_pivot_1_pre)[9]  <- "Mon_g_fcst"
 
 
 DSX_Forecast_Backup <- read_excel(
-  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.01.16.xlsx") ### Match with BoM date! ####
+  "S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.01.23.xlsx") ### Match with BoM date! ####
 
 DSX_Forecast_Backup[-1,] -> DSX_Forecast_Backup
 colnames(DSX_Forecast_Backup) <- DSX_Forecast_Backup[1, ]
@@ -634,7 +634,7 @@ DSX_mfg_pivot_1 %>%
 
 
 # (Path Revision Needed) Inventory ----
-inventory <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.01.21.xlsx",
+inventory <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.01.28.xlsx",
                         sheet = "FG")
 
 inventory[-1, ] -> inventory
@@ -702,13 +702,14 @@ inventory %>%
 
 # (Path Revision Needed) Main Dataset Board ----  
 
-IQR_FG_sample <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
+IQR_FG_sample <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.28.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
                             sheet = "Location FG")
 
 IQR_FG_sample[-1:-2,] -> IQR_FG_sample
 
 colnames(IQR_FG_sample) <- IQR_FG_sample[1, ]
 IQR_FG_sample[-1, ] -> IQR_FG_sample
+
 
 IQR_FG_sample %>% 
   janitor::clean_names() -> IQR_FG_sample
@@ -720,9 +721,8 @@ IQR_FG_sample %>%
                 mfg_ref = gsub("-", "_", mfg_ref)) %>% 
   dplyr::rename(loc_sku = campus_ref) -> IQR_FG_sample
 
-
 # (Path Revision Needed) read SD & CV file ----
-sdcv <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/Ordered and Shipped History (Ordered) - Month - 01.21.2025.xlsx")
+sdcv <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/Ordered and Shipped History (Ordered) - Month - 01.28.2025.xlsx")
 
 sdcv[c(-1,-3),] -> sdcv
 colnames(sdcv) <- sdcv[1,]
@@ -753,10 +753,15 @@ readr::type_convert(IQR_FG_sample) -> IQR_FG_sample
 ##################################### vlookups #########################################
 
 # vlookup - MTO_MTS (with if, iferror)
-merge(IQR_FG_sample, exception_report[, c("ref", "Order_Policy_Code")], by = "ref", all.x = TRUE) %>% 
-  dplyr::select(-opv) %>% 
-  dplyr::rename(opv = Order_Policy_Code) %>% 
-  dplyr::mutate(opv = as.integer(opv)) -> IQR_FG_sample
+#merge(IQR_FG_sample, exception_report[, c("ref", "Order_Policy_Code")], by = "ref", all.x = TRUE) %>% 
+#  dplyr::select(-opv) %>% 
+#  dplyr::rename(opv = Order_Policy_Code) %>% 
+#  dplyr::mutate(opv = as.integer(opv)) -> IQR_FG_sample
+
+IQR_FG_sample <- IQR_FG_sample %>%
+  left_join(select(exception_report, ref, Order_Policy_Code), by = "ref") %>%
+  mutate(opv = as.integer(Order_Policy_Code)) %>%
+  select(-Order_Policy_Code)
 
 IQR_FG_sample$opv[is.na(IQR_FG_sample$opv)] <- 1
 
@@ -1512,7 +1517,7 @@ IQR_FG_sample %>%
 
 
 # pre_data
-pre_data <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.14.2025/iqr_fg_rstudio_01142025.xlsx")
+pre_data <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.21.2025/iqr_fg_rstudio_01212025.xlsx")
 
 pre_data %>% 
   janitor::clean_names() %>% 
@@ -1533,8 +1538,8 @@ IQR_FG_sample %>%
 
 
 # Category & Platform
-completed_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/Complete SKU list - Linda.xlsx")
-completed_sku_list_2 <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/Complete SKU list - Linda.xlsx")
+completed_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/Complete SKU list - Linda.xlsx")
+completed_sku_list_2 <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/Complete SKU list - Linda.xlsx")
 
 completed_sku_list[-1:-2, ]  %>% 
   janitor::clean_names() %>% 
@@ -1675,7 +1680,7 @@ IQR_FG_sample %>%
 
 #### Added 05/21/2025 #### DOU Exception Report ####
 
-exception_report_dou <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.01.21.xlsx")
+exception_report_dou <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.01.28.xlsx")
 exception_report_dou %>% 
   janitor::clean_names() %>% 
   dplyr::slice(-1:-2) -> exception_report_dou
@@ -1771,7 +1776,7 @@ IQR_FG_sample %>%
 ########################################################################################################
 
 # Arrange ----
-fg_data_for_arrange <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
+fg_data_for_arrange <- read_excel("file:///S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01212025/iqr_fg_rstudio_01212025.xlsx/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
                                   sheet = "Location FG")
 
 fg_data_for_arrange[-1:-2, ] -> fg_data_for_arrange
@@ -1846,7 +1851,7 @@ IQR_FG_sample %>%
 
 
 # (Path Revision Needed)
-writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/iqr_fg_rstudio_01212025.xlsx")
+writexl::write_xlsx(IQR_FG_sample, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.28.2025/iqr_fg_rstudio_01282025.xlsx")
 
 
 
@@ -1854,26 +1859,26 @@ writexl::write_xlsx(IQR_FG_sample, "C:/Users/slee/OneDrive - Ventura Foods/Ventu
 ######################################################################################################################################################
 
 #### DOS File Moving from RM. 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2025/01.21.2025/Inventory Health (IQR) Tracker - DOS.xlsx",
-          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Inventory Health (IQR) Tracker - DOS.xlsx")
+file.copy("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Report run/2025/01.28.2025/Inventory Health (IQR) Tracker - DOS.xlsx",
+          "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/weekly run data/2025/01.28.2025/Inventory Health (IQR) Tracker - DOS.xlsx")
 
 
 ### Optional ###
 #### IQR main file Moving to S Drive. 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
+file.copy("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.28.2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
           overwrite = TRUE)
 
 
 
 ### DOS Tracker moving to S Drive
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Inventory Health (IQR) Tracker - DOS.xlsx",
+file.copy("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.28.2025/Inventory Health (IQR) Tracker - DOS.xlsx",
           "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Inventory Health (IQR) Tracker - DOS.xlsx",
           overwrite = TRUE)
 
 ### IQR pre week moving in S Drive
-file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.14.2025.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/FG/2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.14.2025.xlsx",
+file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/FG/2025/Finished Goods Inventory Health Adjusted Forward (IQR) NEW TEMPLATE - 01.21.2025.xlsx",
           overwrite = TRUE)
 
 
@@ -1881,7 +1886,7 @@ file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventor
 # https://edgeanalytics.venturafoods.com/MicroStrategyLibrary/app/DF007F1C11E9B3099BB30080EF7513D2/F9E860846E4878AEF29B5E949CF675DC/K53--K46
 # Make sure to have only one Month (Last Month) from the Dossier
 
-pre_month_actual <- read_excel("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.21.2025/Actual Shipped.xlsx")
+pre_month_actual <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.28.2025/Actual Shipped.xlsx")
 
 pre_month_actual %>% 
   janitor::clean_names() -> pre_month_actual
