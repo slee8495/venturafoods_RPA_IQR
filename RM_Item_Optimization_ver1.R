@@ -230,7 +230,7 @@ final_data_rm %>%
   dplyr::filter(!(stringr::str_detect(item, "^[0-9]{3}$"))) %>% 
   dplyr::filter(!(location %in% c("622", "624") & stringr::str_detect(item, "^[0-9]{5}$"))) -> final_data_rm
 
-
+#Filter did not filtered out Sub-assemblies and 
 
 
 ##################################################################################################################################################################
@@ -248,7 +248,8 @@ final_data_rm %>%
   dplyr::filter(mfg_loc %in% c(10, 25, 30, 33, 34, 36, 43, 55, 60, 75, 86, 622, 624)) %>% 
   dplyr::relocate(mfg_loc, location_name, item, loc_sku) -> final_data_rm
 
-
+#Supplier # is incorrect
+#Check in BOM report how he corrected Supplier #
 # Supplier#, Supplier Name
 final_data_rm %>% 
   dplyr::left_join(exception_report %>% 
@@ -334,7 +335,8 @@ final_data_rm %>%
   dplyr::mutate(class = ifelse(is.na(class), 0, class)) -> final_data_rm
 
 
-# Item Type
+# Item Type 
+#issue Characters would be read as >900 and everything would be assigned commodity oil
 final_data_rm %>% 
   dplyr::left_join(exception_report %>% 
                      janitor::clean_names() %>% 
@@ -342,6 +344,7 @@ final_data_rm %>%
                      dplyr::rename(item = item_number) %>% 
                      dplyr::distinct(item, .keep_all = TRUE), by = "item") %>% 
   dplyr::mutate(item_type = dplyr::case_when(
+    as.character(commodity_class) %in% c("BCH", "BLD", "FGT", "RPS", "SFM", "SSA", "WIP") ~ "WIP",
     mpf_or_line == "PKG" ~ "Packaging",
     mpf_or_line == "LBL" ~ "Label",
     mpf_or_line == "ING" ~ "Non-Commodity",
@@ -349,13 +352,17 @@ final_data_rm %>%
     commodity_class == 570 ~ "Label",
     commodity_class >= 500 & commodity_class < 900 & commodity_class != 570 ~ "Packaging",
     commodity_class > 900 ~ "Commodity Oil",
-    item %in% c("BCH", "BLD", "FGT", "RPS", "SFM", "SSA", "WIP") ~ "WIP",
-    item == "OHD" ~ "Overhead",
+    #item %in% c("BCH", "BLD", "FGT", "RPS", "SFM", "SSA", "WIP") ~ "WIP",
+    #item == "OHD" ~ "Overhead",
+    commodity_class == "OHD" ~ "Overhead",
     TRUE ~ "Other" 
   )) %>% 
   dplyr::select(-mpf_or_line, -commodity_class)  -> final_data_rm
 
 
+#code added to filter out oil and WIP
+final_data_rm %>%
+  filter(!(item_type %in% c("Commodity Oil", "WIP"))) -> final_data_rm
 
 
 
@@ -426,6 +433,7 @@ final_data_rm %>%
   dplyr::mutate(safety_stock = "IQR Report") -> final_data_rm
 
 
+
 # Safety Stock $
 final_data_rm %>% 
   dplyr::mutate(safety_stock_dollar = "Formula") -> final_data_rm
@@ -439,7 +447,6 @@ final_data_rm %>%
 final_data_rm %>% 
   dplyr::mutate(useable = "IQR Report",
                 quality_hold = "IQR Report") -> final_data_rm
-
 
 # Quality Hold $
 final_data_rm %>% 
