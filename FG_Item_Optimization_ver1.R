@@ -14,17 +14,17 @@ library(janitor)
 ##################################################################################################################################################################
 ##################################################################################################################################################################
 
-exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.01.28.xlsx")
-exception_report_dnrr <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.01.28.xlsx")
-inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.01.28.xlsx",
+exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.02.04.xlsx")
+exception_report_dnrr <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.02.04.xlsx")
+inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
                            sheet = "FG")
-inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.01.28.xlsx",
+inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
                            sheet = "RM")
-oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/US and CAN OO BT where status _ J.xlsx")
-dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.01.23.xlsx")
-jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2025.01.28.xlsx")
+oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/US and CAN OO BT where status _ J.xlsx")
+dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.02.03.xlsx")
+jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2025.02.04.xlsx")
 lot_status_code <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Lot Status Code.xlsx")
-bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/Bill of Material_01282025.xlsx")
+bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Bill of Material_02042025.xlsx")
 campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx")
 iom_live <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx",
                        sheet = "CVM & Focus label & Contract")
@@ -32,8 +32,8 @@ iom_live_1st_sheet <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Sa
 
 
 
-complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/Complete SKU list - Linda.xlsx")
-unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/01282025/Unit_Cost.xlsx")
+complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Complete SKU list - Linda.xlsx")
+unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Unit_Cost.xlsx")
 
 ###################################################################
 
@@ -180,12 +180,18 @@ dplyr::bind_rows(has_on_hand_inventory_fg,
   tidyr::separate(ref, c("location", "item")) %>% 
   dplyr::mutate(ref = paste0(location, "_", item)) -> final_data_fg
 
-
+#write.xlsx(final_data_fg,"Final_data_fg.xlsx")
+final_data_fg = read.xlsx("Final_data_fg.xlsx")
 # Final touch
 final_data_fg %>% 
-  dplyr::filter(!str_detect(item, "BKO|BKM|TST|^1$")) %>% 
-  dplyr::filter(!(location %in% c("16", "22", "502", "503", "690", "691", "214", "331", "601", "602", "608", "621", "636", "660", "675"))) %>% 
-  dplyr::filter(str_detect(item, "^//d{5}[A-Za-z]{3}$")) -> final_data_fg
+  dplyr::filter(!str_detect(item, "BKO|BKM|TST|^1$")) %>%
+  #dplyr::filter(!str_detect(item, "BKO|BKM|TST|^1$")) -> final_data_fg
+  #dplyr::filter(!(location %in% c("16", "22", "502", "503", "690", "691", "214", "331", "601", "602", "608", "621", "636", "660", "675"))) %>% 
+  dplyr::filter(!(location %in% c("16", "22", "502", "503", "690", "691", "214", "331", "601", "602", "608", "621", "636", "660", "675")))-> final_data_fg
+
+
+#final_data_fg %>% 
+#dplyr::filter(str_detect(item, "^//d{5}[A-Za-z]{3}$")) -> final_data_fg
 
 
 
@@ -626,7 +632,7 @@ final_data_fg %>%
 
 ###################################################################################################################################################
 
-writexl::write_xlsx(final_data_fg, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/01.28.2025/fg_optimization.xlsx")
+writexl::write_xlsx(final_data_fg, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/FG/Weekly Run Files/2025/02.04.2025/fg_optimization.xlsx")
 
 ## Check Net Wt Column (Y) to see if there is any blank. 
 

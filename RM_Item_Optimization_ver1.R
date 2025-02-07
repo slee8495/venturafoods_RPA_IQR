@@ -21,7 +21,7 @@ inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory
 inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
                            sheet = "RM")
 oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/US and CAN OO BT where status _ J.xlsx")
-dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.01.23.xlsx")
+dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.02.03.xlsx")
 jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2025.02.04.xlsx")
 lot_status_code <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Lot Status Code.xlsx")
 bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Bill of Material_02042025.xlsx")
