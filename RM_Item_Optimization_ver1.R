@@ -14,31 +14,31 @@ library(janitor)
 ##################################################################################################################################################################
 ##################################################################################################################################################################
 
-exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.02.04.xlsx")
-exception_report_dnrr <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.02.04.xlsx")
-inventory_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
+exception_report <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report 2025.02.04.xlsx")
+exception_report_dnrr <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report DOU 2025.02.04.xlsx")
+inventory_fg <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
                            sheet = "FG")
-inventory_rm <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
+inventory_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
                            sheet = "RM")
-oo_bt_fg <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/US and CAN OO BT where status _ J.xlsx")
+oo_bt_fg <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/US and CAN OO BT where status _ J.xlsx")
 dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.02.03.xlsx")
-jde_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2025.02.04.xlsx")
-lot_status_code <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Lot Status Code.xlsx")
-bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Bill of Material_02042025.xlsx")
-campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx")
+jde_25_55_label <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/JDE Inventory Lot Detail - 2025.02.04.xlsx")
+lot_status_code <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Lot Status Code.xlsx")
+bom <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/BOM/02.04.2025/Bill of Material_02042025.xlsx")
+campus_ref <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Campus reference.xlsx")
 iom_live <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx",
                        sheet = "CVM & Focus label & Contract")
-iom_live_1st_sheet <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx")
-iom_live_1st_sheet_rm <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Raw Material LIVE.xlsx")
+iom_live_1st_sheet <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/SS Optimization by Location - Finished Goods LIVE.xlsx")
+iom_live_1st_sheet_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/SS Optimization by Location - Raw Material LIVE.xlsx")
 
 
-complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Complete SKU list - Linda.xlsx")
-unit_cost <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Unit_Cost.xlsx")
-class_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Class reference (JDE).xlsx")
-iqr_rm <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
+complete_sku_list <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Complete SKU list - Linda.xlsx")
+unit_cost <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Unit_Cost.xlsx")
+class_ref <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Class reference (JDE).xlsx")
+iqr_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/01.28.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
                      sheet = "RM data") ### Use Pre week ###
 
-supplier_address_book <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2025.02.03.xlsx",
+supplier_address_book <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Address Book - 2025.02.03.xlsx",
                                     sheet = "supplier")
 
 ###################################################################
@@ -130,6 +130,7 @@ jde_25_55_label[-1, ] -> jde_25_55_label
 
 # 1. Has inventory (useable, soft hold, hard hold all included)
 
+write.xlsx(inventory_rm,"InventoryDataWithzeros.xlsx")
 
 inventory_rm %>% 
   janitor::clean_names() %>% 
@@ -146,7 +147,9 @@ inventory_rm %>%
   dplyr::filter(inventory > 0) %>% 
   dplyr::select(-inventory) -> has_on_hand_inventory_rm_1
 
-
+###
+write.xlsx(has_on_hand_inventory_rm_1,"InventoryDataWithonhandnozeros.xlsx")
+###
 
 jde_25_55_label %>% 
   janitor::clean_names() %>% 
@@ -162,6 +165,9 @@ jde_25_55_label %>%
                 item = as.double(item)) %>% 
   dplyr::mutate(ref = paste0(campus, "_", item)) -> has_on_hand_inventory_rm_2
 
+###
+write.xlsx(has_on_hand_inventory_rm_2,"25and55LabelInventory.xlsx")
+###
 
 bind_rows(has_on_hand_inventory_rm_1, has_on_hand_inventory_rm_2) -> has_on_hand_inventory_rm
 
@@ -169,6 +175,11 @@ has_on_hand_inventory_rm %>%
   dplyr::mutate(campus = as.character(campus),
                 item = as.character(item)) -> has_on_hand_inventory_rm
 
+
+###
+  write.xlsx(has_on_hand_inventory_rm,"Onhand_and_25&55.xlsx")
+  ###
+  
 
 # 2. Zero inventory but has dependent demand for next 6 months
 
@@ -182,7 +193,10 @@ bom %>%
   tidyr::separate(comp_ref, into = c("campus", "item"), sep = "-") %>% 
   plyr::mutate(ref = paste0(campus, "_", item)) -> zero_on_hand_has_dependent_demand_rm
 
-
+###
+  write.xlsx(zero_on_hand_has_dependent_demand_rm,"zero_on_hand_has_dependent_demand_rm.xlsx")
+###
+  
 
 
 #  3. Zero inventory, no dependent demand for next 6 months but show ACTIVE in JDE
@@ -203,14 +217,9 @@ active_items_rm %>%
   dplyr::mutate(campus = as.character(campus),
                 item = as.character(item)) -> active_items_rm
 
-
-dplyr::bind_rows(has_on_hand_inventory_rm, 
-                 zero_on_hand_has_dependent_demand_rm, 
-                 active_items_rm) %>%
-  dplyr::distinct(ref) %>% 
-  tidyr::separate(ref, c("location", "item")) %>% 
-  dplyr::mutate(ref = paste0(location, "_", item)) -> final_data_rm
-
+###
+  write.xlsx(active_items_rm,"NoDemand_NoInv_ButActiveSKU.xlsx")
+###
 
 
 ## Conclusion
@@ -222,6 +231,11 @@ dplyr::bind_rows(has_on_hand_inventory_rm,
   dplyr::mutate(ref = paste0(location, "_", item)) -> final_data_rm
 
 
+###
+  write.xlsx(final_data_rm,"WithOH_OR_25&55_OR_Active.xlsx")
+###
+  
+
 # Final touch
 final_data_rm %>% 
   dplyr::filter(!(location %in% c("16", "22", "502", "503", "690", "691", "214", "331", "601", "602", "608", "621", "636", "660", "675"))) %>% 
@@ -232,6 +246,10 @@ final_data_rm %>%
 
 #Filter did not filtered out Sub-assemblies and 
 
+###
+  write.xlsx(final_data_rm,"FinalDataAfterSomefilters.xlsx")
+###
+  
 
 ##################################################################################################################################################################
 ##################################################################################################################################################################
@@ -334,12 +352,14 @@ final_data_rm %>%
   dplyr::filter(!stringr::str_detect(class, "(?i)REFINERY PROCESS SUPPLIES")) %>% 
   dplyr::mutate(class = ifelse(is.na(class), 0, class)) -> final_data_rm
 
+read_excel("Final_data_sub.xlsx") -> final_data_rm
 
 # Item Type 
 #issue Characters would be read as >900 and everything would be assigned commodity oil
 final_data_rm %>% 
   dplyr::left_join(exception_report %>% 
-                     janitor::clean_names() %>% 
+                     janitor::clean_names() %>%
+                     dplyr::filter(!is.na(mpf_or_line) & mpf_or_line != "") %>%  #this is where data is joining at item level but item level has multiple lines in exception report
                      dplyr::select(item_number, mpf_or_line) %>% 
                      dplyr::rename(item = item_number) %>% 
                      dplyr::distinct(item, .keep_all = TRUE), by = "item") %>% 

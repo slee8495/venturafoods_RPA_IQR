@@ -34,7 +34,7 @@ specific_date <- as.Date("2025-02-04")
 
 # (Path Revision Needed) Planner Address Book (If updated, correct this link) ----
 # sdrive: S:/Supply Chain Projects/Linda Liang/reference files/Address Book - 04.26.22.xlsx
-Planner_address <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2025.02.03.xlsx", 
+Planner_address <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Address Book - 2025.02.03.xlsx", 
                               sheet = "employee", col_types = c("text", 
                                                                 "text", "text", "text", "text"))
 
@@ -59,7 +59,7 @@ macro_platform %>%
 
 ## FG_ref_to_mpg_ref 
 
-complete_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Complete SKU list - Linda.xlsx")
+complete_sku_list <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Complete SKU list - Linda.xlsx")
 complete_sku_list[-1, ] -> complete_sku_list
 colnames(complete_sku_list) <- complete_sku_list[1, ]
 complete_sku_list[-1, ] -> complete_sku_list
@@ -83,7 +83,7 @@ FG_ref_to_mfg_ref[!duplicated(FG_ref_to_mfg_ref[,c("mfg_loc", "ref")]),] -> FG_r
 
 # (Path Revision Needed) Exception Report ----
 
-exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.02.04.xlsx", 
+exception_report <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report 2025.02.04.xlsx", 
                                sheet = "Sheet1",
                                col_types = c("text", "text", "text", 
                                              "text", "numeric", "text", "text", "text", 
@@ -146,7 +146,7 @@ exception_report[!duplicated(exception_report[,c("ref")]),] -> exception_report
 # (Path Revision Needed) Campus_ref pulling ----
 # S drive: "S:/Supply Chain Projects/RStudio/BoM/Master formats/RM_on_Hand/Campus_ref.xlsx"
 
-Campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx")
+Campus_ref <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Campus reference.xlsx")
 
 Campus_ref %>% 
   janitor::clean_names() %>% 
@@ -197,7 +197,7 @@ reshape2::dcast(exception_report, Loc_SKU ~ ., value.var = "Safety_Stock", sum) 
 
 
 # (Path Revision Needed) Custord PO ----
-po <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/PO_JDE.xlsx",
+po <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/PO_JDE.xlsx",
                  sheet = "Daily Open PO")
 
 
@@ -227,7 +227,7 @@ reshape2::dcast(po, ref ~ next_28_days, value.var = "qty", sum) %>%
 
 
 # (Path Revision Needed) Custord Receipt ----
-receipt <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/PO1.xlsx")
+receipt <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/PO1.xlsx")
 
 
 receipt[-1, ] -> receipt
@@ -258,7 +258,7 @@ reshape2::dcast(receipt, ref ~ next_28_days, value.var = "qty", sum) -> Receipt_
 
 # (Path Revision Needed) Custord wo ----
 
-wo <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Open Work Order for 28 days.xlsx")
+wo <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Open Work Order for 28 days.xlsx")
 
 wo[-1, ] -> wo
 colnames(wo) <- wo[1, ]
@@ -636,7 +636,7 @@ DSX_mfg_pivot_1 %>%
 
 
 # (Path Revision Needed) Inventory ----
-inventory <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
+inventory <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
                         sheet = "FG")
 
 inventory[-1, ] -> inventory
@@ -724,7 +724,7 @@ IQR_FG_sample %>%
   dplyr::rename(loc_sku = campus_ref) -> IQR_FG_sample
 
 # (Path Revision Needed) read SD & CV file ----
-sdcv <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Ordered and Shipped History (Ordered) - Month - 02.04.2025.xlsx")
+sdcv <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Ordered and Shipped History (Ordered) - Month - 02.04.2025.xlsx")
 
 sdcv[c(-1,-3),] -> sdcv
 colnames(sdcv) <- sdcv[1,]
@@ -1540,8 +1540,8 @@ IQR_FG_sample %>%
 
 
 # Category & Platform
-completed_sku_list <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Complete SKU list - Linda.xlsx")
-completed_sku_list_2 <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Complete SKU list - Linda.xlsx")
+completed_sku_list <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Complete SKU list - Linda.xlsx")
+completed_sku_list_2 <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Complete SKU list - Linda.xlsx")
 
 completed_sku_list[-1:-2, ]  %>% 
   janitor::clean_names() %>% 
@@ -1582,7 +1582,7 @@ IQR_FG_sample %>%
   dplyr::left_join(macro_platform) -> IQR_FG_sample
 
 # On Priority List
-priority_sku <- read_excel("S:/Supply Chain Projects/RStudio/Priority_Sku_and_uniques.xlsx",
+priority_sku <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Priority_Sku_and_uniques.xlsx",
                            col_names = FALSE)
 
 colnames(priority_sku) <- priority_sku[1, ]
@@ -1682,7 +1682,7 @@ IQR_FG_sample %>%
 
 #### Added 05/21/2025 #### DOU Exception Report ####
 
-exception_report_dou <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.02.04.xlsx")
+exception_report_dou <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report DOU 2025.02.04.xlsx")
 exception_report_dou %>% 
   janitor::clean_names() %>% 
   dplyr::slice(-1:-2) -> exception_report_dou

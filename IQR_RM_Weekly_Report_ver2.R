@@ -64,10 +64,10 @@ consumption_data[is.na(consumption_data)] <- 0
 
 # Address Book (If updated, correct this link) ----
 
-supplier_address <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2025.02.03.xlsx",
+supplier_address <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Address Book - 2025.02.03.xlsx",
                                sheet = "supplier")
 
-planner_adress <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Address Book/Address Book - 2025.02.03.xlsx", 
+planner_adress <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Address Book - 2025.02.03.xlsx", 
                              sheet = "employee", col_types = c("text", 
                                                                "text", "text", "text", "text"))
 
@@ -79,7 +79,7 @@ colnames(planner_adress)[1] <- "planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE Exception report extract/2025/exception report 2025.02.04.xlsx")
+exception_report <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report 2025.02.04.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -102,7 +102,7 @@ exception_report[!duplicated(exception_report[,c("ref")]),] -> exception_report
 
 # Campus_ref pulling ----
 
-campus_ref <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Campus reference.xlsx") %>% 
+campus_ref <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Campus reference.xlsx") %>% 
   readr::type_convert()
 
 campus_ref %>% 
@@ -205,7 +205,7 @@ rm_data %>%
 
 
 ############ Inventory
-inventory <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
+inventory <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
                         sheet = "RM")
 
 inventory[-1, ] -> inventory
@@ -242,7 +242,7 @@ inventory %>%
 
 ################## jde_inv_for_25_55_label
 
-lot_status_code <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Lot Status Code.xlsx")
+lot_status_code <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Lot Status Code.xlsx")
 
 lot_status_code %>% 
   janitor::clean_names() %>% 
@@ -253,7 +253,7 @@ lot_status_code %>%
 
 
 
-jde_inv_for_25_55_label <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Inventory/JDE Inventory Lot Detail - 2025.02.04.xlsx")
+jde_inv_for_25_55_label <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/JDE Inventory Lot Detail - 2025.02.04.xlsx")
 
 jde_inv_for_25_55_label[-1:-5, ] -> jde_inv_for_25_55_label
 colnames(jde_inv_for_25_55_label) <- jde_inv_for_25_55_label[1, ]
@@ -301,7 +301,7 @@ rbind(pivot_campus_ref_inventory_analysis, inv_bal_25_55_label) %>%
 
 
 # BoM_dep_demand ----
-bom_dep_demand <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/Report ingredients/Stan/02042025/Bill of Material_02042025.xlsx",
+bom_dep_demand <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/BOM/02.04.2025/Bill of Material_02042025.xlsx",
                              sheet = "Sheet1")
 
 bom_dep_demand %>% 
@@ -332,7 +332,7 @@ bom_dep_demand %>%
 
 
 # SS Optimization RM for EOQ ----
-ss_optimization <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Raw Material LIVE.xlsx",
+ss_optimization <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/SS Optimization by Location - Raw Material LIVE.xlsx",
                               sheet = "Sheet1")
 
 ss_optimization[-1:-5,] -> ss_optimization
@@ -872,7 +872,7 @@ rm_data %>%
                 moq_in_days = ifelse(moq_in_days == "Inf", 0, moq_in_days)) -> rm_data
 
 ################################ Code revise 12/20/2023 ##################################
-bom <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE BoM/2025/JDE BoM 02.04.2025.xlsx",
+bom <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/JDE BoM 02.04.2025.xlsx",
                   sheet = "BoM")
 
 bom[-1, ] -> bom
@@ -932,7 +932,7 @@ rm_data %>%
                 supplier_name = ifelse(is.na(supplier_name), "NA", supplier_name)) -> rm_data
 
 ######################### Added 12/11/2024 ################################
-exception_report_dou <- read_excel("S:/Supply Chain Projects/Data Source (SCE)/JDE DNRR Exception report extract/2025/exception report DOU 2025.02.04.xlsx")
+exception_report_dou <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report DOU 2025.02.04.xlsx")
 exception_report_dou %>% 
   janitor::clean_names() %>% 
   dplyr::slice(-1:-2) -> exception_report_dou
