@@ -14,28 +14,28 @@ library(janitor)
 ##################################################################################################################################################################
 ##################################################################################################################################################################
 
-exception_report <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report 2025.02.04.xlsx")
-exception_report_dnrr <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report DOU 2025.02.04.xlsx")
-inventory_fg <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
+exception_report <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/exception report 2025.02.11.xlsx")
+exception_report_dnrr <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/exception report DOU 2025.02.11.xlsx")
+inventory_fg <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/Inventory with Lot Report v.2 - 2025.02.11.xlsx",
                            sheet = "FG")
-inventory_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
+inventory_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/Inventory with Lot Report v.2 - 2025.02.11.xlsx",
                            sheet = "RM")
-oo_bt_fg <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/US and CAN OO BT where status _ J.xlsx")
+oo_bt_fg <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/US and CAN OO BT where status _ J.xlsx")
 dsx <- read_excel("S:/Global Shared Folders/Large Documents/S&OP/Demand Planning/BI Forecast Backup/2025/DSX Forecast Backup - 2025.02.03.xlsx")
-jde_25_55_label <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/JDE Inventory Lot Detail - 2025.02.04.xlsx")
+jde_25_55_label <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/JDE Inventory Lot Detail - 2025.02.11.xlsx")
 lot_status_code <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Lot Status Code.xlsx")
-bom <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/BOM/02.04.2025/Bill of Material_02042025.xlsx")
+bom <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/BOM/02.11.2025/Bill of Material_02112025.xlsx")
 campus_ref <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Campus reference.xlsx")
-iom_live <- read_excel("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/SS Optimization by Location - Finished Goods LIVE.xlsx",
+iom_live <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/SS Optimization by Location - Finished Goods LIVE.xlsx",
                        sheet = "CVM & Focus label & Contract")
-iom_live_1st_sheet <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/SS Optimization by Location - Finished Goods LIVE.xlsx")
-iom_live_1st_sheet_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/SS Optimization by Location - Raw Material LIVE.xlsx")
+iom_live_1st_sheet <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/SS Optimization by Location - Finished Goods LIVE.xlsx")
+iom_live_1st_sheet_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/SS Optimization by Location - Raw Material LIVE.xlsx")
 
 
-complete_sku_list <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Complete SKU list - Linda.xlsx")
-unit_cost <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Unit_Cost.xlsx")
+complete_sku_list <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/Complete SKU list - Linda.xlsx")
+unit_cost <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/Unit_Cost.xlsx")
 class_ref <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Class reference (JDE).xlsx")
-iqr_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/01.28.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
+iqr_rm <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
                      sheet = "RM data") ### Use Pre week ###
 
 supplier_address_book <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Static_MonthlyLookup Dataset/Address Book - 2025.02.03.xlsx",
@@ -538,7 +538,7 @@ final_data_rm %>%
 ###################################################################################################################################################
 
 
-writexl::write_xlsx(final_data_rm, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/rm_optimization.xlsx")
+writexl::write_xlsx(final_data_rm, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.11.2025/rm_optimization.xlsx")
 
 
 

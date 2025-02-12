@@ -17,8 +17,8 @@ library(rio)
 
 # dir.create("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2024/06.18.2024")
 
-file.copy("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/01.28.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
-          "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
+file.copy("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
+          "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.11.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.11.2025.xlsx",
           overwrite = TRUE)
 
 # For Exposure file
@@ -79,7 +79,7 @@ colnames(planner_adress)[1] <- "planner"
 
 # Exception Report ----
 
-exception_report <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report 2025.02.04.xlsx")
+exception_report <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/exception report 2025.02.11.xlsx")
 
 exception_report[-1:-2,] -> exception_report
 
@@ -182,7 +182,7 @@ reshape2::dcast(exception_report, loc_sku ~ ., value.var = "safety_stock", sum) 
 
 # Read IQR Report ----
 
-rm_data <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx", 
+rm_data <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.11.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.11.2025.xlsx", 
                       sheet = "RM data", col_names = FALSE)
 
 rm_data[-1:-3,] -> rm_data
@@ -205,7 +205,7 @@ rm_data %>%
 
 
 ############ Inventory
-inventory <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/Inventory with Lot Report v.2 - 2025.02.04.xlsx",
+inventory <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/Inventory with Lot Report v.2 - 2025.02.11.xlsx",
                         sheet = "RM")
 
 inventory[-1, ] -> inventory
@@ -253,7 +253,7 @@ lot_status_code %>%
 
 
 
-jde_inv_for_25_55_label <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/JDE Inventory Lot Detail - 2025.02.04.xlsx")
+jde_inv_for_25_55_label <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/JDE Inventory Lot Detail - 2025.02.11.xlsx")
 
 jde_inv_for_25_55_label[-1:-5, ] -> jde_inv_for_25_55_label
 colnames(jde_inv_for_25_55_label) <- jde_inv_for_25_55_label[1, ]
@@ -301,7 +301,7 @@ rbind(pivot_campus_ref_inventory_analysis, inv_bal_25_55_label) %>%
 
 
 # BoM_dep_demand ----
-bom_dep_demand <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/BOM/02.04.2025/Bill of Material_02042025.xlsx",
+bom_dep_demand <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/BOM/02.11.2025/Bill of Material_02042025.xlsx",
                              sheet = "Sheet1")
 
 bom_dep_demand %>% 
@@ -332,7 +332,7 @@ bom_dep_demand %>%
 
 
 # SS Optimization RM for EOQ ----
-ss_optimization <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/SS Optimization by Location - Raw Material LIVE.xlsx",
+ss_optimization <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/SS Optimization by Location - Raw Material LIVE.xlsx",
                               sheet = "Sheet1")
 
 ss_optimization[-1:-5,] -> ss_optimization
@@ -812,7 +812,7 @@ rm_data %>%
 
 ############################################################ MAKE SURE TO CHANGE THE DATA #################################################################
 # Lot At Risk $
-rm_at_risk_file <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
+rm_at_risk_file <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.11.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.11.2025.xlsx",
                               sheet = "RM At Risk File")
 
 colnames(rm_at_risk_file) <- rm_at_risk_file[1, ]
@@ -872,7 +872,7 @@ rm_data %>%
                 moq_in_days = ifelse(moq_in_days == "Inf", 0, moq_in_days)) -> rm_data
 
 ################################ Code revise 12/20/2023 ##################################
-bom <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/JDE BoM 02.04.2025.xlsx",
+bom <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/JDE BoM 02.11.2025.xlsx",
                   sheet = "BoM")
 
 bom[-1, ] -> bom
@@ -932,7 +932,7 @@ rm_data %>%
                 supplier_name = ifelse(is.na(supplier_name), "NA", supplier_name)) -> rm_data
 
 ######################### Added 12/11/2024 ################################
-exception_report_dou <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.04.2025/exception report DOU 2025.02.04.xlsx")
+exception_report_dou <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/Lookup Datasets/Weekly Dataset/02.11.2025/exception report DOU 2025.02.11.xlsx")
 exception_report_dou %>% 
   janitor::clean_names() %>% 
   dplyr::slice(-1:-2) -> exception_report_dou
@@ -963,7 +963,7 @@ rm_data %>%
 ###########################################################################
 
 # Arrange ----
-rm_data_for_arrange <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
+rm_data_for_arrange <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.11.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.11.2025.xlsx",
                                   sheet = "RM data")
 
 rm_data_for_arrange[-1:-2, ] -> rm_data_for_arrange
@@ -1005,13 +1005,13 @@ rm_data %>%
                 next_month_dep_demand_in_cost) -> rm_data
 
 
-writexl::write_xlsx(rm_data, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/iqr_rm_rstudio_02042025.xlsx")
+writexl::write_xlsx(rm_data, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.11.2025/iqr_rm_rstudio_02042025.xlsx")
 
 
 
 
 
-writexl::write_xlsx(bom, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/bom.xlsx")
+writexl::write_xlsx(bom, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.11.2025/bom.xlsx")
 
 
 
@@ -1019,21 +1019,21 @@ writexl::write_xlsx(bom, "C:/Users/SPoudel/Ventura Foods/SC Analytics Team - Gen
 ##################################################################################################################################################################################
 
 #### DOS File Moving from pre week FG. 
-file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/01.28.2025/Inventory Health (IQR) Tracker - DOS.xlsx",
-          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2025/02.04.2025/Inventory Health (IQR) Tracker - DOS.xlsx",
+file.copy("C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/FG/weekly run data/2025/02.04.2025/Inventory Health (IQR) Tracker - DOS.xlsx",
+          "C:/Users/slee/OneDrive - Ventura Foods/Ventura Work/SCE/Project/FY 23/IQR Automation/RM/Weekly Report run/2025/02.11.2025/Inventory Health (IQR) Tracker - DOS.xlsx",
           overwrite = TRUE)
 
 
 ### Optional ###
 
 #### IQR main file Moving to S Drive. 
-file.copy("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Report run/2025/02.04.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
+file.copy("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Report run/2025/02.11.2025/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.11.2025.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.11.2025.xlsx",
           overwrite = TRUE)
 
 #### IQR main pre-week file Moving in S Drive. 
-file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 01.28.2025.xlsx",
-          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/RM/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
+file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.04.2025.xlsx",
+          "S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventory Days On Hand/IQR Historical Data Collection/RM/Raw Material Inventory Health (IQR) NEW TEMPLATE - 02.11.2025.xlsx",
           overwrite = TRUE)
 
 
@@ -1048,7 +1048,7 @@ file.copy("S:/Supply Chain Projects/LOGISTICS/SCP/Cost Saving Reporting/Inventor
 ########################################## Do this once a month to get a pre month consumption for the Tracker ##########################################
 # https://edgeanalytics.venturafoods.com/MicroStrategyLibrary/app/DF007F1C11E9B3099BB30080EF7513D2/A639B0A8D247A869EC420DB90A07FE7D/K53--K46
 
-monthly_consumption <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.04.2025/Raw Material Monthly Consumption.xlsx")
+monthly_consumption <- read_excel("C:/Users/SPoudel/Ventura Foods/SC Analytics Team - General/Stan Report Files/File Repository/IQR Automation/RM/Weekly Run Files/2025/02.11.2025/Raw Material Monthly Consumption.xlsx")
 monthly_consumption[c(-1, -3), ] -> monthly_consumption
 
 colnames(monthly_consumption) <- monthly_consumption[1, ]
